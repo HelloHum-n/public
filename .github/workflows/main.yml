@@ -22,4 +22,6 @@ jobs:
         azPSVersion: latest
         inlineScript: |
           Get-AzContext  
+          $secret = Get-AzKeyVaultSecret -VaultName 'TestKeyVault298' -Name 'Secret1' -AsPlainText
+          Write-Output "Secret Value is:  $secret"
           # You can write your Azure PowerShell inline scripts here.
