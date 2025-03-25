@@ -1,5 +1,5 @@
 {
-    "displayName": "Test Applicaiton Scotia - 001",
+    "displayName": "Test Application - 001",
     "description": "My New App",
     "signInAudience": "AzureADMyOrg",
     "api": {
@@ -7,10 +7,10 @@
         "requestedAccessTokenVersion": 2
     },
     "info": {
-        "marketingUrl": "https://www.scotiabank.com",
-        "privacyStatementUrl": "https://www.scotiabank.com",
-        "supportUrl": "https://www.scotiabank.com",
-        "termsOfServiceUrl": "https://www.scotiabank.com"
+        "marketingUrl": "https://www.example.com",
+        "privacyStatementUrl": "https://www.example.com",
+        "supportUrl": "https://www.example.com",
+        "termsOfServiceUrl": "https://www.example.com"
     },
     "servicePrincipalLockConfiguration": {
         "isEnabled": true,
