@@ -1,0 +1,9 @@
+{
+    "keyCredential": {
+        "type": "AsymmetricX509Cert",
+        "usage": "Verify",
+        "key": "MIIDYDCCAki..."
+    },
+    "passwordCredential": null,
+    "proof":"eyJ0eXAiOiJ..."
+}
