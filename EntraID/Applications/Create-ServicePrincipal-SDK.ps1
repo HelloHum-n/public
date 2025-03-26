@@ -22,7 +22,7 @@
 #>
 
 # Install PS modules
-$modulesRequired = @('Microsoft.Graph.Authentication,Microsoft.Graph.Applications')
+$modulesRequired = @('Microsoft.Graph.Authentication','Microsoft.Graph.Applications')
 foreach( $moduleName in $modulesRequired){
     $module = Get-InstalledModule -Name $moduleName -erroraction 'silentlycontinue'
  

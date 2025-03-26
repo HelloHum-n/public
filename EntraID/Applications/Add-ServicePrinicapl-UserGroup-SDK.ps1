@@ -22,7 +22,7 @@
 #>
 
 # Install PS modules
-$modulesRequired = @('Microsoft.Graph.Authentication,Microsoft.Graph.Applications')
+$modulesRequired = @('Microsoft.Graph.Authentication','Microsoft.Graph.Applications','Microsoft.Graph.Users','Microsoft.Graph.Groups')
 foreach( $moduleName in $modulesRequired){
     $module = Get-InstalledModule -Name $moduleName -erroraction 'silentlycontinue'
  
@@ -45,6 +45,8 @@ Connect-MgGraph -TenantId $tenantID -Scopes $scopes
 $servicePrincipal = Get-MgServicePrincipal -Filter "appId eq `'$appId`'"
 $servicePrincipalId = $servicePrincipal.id
 
+
+##### Add User to Role Assignment ##### 
 # Current Assignments
 Write-Host "Current Assignments" -ForegroundColor Green
 Get-MgServicePrincipalAppRoleAssignedTo -ServicePrincipalId $servicePrincipalId
@@ -57,6 +59,26 @@ $params = @{
 	resourceId = "$servicePrincipalId"
 	appRoleId = "00000000-0000-0000-0000-000000000000"
 }
+New-MgServicePrincipalAppRoleAssignedTo -ServicePrincipalId $servicePrincipalId -BodyParameter $params
+
+# Current Assignments
+Write-Host "Assignments after adding $userPrincipalName" -ForegroundColor Green
+Get-MgServicePrincipalAppRoleAssignedTo -ServicePrincipalId $servicePrincipalId
+
+##### Add Group to Role Assignment ##### 
+# Current Assignments
+Write-Host "Current Assignments" -ForegroundColor Green
+Get-MgServicePrincipalAppRoleAssignedTo -ServicePrincipalId $servicePrincipalId
+
+$groupDisplayName = "g-test"
+$group = Get-MgGroup -Filter "displayName eq `'$groupDisplayName`'"
+$groupId = $group.id
+$params = @{
+    principalId = "$groupId"
+    resourceId = "$servicePrincipalId"
+    appRoleId = "00000000-0000-0000-0000-000000000000"
+}
+
 New-MgServicePrincipalAppRoleAssignedTo -ServicePrincipalId $servicePrincipalId -BodyParameter $params
 
 # Current Assignments
