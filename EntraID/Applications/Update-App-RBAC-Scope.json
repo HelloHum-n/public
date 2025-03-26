@@ -1,0 +1,16 @@
+{
+    "api": {
+        "oauth2PermissionScopes": [
+            {
+                "adminConsentDescription": "Task Update2",
+                "adminConsentDisplayName": "Task Update2",
+                "id": "ffcb392f-7176-4acf-bca9-398685af3b1d",
+                "isEnabled": true,
+                "type": "Admin",
+                "userConsentDescription": null,
+                "userConsentDisplayName": null,
+                "value": "Task.Update2"
+            }
+        ]
+    }
+}
