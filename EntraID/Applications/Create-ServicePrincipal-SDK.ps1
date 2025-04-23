@@ -21,8 +21,29 @@
  email:  timothy.mui@microsoft.com
 #>
 
-param(
-    # Json file containing the application details
-    [Parameter(Position=1,mandatory=$true)]
-    [string]$JsonFile
-)
+# Install PS modules
+$modulesRequired = @('Microsoft.Graph.Authentication','Microsoft.Graph.Applications')
+foreach( $moduleName in $modulesRequired){
+    $module = Get-InstalledModule -Name $moduleName -erroraction 'silentlycontinue'
+ 
+    if ( $module -eq $null) {
+        Write-Output "Installing PowerShell Module: $moduleName"
+        Install-Module -Name $moduleName -Force -AllowClobber
+    }else{
+        Write-Output "Found installed PowerShell Module: $moduleName"
+    }
+}
+
+$scopes = 'Application.Read.All'
+$tenantID = "d6efb6af-13e5-4903-bf0b-b6e5dc81aae3"
+
+Write-Host "Connecting to MS Graph, please sign in via the pop up browser window." -ForegroundColor Green
+Connect-MgGraph -TenantId $tenantID -Scopes $scopes
+
+$bodyParam = @{
+    "appId"= "4dc939c2-c38d-4abf-8b6a-35cb76b3e78a"
+}
+
+
+New-MgServicePrincipal -BodyParameter $bodyParam | 
+  Format-List id, DisplayName, AppId, SignInAudience
