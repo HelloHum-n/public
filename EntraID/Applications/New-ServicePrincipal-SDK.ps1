@@ -66,7 +66,7 @@ $SP | Format-List id, DisplayName, AppId, SignInAudience
 $SP.PSObject.Properties.Remove('@odata.context')
 Write-host "Service Principal created successfully" -ForegroundColor Green
 $OutPutJson = $SP | ConvertTo-Json -Depth 8
-$fileName = "ServicePrincipal-"+$($SP.DisplayName)+".json"
+$fileName = "Apps-States\ServicePrincipal-"+$($SP.DisplayName)+".json"
 $OutPutJson | Out-File -FilePath $fileName 
 Write-host "ServicePrincipal detail output to - $fileName" -ForegroundColor Green
 

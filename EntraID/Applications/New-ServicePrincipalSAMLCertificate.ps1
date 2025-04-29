@@ -24,12 +24,18 @@
 param(
     [Parameter(Position=0,mandatory=$true)]
     [string]$tenantID,
-    # Json file containing the existing Service Principal details
+    # Json file containing the Service Principal details
     [Parameter(Position=1,mandatory=$true)]
     [string]$JsonFile,
-    # Json file containing the new Service Principal details (OPTIONAL)
-    [Parameter(Position=2,mandatory=$false)]
-    [string]$newJsonFile
+    # CER certificate file
+    [Parameter(Position=2,mandatory=$true)]
+    [string]$CertFile,
+    # Private Key pfx file
+    [Parameter(Position=2,mandatory=$true)]
+    [string]$PfxFile,
+    # Priate Key password file
+    [Parameter(Position=2,mandatory=$true)]
+    [string]$password
 )
 
 # Install PS modules
@@ -74,36 +80,98 @@ $scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
 if ($JsonFile -like ".\*"){
     $JsonFile = $scriptPath+$JsonFile.substring(1) 
 }
-
-
-if ($JsonFile -like ".\*"){
-    $JsonFile = $scriptPath+$JsonFile.substring(1) 
+if ($CertFile -like ".\*"){
+    $CertFile = $scriptPath+$CertFile.substring(1) 
 }
-
+if ($PfxFile -like ".\*"){
+    $PfxFile = $scriptPath+$PfxFile.substring(1) 
+}
 
 $inputObj = Get-content -Path $JsonFile -RAW | ConvertFrom-Json
 $inputObj.PSObject.Properties.Remove('@odata.context')
 $json = $inputObj | ConvertTo-Json -Depth 20     
 $URI = 'https://graph.microsoft.com/v1.0/servicePrincipals'+"/$($inputObj.id)"
 
-if ($newJsonFile -ne $null){
-    if ($newJsonFile -like ".\*"){
-        $newJsonFile = $scriptPath+$newJsonFile.substring(1) 
-    }
-    $inputObj = Get-content -Path $newJsonFile -RAW | ConvertFrom-Json
-    $inputObj.PSObject.Properties.Remove('@odata.context')
-    $json = $inputObj | ConvertTo-Json -Depth 20   
-}
-# Get the Service Principal properties in Json
-#$SPobj = MSGraphRequest -Method GET -URI $URI
-#$SPobj.PSObject.Properties.Remove('@odata.context')
+# Get the Thumbprint,subject and timestampes of the certificate
+$CERobj = Get-PfxCertificate -Filepath $CertFile 
+$Thumbprint = $CERobj.Thumbprint
+$subject = $CERobj.Subject
+$startTime = $CERobj.NotBefore.ToUniversalTime().ToString("o")
+$endTime = $CERobj.NotAfter.ToUniversalTime().ToString("o")
+$startTime = $startTime.Replace(".0000000","")
+$endTime = $endTime.Replace(".0000000","")
 
+# Get the public key from the certificate file (CER file)
+
+if ( $($PSVersionTable.PSVersion.Major) -eq 7 ){
+    $publicKey = [convert]::ToBase64String((Get-Content $CertFile -AsByteStream -Raw)) 
+    $privateKey = [convert]::ToBase64String((Get-Content $PfxFile -AsByteStream -Raw)) 
+}else{
+    $publicKey = [convert]::ToBase64String((Get-Content $CertFile -Encoding Byte))
+    $privateKey = [convert]::ToBase64String((Get-Content $PfxFile -Encoding Byte))  
+}
+
+# Get the private key from the PEM file (PEM file)
 <#
-Insert comparing json file codes here
-https://github.com/orenshatech/PowerShell-Scripts/blob/main/CompareNestedJsonFiles.ps1
+$pemContent = Get-Content -Path $PemFile -Raw
+$privateKeyStart = "-----BEGIN PRIVATE KEY-----"
+$privateKeyEnd = "-----END PRIVATE KEY-----"
+$startIndex = $pemContent.IndexOf($privateKeyStart)
+$endIndex = $pemContent.IndexOf($privateKeyEnd) + $privateKeyEnd.Length
+if ($startIndex -ge 0 -and $endIndex -gt $startIndex) {
+    $privateKey = $pemContent.Substring($startIndex, $endIndex - $startIndex)
+    $privateKey = $privateKey.Replace("-----BEGIN PRIVATE KEY-----","")
+    $privateKey = $privateKey.Replace("-----END PRIVATE KEY-----","")
+    $privateKey = $privateKey.Replace("`n","")
+    Write-Host "Private key extracted successfully"
+} else {
+    Write-Host "Could not find private key block in the PEM file."
+}
 #>
 
-$SP = MSGraphRequest -Method PATCH -URI $URI -Body $json
+# Construct the body for the PATCH request
+$GUID = $(New-Guid).Guid
+
+$body = @"
+{
+    "keyCredentials": [
+        {
+            "customKeyIdentifier": "$Thumbprint",
+            "endDateTime": "$endTime",
+            "keyId": "$GUID",
+            "startDateTime": "$startTime",
+            "type": "AsymmetricX509Cert",
+            "usage": "Sign",
+            "key": "$privateKey",
+            "displayName": "$subject"
+        },
+        {
+            "customKeyIdentifier": "$Thumbprint",
+            "endDateTime": "$endTime",
+            "keyId": "$((New-Guid).Guid)",
+            "startDateTime": "$startTime",
+            "type": "AsymmetricX509Cert",
+            "usage": "Verify",
+            "key": "$publicKey",
+            "displayName": "$subject"
+        }
+    ],
+    "passwordCredentials": [
+        {
+            "customKeyIdentifier": "$Thumbprint",
+            "keyId": "$GUID",
+            "endDateTime": "$endTime",
+            "startDateTime": "$startTime",
+            "secretText": "$password"
+        }
+    ]
+}
+"@
+
+$body
+Pause
+
+$SP = MSGraphRequest -Method PATCH -URI $URI -Body $body
 $SP | Format-List id, DisplayName, AppId
 Write-host "Service Principal updated successfully" -ForegroundColor Green  
 $OutPutJson = $SP | ConvertTo-Json -Depth 20

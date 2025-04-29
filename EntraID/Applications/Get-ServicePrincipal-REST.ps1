@@ -21,6 +21,14 @@
  email:  timothy.mui@microsoft.com
 #>
 
+param(
+    [Parameter(Position=0,mandatory=$true)]
+    [string]$tenantID,
+    # Object ID of the Service Principal to get
+    [Parameter(Position=1,mandatory=$true)]
+    [string]$ObjectId
+)
+
 # Install PS modules
 $modulesRequired = @('Microsoft.Graph.Authentication')
 foreach( $moduleName in $modulesRequired){
@@ -34,8 +42,7 @@ foreach( $moduleName in $modulesRequired){
     }
 }
 
-$scopes = 'Application.Read.All'
-$tenantID = "d6efb6af-13e5-4903-bf0b-b6e5dc81aae3"
+$scopes = 'Application.ReadWrite.All'
 $graphThrottleRetry = 20
 
 function MSGraphRequest{
@@ -60,21 +67,22 @@ function MSGraphRequest{
 Write-Host "Connecting to MS Graph, please sign in via the pop up browser window." -ForegroundColor Green
 Connect-MgGraph -TenantId $tenantID -Scopes $scopes
 
-$body = @"
-{
-    "appId": "4dc939c2-c38d-4abf-8b6a-35cb76b3e78a"
-}
-"@
+$URI = 'https://graph.microsoft.com/v1.0/servicePrincipals'+"/$ObjectId"
 
-$URI = 'https://graph.microsoft.com/v1.0/servicePrincipals'
-$result = $null
-$result = MSGraphRequest -Method Post -URI $URI -Body $body
+# Get the Service Principal properties in Json
+$SPobj = MSGraphRequest -Method GET -URI $URI
 
-Format-List id, DisplayName, AppId, SignInAudience
+<#
+Insert comparing json file codes here
+https://github.com/orenshatech/PowerShell-Scripts/blob/main/CompareNestedJsonFiles.ps1
+#>
 
-Write-host "Service Principal created successfully" -ForegroundColor Green
 
-Write-Host "Service Principal object ID: $($result.id)" -ForegroundColor Green
-write-host "Service Principal App ID: $($result.appId)" -ForegroundColor Green
-write-host "Service Principal Display Name: $($result.displayName)" -ForegroundColor Green
-write-host "Service Principal Sign In Audience: $($result.signInAudience)" -ForegroundColor Green
+Write-host "Retrived Service Principal successfully" -ForegroundColor Green  
+$OutPutJson = $SPobj | ConvertTo-Json -Depth 20
+$fileName = "Apps-States\ServicePrincipal-"+$($SPobj.displayName)+"-"+$($SPobj.Id)+".json"
+$OutPutJson | Out-File -FilePath $fileName -Force
+Write-host "ServicePrincipal detail output to - $fileName" -ForegroundColor Green
+
+Disconnect-mggraph
+Write-host "Disconnected from MS Graph" -ForegroundColor Green

@@ -88,7 +88,7 @@ $app.PSObject.Properties.Remove('@odata.context')
 Write-host "Application created successfully" -ForegroundColor Green
 $OutPutJson = $app | ConvertTo-Json -Depth 8
 
-$fileName = "App-"+$($app.DisplayName)+".json"
+$fileName = "Apps-States\Application-"+$($app.DisplayName)+"-"+$($app.Id)+".json"
 $OutPutJson | Out-File -FilePath $fileName 
 Write-host "Application manifest output to - $fileName" -ForegroundColor Green
 Disconnect-mggraph

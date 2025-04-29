@@ -1,0 +1,42 @@
+{
+    "displayName": "Test SAML App - 001",
+    "description": "My New SAML App",
+    "signInAudience": "AzureADMyOrg",
+    "api": {
+        "acceptMappedClaims": true,
+        "requestedAccessTokenVersion": 2
+    },
+    "info": {
+        "marketingUrl": "https://www.example.com",
+        "privacyStatementUrl": "https://www.example.com",
+        "supportUrl": "https://www.example.com",
+        "termsOfServiceUrl": "https://www.example.com"
+    },
+    "servicePrincipalLockConfiguration": {
+        "isEnabled": true,
+        "allProperties": true,
+        "credentialsWithUsageVerify": true,
+        "credentialsWithUsageSign": true,
+        "identifierUris": false,
+        "tokenEncryptionKeyId": false
+    },
+    "identifierUris": [
+        "https://samltoolkit.azurewebsites.net"
+    ],
+    "web": {
+        "logoutUrl": null,
+        "redirectUris": [
+            "https://samltoolkit.azurewebsites.net/SAML/Consume/18202"
+        ],
+        "implicitGrantSettings": {
+            "enableAccessTokenIssuance": false,
+            "enableIdTokenIssuance": true
+        },
+        "redirectUriSettings": [
+            {
+                "uri": "https://samltoolkit.azurewebsites.net/SAML/Consume/18202",
+                "index": null
+            }
+        ]
+    }
+  }

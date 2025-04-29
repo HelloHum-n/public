@@ -24,12 +24,12 @@
 param(
     [Parameter(Position=0,mandatory=$true)]
     [string]$tenantID,
-    # Json file containing the Application details
+    # Json file containing the Service Principal details
     [Parameter(Position=1,mandatory=$true)]
-    [string]$AppJsonFile,
-    # Json file containing the Staging Service Principal details (optional)
-    [Parameter(Position=2,mandatory=$false)]
-    [string]$SPJsonFile
+    [string]$JsonFile,
+    # Json file containing the Service Principal details
+    [Parameter(Position=2,mandatory=$true)]
+    [string]$ClaimsMappingObjectJsonFile
 )
 
 # Install PS modules
@@ -46,6 +46,7 @@ foreach( $moduleName in $modulesRequired){
 }
 
 $scopes = 'Application.ReadWrite.All'
+#$tenantID = "d6efb6af-13e5-4903-bf0b-b6e5dc81aae3"
 $graphThrottleRetry = 20
 
 function MSGraphRequest{
@@ -71,31 +72,30 @@ Write-Host "Connecting to MS Graph, please sign in via the pop up browser window
 Connect-MgGraph -TenantId $tenantID -Scopes $scopes
 
 $scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
+if ($ClaimsMappingObjectJsonFile -like ".\*"){
+    $ClaimsMappingObjectJsonFile = $scriptPath+$ClaimsMappingObjectJsonFile.substring(1) 
+}
 if ($JsonFile -like ".\*"){
     $JsonFile = $scriptPath+$JsonFile.substring(1) 
 }
 
-$inputObj = Get-content -Path $JsonFile -RAW | ConvertFrom-Json
-$bodyObj = New-Object PSObject
-$bodyObj | Add-Member -MemberType NoteProperty -Name "appId"  -Value $($inputObj.appId)
-$bodyObj | Add-Member -MemberType NoteProperty -Name "appRoleAssignmentRequired"  -Value "true"
-$json = $bodyObj | ConvertTo-Json -Depth 8
+$CMPobj = Get-content -Path $ClaimsMappingObjectJsonFile -RAW | ConvertFrom-Json
+$CMPobj.id
 
-$URI = 'https://graph.microsoft.com/v1.0/servicePrincipals'
-$SP = MSGraphRequest -Method Post -URI $URI -Body $json
+$SPobj = Get-content -Path $JsonFile -RAW | ConvertFrom-Json
+$SPobj.id
 
-$SP| Format-List id, DisplayName, AppId, SignInAudience
-Write-host "Service Principal created successfully" -ForegroundColor Green
-$OutPutJson = $SP | ConvertTo-Json -Depth 20
-$fileName = "Apps-States\ServicePrincipal-"+$($SP.displayName)+"-"+$($SP.Id)+".json"
-$OutPutJson | Out-File -FilePath $fileName -file
-Write-host "ServicePrincipal detail output to - $fileName" -ForegroundColor Green
+$URI = "https://graph.microsoft.com/beta/servicePrincipals/$($SPobj.id)/claimsMappingPolicies/$ref"
+
+$body =@"
+    {
+        "@odata.id": "https://graph.microsoft.com/beta/policies/claimsMappingPolicies/$($CMPobj.id)"
+    }
+"@
+
+MSGraphRequest -Method Post -URI $URI -Body $json
+
+write-host "Claims Mapping Policy assigned to Service Principal" -ForegroundColor Green
 
 Disconnect-mggraph
 Write-host "Disconnected from MS Graph" -ForegroundColor Green
-<#
-Write-Host "Service Principal object ID: $($result.id)" -ForegroundColor Green
-write-host "Service Principal App ID: $($result.appId)" -ForegroundColor Green
-write-host "Service Principal Display Name: $($result.displayName)" -ForegroundColor Green
-write-host "Service Principal Sign In Audience: $($result.signInAudience)" -ForegroundColor Green
-#>

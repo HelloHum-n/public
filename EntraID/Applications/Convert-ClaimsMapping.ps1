@@ -21,29 +21,18 @@
  email:  timothy.mui@microsoft.com
 #>
 
-# Install PS modules
-$modulesRequired = @('Microsoft.Graph.Authentication','Microsoft.Graph.Applications')
-foreach( $moduleName in $modulesRequired){
-    $module = Get-InstalledModule -Name $moduleName -erroraction 'silentlycontinue'
- 
-    if ( $module -eq $null) {
-        Write-Output "Installing PowerShell Module: $moduleName"
-        Install-Module -Name $moduleName -Force -AllowClobber
-    }else{
-        Write-Output "Found installed PowerShell Module: $moduleName"
-    }
-}
+# This script converts the claims mapping policy object JSON file to just the Claims Mapping defintion json file for editing.
 
-$scopes = 'Application.Read.All'
-$tenantID = "d6efb6af-13e5-4903-bf0b-b6e5dc81aae3"
+param(
+    # Json file containing the Claim mapping Object
+    [Parameter(Position=0,mandatory=$true)]
+    [string]$inputJsonFile
+)
 
-Write-Host "Connecting to MS Graph, please sign in via the pop up browser window." -ForegroundColor Green
-Connect-MgGraph -TenantId $tenantID -Scopes $scopes
+$obj = $inputJsonFile | ConvertFrom-Json
+$def = $obj.definition  | ConvertFrom-Json
+$json_formatted = $def | ConvertTo-Json -Depth 10
 
-$bodyParam = @{
-    "appId"= "4dc939c2-c38d-4abf-8b6a-35cb76b3e78a"
-}
-
-
-New-MgServicePrincipal -BodyParameter $bodyParam | 
-  Format-List id, DisplayName, AppId, SignInAudience
+$fileName = "ClaimsPolicyDefinition-"+$($ClaimsPolicy.displayName)+"-"+$($ClaimsPolicy.Id)+".json"
+$json_formatted | Out-File -FilePath $fileName 
+Write-host "Claims Mapping Definition output to - $fileName" -ForegroundColor Green

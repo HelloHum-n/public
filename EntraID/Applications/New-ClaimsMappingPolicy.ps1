@@ -24,12 +24,11 @@
 param(
     [Parameter(Position=0,mandatory=$true)]
     [string]$tenantID,
-    # Json file containing the Application details
     [Parameter(Position=1,mandatory=$true)]
-    [string]$AppJsonFile,
-    # Json file containing the Staging Service Principal details (optional)
-    [Parameter(Position=2,mandatory=$false)]
-    [string]$SPJsonFile
+    [string]$policyName,
+    # Json file containing the Claim mapping definitions
+    [Parameter(Position=2,mandatory=$true)]
+    [string]$JsonFile
 )
 
 # Install PS modules
@@ -45,7 +44,8 @@ foreach( $moduleName in $modulesRequired){
     }
 }
 
-$scopes = 'Application.ReadWrite.All'
+
+$scopes = 'Policy.ReadWrite.ApplicationConfiguration'
 $graphThrottleRetry = 20
 
 function MSGraphRequest{
@@ -75,27 +75,51 @@ if ($JsonFile -like ".\*"){
     $JsonFile = $scriptPath+$JsonFile.substring(1) 
 }
 
-$inputObj = Get-content -Path $JsonFile -RAW | ConvertFrom-Json
-$bodyObj = New-Object PSObject
-$bodyObj | Add-Member -MemberType NoteProperty -Name "appId"  -Value $($inputObj.appId)
-$bodyObj | Add-Member -MemberType NoteProperty -Name "appRoleAssignmentRequired"  -Value "true"
-$json = $bodyObj | ConvertTo-Json -Depth 8
+$InitBody = @"
+{
+    "definition": "tempValue",
+    "displayName": "$policyName",
+    "isOrganizationDefault": false
+}
+"@
 
-$URI = 'https://graph.microsoft.com/v1.0/servicePrincipals'
-$SP = MSGraphRequest -Method Post -URI $URI -Body $json
+$ClaimsMappingObj = $InitBody | ConvertFrom-Json
 
-$SP| Format-List id, DisplayName, AppId, SignInAudience
-Write-host "Service Principal created successfully" -ForegroundColor Green
-$OutPutJson = $SP | ConvertTo-Json -Depth 20
-$fileName = "Apps-States\ServicePrincipal-"+$($SP.displayName)+"-"+$($SP.Id)+".json"
-$OutPutJson | Out-File -FilePath $fileName -file
-Write-host "ServicePrincipal detail output to - $fileName" -ForegroundColor Green
+#$JsonFile = "C:\Github\public\EntraID\Applications\Staging\claimsMapping.json"
+
+$inputDefinition = Get-content -Path $JsonFile -RAW 
+$inputDefinition = $inputdefinition.Replace("`n","")
+$inputDefinition = $inputDefinition.Replace(" ","")
+$inputDefinition = $inputDefinition.Replace("`"","\`"")
+$inputDefinition = "[`n`""+$inputDefinition+"`n]"
+$ClaimsMappingObj.definition = $inputDefinition 
+$outputJson = $ClaimsMappingObj | ConvertTo-Json -Depth 10
+
+$outputJson = $outputJson.Replace("\r","")
+$outputJson = $outputJson.replace("\\","")
+$outputJson = $outputJson.Replace("\n\","`n")
+$outputJson = $outputJson.Replace("\n","`n")
+$outputJson = $outputJson.Replace("`"[","[")
+$outputJson = $outputJson.Replace("]`"","]")
+$outputJson = $outputJson.Replace("]}}","]}}`"")
+
+$outputJson
+pause
+$URI = 'https://graph.microsoft.com/v1.0/policies/claimsMappingPolicies'
+$ClaimsPolicy = MSGraphRequest -Method Post -URI $URI -Body $outputJson
+
+$ClaimsPolicy | Format-List id, DisplayName
+$OutPutJson = $ClaimsPolicy | ConvertTo-Json -Depth 20
+$fileName = "Apps-States\ClaimsMappingPolicyObject-"+$($ClaimsPolicy.displayName)+"-"+$($ClaimsPolicy.Id)+".json"
+$OutPutJson | Out-File -FilePath $fileName 
+Write-host "Claims Mapping Policy Object detail output to - $fileName" -ForegroundColor Green
+
+$def = $ClaimsPolicy.definition  | ConvertFrom-Json
+$json_formatted = $def | ConvertTo-Json -Depth 10
+$fileName = "Apps-States\ClaimsPolicyDefinition-"+$($ClaimsPolicy.displayName)+"-"+$($ClaimsPolicy.Id)+".json"
+$json_formatted | Out-File -FilePath $fileName 
+Write-host "Claims Mapping Definition output to - $fileName" -ForegroundColor Green
+
 
 Disconnect-mggraph
 Write-host "Disconnected from MS Graph" -ForegroundColor Green
-<#
-Write-Host "Service Principal object ID: $($result.id)" -ForegroundColor Green
-write-host "Service Principal App ID: $($result.appId)" -ForegroundColor Green
-write-host "Service Principal Display Name: $($result.displayName)" -ForegroundColor Green
-write-host "Service Principal Sign In Audience: $($result.signInAudience)" -ForegroundColor Green
-#>
