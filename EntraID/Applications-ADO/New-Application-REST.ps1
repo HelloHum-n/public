@@ -22,14 +22,23 @@
 #>
 
 param(
-    [Parameter(Position=0,mandatory=$true)]
+    [Parameter(mandatory=$true)]
     [string]$tenantID,
-    # Json file containing the application details
-    [Parameter(Position=1,mandatory=$true)]
-    [string]$JsonFile
+    # Json file containing the application details (Hint: Create one in staging folder)
+    [Parameter(mandatory=$true)]
+    [string]$JsonFile,
+    # Client ID of the Service Principal to be used for authentication
+    [Parameter(mandatory=$true)]
+    [string]$ClientID,
+    # Certificate of the Service Principal to be used for authentication
+    [Parameter(mandatory=$true)]
+    [string]$certFile,
+    # Password of the certificate to be used for authentication
+    [Parameter(mandatory=$true)]
+    [string]$password
 )
 
-
+<#
 # Install PS modules
 $modulesRequired = @('Microsoft.Graph.Authentication')
 foreach( $moduleName in $modulesRequired){
@@ -42,8 +51,8 @@ foreach( $moduleName in $modulesRequired){
         Write-Output "Found installed PowerShell Module: $moduleName"
     }
 }
+#>
 
-#$tenantID = "d6efb6af-13e5-4903-bf0b-b6e5dc81aae3"
 $scopes = 'Application.ReadWrite.All'
 $graphThrottleRetry = 20
 
@@ -66,8 +75,11 @@ function MSGraphRequest{
     return $fn_result
 }
 
+$pwdSecure = ConvertTo-SecureString -String $password -Force -AsPlainText
+$Certificate = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($certFile,$pwdSecure)
+
 Write-Host "Connecting to MS Graph, please sign in via the pop up browser window." -ForegroundColor Green
-Connect-MgGraph -TenantId $tenantID -Scopes $scopes
+Connect-MgGraph -TenantId $tenantID -ClientID $ClientID -Certificate $Certificate -Scopes $scopes
 
 $scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
 if ($JsonFile -like ".\*"){
