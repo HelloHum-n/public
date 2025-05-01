@@ -24,16 +24,13 @@
 param(
     [Parameter(Position=0,mandatory=$true)]
     [string]$tenantID,
-    # Json file containing the Service Principal details
+    # Json file containing the application details
     [Parameter(Position=1,mandatory=$true)]
-    [string]$JsonFile,
-    # Json file containing the Service Principal details
-    [Parameter(Position=2,mandatory=$true)]
-    [string]$ClaimsMappingObjectJsonFile
+    [string]$JsonFile
 )
 
 # Install PS modules
-$modulesRequired = @('Microsoft.Graph.Authentication')
+$modulesRequired = @('Microsoft.Graph.Authentication','Microsoft.Graph.Applications')
 foreach( $moduleName in $modulesRequired){
     $module = Get-InstalledModule -Name $moduleName -erroraction 'silentlycontinue'
  
@@ -45,60 +42,33 @@ foreach( $moduleName in $modulesRequired){
     }
 }
 
-$scopes = 'Application.ReadWrite.All'
+$scopes = 'Application.Read.All'
 #$tenantID = "d6efb6af-13e5-4903-bf0b-b6e5dc81aae3"
-$graphThrottleRetry = 20
-
-function MSGraphRequest{
-    param($URI,$Method,$Body)
-    $i = 0
-    do{
-        if ($body -eq $null){    
-            $fn_result = Invoke-MGGraphRequest -Method $method -Uri $URI -OutputType PSObject -Headers @{'ConsistencyLevel' = 'eventual' }  -ErrorAction SilentlyContinue -ErrorVariable Err
-        }else{
-            $fn_result = Invoke-MGGraphRequest -Method $method -Uri $URI -Body $body -OutputType PSObject -Headers @{'ConsistencyLevel' = 'eventual' }  -ErrorAction SilentlyContinue -ErrorVariable Err
-        }
-        if($err -contains "TooManyRequests") {
-            # Pausing to avoid Graph throttle 
-            Start-Sleep -Seconds 30
-        }
-        $i++
-    }while ( ($err -contains "TooManyRequests") -and ($i -lt $graphThrottleRetry) )
-    if ($fn_result -eq $null){$fn_result = $Err}
-    return $fn_result
-}
 
 Write-Host "Connecting to MS Graph, please sign in via the pop up browser window." -ForegroundColor Green
 Connect-MgGraph -TenantId $tenantID -Scopes $scopes
 
+
 $scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
-if ($ClaimsMappingObjectJsonFile -like ".\*"){
-    $ClaimsMappingObjectJsonFile = $scriptPath+$ClaimsMappingObjectJsonFile.substring(1) 
-}
 if ($JsonFile -like ".\*"){
     $JsonFile = $scriptPath+$JsonFile.substring(1) 
 }
+$inputObj = Get-content -Path $JsonFile -RAW | ConvertFrom-Json
 
-$CMPobj = Get-content -Path $ClaimsMappingObjectJsonFile -RAW | ConvertFrom-Json
-$CMPobj.id
+$bodyParam = @{
+    "appId"= "$($inputObj.appId)"
+    "appRoleAssignmentRequired"= "$($inputObj.appRoleAssignmentRequired)"
+}
 
-$SPobj = Get-content -Path $JsonFile -RAW | ConvertFrom-Json
-$SPobj.id
 
-$URI = "https://graph.microsoft.com/beta/servicePrincipals/$($SPobj.id)/claimsMappingPolicies/`$ref"
-
-$body =@"
-    {
-        "@odata.id": "https://graph.microsoft.com/beta/policies/claimsMappingPolicies/$($CMPobj.id)"
-    }
-"@
-$URI
-"__"
-$body
-pause
-MSGraphRequest -Method Post -URI $URI -Body $body
-
-write-host "Claims Mapping Policy assigned to Service Principal" -ForegroundColor Green
+$SP = New-MgServicePrincipal -BodyParameter $bodyParam 
+$SP | Format-List id, DisplayName, AppId, SignInAudience
+$SP.PSObject.Properties.Remove('@odata.context')
+Write-host "Service Principal created successfully" -ForegroundColor Green
+$OutPutJson = $SP | ConvertTo-Json -Depth 8
+$fileName = "Apps-States\ServicePrincipal-"+$($SP.DisplayName)+".json"
+$OutPutJson | Out-File -FilePath $fileName 
+Write-host "ServicePrincipal detail output to - $fileName" -ForegroundColor Green
 
 Disconnect-mggraph
 Write-host "Disconnected from MS Graph" -ForegroundColor Green

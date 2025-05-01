@@ -24,11 +24,12 @@
 param(
     [Parameter(Position=0,mandatory=$true)]
     [string]$tenantID,
+    # Json file containing the existing Service Principal details
     [Parameter(Position=1,mandatory=$true)]
-    [string]$policyName,
-    # Json file containing the Claim mapping definitions
-    [Parameter(Position=2,mandatory=$true)]
-    [string]$JsonFile
+    [string]$JsonFile,
+    # Json file containing the new Service Principal details (OPTIONAL)
+    [Parameter(Position=2,mandatory=$false)]
+    [string]$newJsonFile
 )
 
 # Install PS modules
@@ -44,8 +45,7 @@ foreach( $moduleName in $modulesRequired){
     }
 }
 
-
-$scopes = 'Policy.ReadWrite.ApplicationConfiguration'
+$scopes = 'Application.ReadWrite.All'
 $graphThrottleRetry = 20
 
 function MSGraphRequest{
@@ -75,49 +75,41 @@ if ($JsonFile -like ".\*"){
     $JsonFile = $scriptPath+$JsonFile.substring(1) 
 }
 
-$InitBody = @"
-{
-    "definition": "tempValue",
-    "displayName": "$policyName",
-    "isOrganizationDefault": false
+
+if ($JsonFile -like ".\*"){
+    $JsonFile = $scriptPath+$JsonFile.substring(1) 
 }
-"@
 
-$ClaimsMappingObj = $InitBody | ConvertFrom-Json
 
-#$JsonFile = "C:\Github\public\EntraID\Applications\Staging\claimsMapping.json"
+$inputObj = Get-content -Path $JsonFile -RAW | ConvertFrom-Json
+$inputObj.PSObject.Properties.Remove('@odata.context')
+$json = $inputObj | ConvertTo-Json -Depth 20     
+$URI = 'https://graph.microsoft.com/v1.0/servicePrincipals'+"/$($inputObj.id)"
 
-$inputDefinition = Get-content -Path $JsonFile -RAW 
-$inputDefinition = $inputdefinition.Replace("`n","")
-$inputDefinition = $inputDefinition.Replace(" ","")
-$inputDefinition = $inputDefinition.Replace("`"","\`"")
-$inputDefinition = "[`n`""+$inputDefinition+"`n]"
-$ClaimsMappingObj.definition = $inputDefinition 
-$outputJson = $ClaimsMappingObj | ConvertTo-Json -Depth 10
+if ($newJsonFile -ne $null){
+    if ($newJsonFile -like ".\*"){
+        $newJsonFile = $scriptPath+$newJsonFile.substring(1) 
+    }
+    $inputObj = Get-content -Path $newJsonFile -RAW | ConvertFrom-Json
+    $inputObj.PSObject.Properties.Remove('@odata.context')
+    $json = $inputObj | ConvertTo-Json -Depth 20   
+}
+# Get the Service Principal properties in Json
+#$SPobj = MSGraphRequest -Method GET -URI $URI
+#$SPobj.PSObject.Properties.Remove('@odata.context')
 
-$outputJson = $outputJson.Replace("\r","")
-$outputJson = $outputJson.replace("\\","")
-$outputJson = $outputJson.Replace("\n\","`n")
-$outputJson = $outputJson.Replace("\n","`n")
-$outputJson = $outputJson.Replace("`"[","[")
-$outputJson = $outputJson.Replace("]`"","]")
-$outputJson = $outputJson.Replace("]}}","]}}`"")
+<#
+Insert comparing json file codes here
+https://github.com/orenshatech/PowerShell-Scripts/blob/main/CompareNestedJsonFiles.ps1
+#>
 
-$URI = 'https://graph.microsoft.com/v1.0/policies/claimsMappingPolicies'
-$ClaimsPolicy = MSGraphRequest -Method Post -URI $URI -Body $outputJson
-
-$ClaimsPolicy | Format-List id, DisplayName
-$OutPutJson = $ClaimsPolicy | ConvertTo-Json -Depth 20
-$fileName = "Apps-States\ClaimsMappingPolicyObject-"+$($ClaimsPolicy.displayName)+"-"+$($ClaimsPolicy.Id)+".json"
-$OutPutJson | Out-File -FilePath $fileName 
-Write-host "Claims Mapping Policy Object detail output to - $fileName" -ForegroundColor Green
-
-$def = $ClaimsPolicy.definition  | ConvertFrom-Json
-$json_formatted = $def | ConvertTo-Json -Depth 10
-$fileName = "Apps-States\ClaimsPolicyDefinition-"+$($ClaimsPolicy.displayName)+"-"+$($ClaimsPolicy.Id)+".json"
-$json_formatted | Out-File -FilePath $fileName 
-Write-host "Claims Mapping Definition output to - $fileName" -ForegroundColor Green
-
+$SP = MSGraphRequest -Method PATCH -URI $URI -Body $json
+$SP | Format-List id, DisplayName, AppId
+Write-host "Service Principal updated successfully" -ForegroundColor Green  
+$OutPutJson = $SP | ConvertTo-Json -Depth 20
+$fileName = "Apps-States\ServicePrincipal-"+$($SP.displayName)+"-"+$($SP.Id)+".json"
+$OutPutJson | Out-File -FilePath $fileName -Force
+Write-host "ServicePrincipal detail output to - $fileName" -ForegroundColor Green
 
 Disconnect-mggraph
 Write-host "Disconnected from MS Graph" -ForegroundColor Green

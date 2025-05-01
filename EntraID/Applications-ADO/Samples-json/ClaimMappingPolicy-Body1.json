@@ -1,0 +1,46 @@
+{
+    "ClaimsMappingPolicy": {
+        "Version": 1,
+        "IncludeBasicClaimSet": "true",
+        "ClaimsSchema": [
+            {
+                "Source": "user",
+                "ID": "extensionattribute1"
+            },
+            {
+                "Source": "transformation",
+                "ID": "DataJoin",
+                "TransformationId": "JoinTheData",
+                "JwtClaimType": "JoinedData"
+            }
+        ],
+        "ClaimsTransformations": [
+            {
+                "ID": "JoinTheData",
+                "TransformationMethod": "Join",
+                "InputClaims": [
+                    {
+                        "ClaimTypeReferenceId": "extensionattribute1",
+                        "TransformationClaimType": "string1"
+                    }
+                ],
+                "InputParameters": [
+                    {
+                        "ID": "string2",
+                        "Value": "ext"
+                    },
+                    {
+                        "ID": "separator",
+                        "Value": "-"
+                    }
+                ],
+                "OutputClaims": [
+                    {
+                        "ClaimTypeReferenceId": "DataJoin",
+                        "TransformationClaimType": "outputClaim"
+                    }
+                ]
+            }
+        ]
+    }
+}

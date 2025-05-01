@@ -1,0 +1,24 @@
+{
+    "web": {
+        "homePageUrl": null,
+        "logoutUrl": null,
+        "redirectUris": [
+            "https://jwt.ms",
+            "https://jwt.io"
+        ],
+        "implicitGrantSettings": {
+            "enableAccessTokenIssuance": false,
+            "enableIdTokenIssuance": false
+        },
+        "redirectUriSettings": [
+            {
+                "uri": "https://jwt.ms",
+                "index": null
+            },
+            {
+                "uri": "https://jwt.io",
+                "index": null
+            }
+        ]
+    }
+}

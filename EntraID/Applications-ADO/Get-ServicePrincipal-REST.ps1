@@ -24,11 +24,9 @@
 param(
     [Parameter(Position=0,mandatory=$true)]
     [string]$tenantID,
+    # Object ID of the Service Principal to get
     [Parameter(Position=1,mandatory=$true)]
-    [string]$policyName,
-    # Json file containing the Claim mapping definitions
-    [Parameter(Position=2,mandatory=$true)]
-    [string]$JsonFile
+    [string]$ObjectId
 )
 
 # Install PS modules
@@ -44,8 +42,7 @@ foreach( $moduleName in $modulesRequired){
     }
 }
 
-
-$scopes = 'Policy.ReadWrite.ApplicationConfiguration'
+$scopes = 'Application.ReadWrite.All'
 $graphThrottleRetry = 20
 
 function MSGraphRequest{
@@ -70,54 +67,22 @@ function MSGraphRequest{
 Write-Host "Connecting to MS Graph, please sign in via the pop up browser window." -ForegroundColor Green
 Connect-MgGraph -TenantId $tenantID -Scopes $scopes
 
-$scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
-if ($JsonFile -like ".\*"){
-    $JsonFile = $scriptPath+$JsonFile.substring(1) 
-}
+$URI = 'https://graph.microsoft.com/v1.0/servicePrincipals'+"/$ObjectId"
 
-$InitBody = @"
-{
-    "definition": "tempValue",
-    "displayName": "$policyName",
-    "isOrganizationDefault": false
-}
-"@
+# Get the Service Principal properties in Json
+$SPobj = MSGraphRequest -Method GET -URI $URI
 
-$ClaimsMappingObj = $InitBody | ConvertFrom-Json
+<#
+Insert comparing json file codes here
+https://github.com/orenshatech/PowerShell-Scripts/blob/main/CompareNestedJsonFiles.ps1
+#>
 
-#$JsonFile = "C:\Github\public\EntraID\Applications\Staging\claimsMapping.json"
 
-$inputDefinition = Get-content -Path $JsonFile -RAW 
-$inputDefinition = $inputdefinition.Replace("`n","")
-$inputDefinition = $inputDefinition.Replace(" ","")
-$inputDefinition = $inputDefinition.Replace("`"","\`"")
-$inputDefinition = "[`n`""+$inputDefinition+"`n]"
-$ClaimsMappingObj.definition = $inputDefinition 
-$outputJson = $ClaimsMappingObj | ConvertTo-Json -Depth 10
-
-$outputJson = $outputJson.Replace("\r","")
-$outputJson = $outputJson.replace("\\","")
-$outputJson = $outputJson.Replace("\n\","`n")
-$outputJson = $outputJson.Replace("\n","`n")
-$outputJson = $outputJson.Replace("`"[","[")
-$outputJson = $outputJson.Replace("]`"","]")
-$outputJson = $outputJson.Replace("]}}","]}}`"")
-
-$URI = 'https://graph.microsoft.com/v1.0/policies/claimsMappingPolicies'
-$ClaimsPolicy = MSGraphRequest -Method Post -URI $URI -Body $outputJson
-
-$ClaimsPolicy | Format-List id, DisplayName
-$OutPutJson = $ClaimsPolicy | ConvertTo-Json -Depth 20
-$fileName = "Apps-States\ClaimsMappingPolicyObject-"+$($ClaimsPolicy.displayName)+"-"+$($ClaimsPolicy.Id)+".json"
-$OutPutJson | Out-File -FilePath $fileName 
-Write-host "Claims Mapping Policy Object detail output to - $fileName" -ForegroundColor Green
-
-$def = $ClaimsPolicy.definition  | ConvertFrom-Json
-$json_formatted = $def | ConvertTo-Json -Depth 10
-$fileName = "Apps-States\ClaimsPolicyDefinition-"+$($ClaimsPolicy.displayName)+"-"+$($ClaimsPolicy.Id)+".json"
-$json_formatted | Out-File -FilePath $fileName 
-Write-host "Claims Mapping Definition output to - $fileName" -ForegroundColor Green
-
+Write-host "Retrived Service Principal successfully" -ForegroundColor Green  
+$OutPutJson = $SPobj | ConvertTo-Json -Depth 20
+$fileName = "Apps-States\ServicePrincipal-"+$($SPobj.displayName)+"-"+$($SPobj.Id)+".json"
+$OutPutJson | Out-File -FilePath $fileName -Force
+Write-host "ServicePrincipal detail output to - $fileName" -ForegroundColor Green
 
 Disconnect-mggraph
 Write-host "Disconnected from MS Graph" -ForegroundColor Green
