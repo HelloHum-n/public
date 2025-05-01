@@ -35,9 +35,11 @@ param(
     [string]$certFile,
     # Password of the certificate to be used for authentication
     [Parameter(mandatory=$true)]
-    [string]$CertPwd
+    [string]$CertPwd,
+    # Environment (IST,Prod)
+    [Parameter(mandatory=$true)]
+    [string]$Environment
 )
-
 <#
 # Install PS modules
 $modulesRequired = @('Microsoft.Graph.Authentication')
@@ -100,7 +102,8 @@ $app.PSObject.Properties.Remove('@odata.context')
 Write-host "Application created successfully" -ForegroundColor Green
 $OutPutJson = $app | ConvertTo-Json -Depth 8
 
-$fileName = "Apps-States\Application-"+$($app.DisplayName)+"-"+$($app.Id)+".json"
+$fileName = "Apps-States\$Environment\Application-"+$($SP.displayName)+"-"+$($SP.Id)+".json"
+Write-Host "##vso[task.setvariable variable=newAppJsonFilePath;]$fileName"
 $OutPutJson | Out-File -FilePath $fileName 
 Write-host "Application manifest output to - $fileName" -ForegroundColor Green
 Disconnect-mggraph

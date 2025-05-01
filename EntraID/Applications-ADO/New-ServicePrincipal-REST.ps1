@@ -29,7 +29,19 @@ param(
     [string]$AppJsonFile,
     # Json file containing the Staging Service Principal details (optional)
     [Parameter(Position=2,mandatory=$false)]
-    [string]$SPJsonFile
+    [string]$SPJsonFile,
+    # Client ID of the Service Principal to be used for authentication
+    [Parameter(mandatory=$true)]
+    [string]$ClientID,
+    # Certificate of the Service Principal to be used for authentication
+    [Parameter(mandatory=$true)]
+    [string]$certFile,
+    # Password of the certificate to be used for authentication
+    [Parameter(mandatory=$true)]
+    [string]$CertPwd,
+    # Environment (IST,Prod)
+    [Parameter(mandatory=$true)]
+    [string]$Environment
 )
 
 # Install PS modules
@@ -87,7 +99,8 @@ $SP = MSGraphRequest -Method Post -URI $URI -Body $json
 $SP| Format-List id, DisplayName, AppId, SignInAudience
 Write-host "Service Principal created successfully" -ForegroundColor Green
 $OutPutJson = $SP | ConvertTo-Json -Depth 20
-$fileName = "Apps-States\ServicePrincipal-"+$($SP.displayName)+"-"+$($SP.Id)+".json"
+$fileName = "Apps-States\$Environment\ServicePrincipal-"+$($SP.displayName)+"-"+$($SP.Id)+".json"
+Write-Host "##vso[task.setvariable variable=newSPJsonFilePath;]$fileName"
 $OutPutJson | Out-File -FilePath $fileName -file
 Write-host "ServicePrincipal detail output to - $fileName" -ForegroundColor Green
 
