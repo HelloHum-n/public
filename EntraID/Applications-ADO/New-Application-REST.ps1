@@ -35,7 +35,7 @@ param(
     [string]$certFile,
     # Password of the certificate to be used for authentication
     [Parameter(mandatory=$true)]
-    [string]$password
+    [string]$CertPwd
 )
 
 <#
@@ -75,7 +75,7 @@ function MSGraphRequest{
     return $fn_result
 }
 
-$pwdSecure = ConvertTo-SecureString -String $password -Force -AsPlainText
+$pwdSecure = ConvertTo-SecureString -String $CertPwd -Force -AsPlainText
 $Certificate = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($certFile,$pwdSecure)
 
 Write-Host "Connecting to MS Graph, please sign in via the pop up browser window." -ForegroundColor Green
