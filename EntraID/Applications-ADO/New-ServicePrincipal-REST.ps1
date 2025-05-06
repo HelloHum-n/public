@@ -85,6 +85,7 @@ $connectionCert = New-Object System.Security.Cryptography.X509Certificates.X509C
 Write-Host "Connecting to MS Graph, please sign in via the pop up browser window." -ForegroundColor Green
 Connect-MgGraph -TenantId $tenantID -ClientID $ClientID -Certificate $connectionCert
 
+
 $scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
 if ($SPJsonFile -like ".\*"){
     $SPJsonFile = $scriptPath+$SPJsonFile.substring(1) 
@@ -93,6 +94,8 @@ $scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
 if ($AppJsonFile -like ".\*"){
     $AppJsonFile = $scriptPath+$AppJsonFile.substring(1) 
 }
+
+write-host "Creating Service Principal from app manifest json file path- $AppJsonFile" -ForegroundColor Green
 
 $spObj = Get-content -Path $SPJsonFile -RAW | ConvertFrom-Json
 $appObj = Get-content -Path $AppJsonFile -RAW | ConvertFrom-Json
