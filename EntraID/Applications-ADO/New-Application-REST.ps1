@@ -81,7 +81,7 @@ $pwdSecure = ConvertTo-SecureString -String $CertPwd -Force -AsPlainText
 $Certificate = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($certFile,$pwdSecure)
 
 Write-Host "Connecting to MS Graph, please sign in via the pop up browser window." -ForegroundColor Green
-Connect-MgGraph -TenantId $tenantID -ClientID $ClientID -Certificate $Certificate -Scopes $scopes
+Connect-MgGraph -TenantId $tenantID -ClientID $ClientID -Certificate $certFile
 
 $scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
 if ($JsonFile -like ".\*"){

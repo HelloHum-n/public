@@ -29,7 +29,19 @@ param(
     [string]$JsonFile,
     # Json file containing the new Service Principal details (OPTIONAL)
     [Parameter(Position=2,mandatory=$false)]
-    [string]$newJsonFile
+    [string]$newJsonFile,
+    # Client ID of the Service Principal to be used for authentication
+    [Parameter(mandatory=$true)]
+    [string]$ClientID,
+    # Certificate of the Service Principal to be used for authentication
+    [Parameter(mandatory=$true)]
+    [string]$certFile,
+    # Password of the certificate to be used for authentication
+    [Parameter(mandatory=$true)]
+    [string]$CertPwd,
+    # Environment (IST,Prod)
+    [Parameter(mandatory=$true)]
+    [string]$Environment
 )
 
 # Install PS modules
@@ -68,14 +80,9 @@ function MSGraphRequest{
 }
 
 Write-Host "Connecting to MS Graph, please sign in via the pop up browser window." -ForegroundColor Green
-Connect-MgGraph -TenantId $tenantID -Scopes $scopes
+Connect-MgGraph -TenantId $tenantID -ClientID $ClientID -Certificate $certFile
 
 $scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
-if ($JsonFile -like ".\*"){
-    $JsonFile = $scriptPath+$JsonFile.substring(1) 
-}
-
-
 if ($JsonFile -like ".\*"){
     $JsonFile = $scriptPath+$JsonFile.substring(1) 
 }
@@ -86,7 +93,7 @@ $inputObj.PSObject.Properties.Remove('@odata.context')
 $json = $inputObj | ConvertTo-Json -Depth 20     
 $URI = 'https://graph.microsoft.com/v1.0/servicePrincipals'+"/$($inputObj.id)"
 
-if ($newJsonFile -ne $null){
+if ($null -ne $newJsonFile){
     if ($newJsonFile -like ".\*"){
         $newJsonFile = $scriptPath+$newJsonFile.substring(1) 
     }
@@ -107,7 +114,7 @@ $SP = MSGraphRequest -Method PATCH -URI $URI -Body $json
 $SP | Format-List id, DisplayName, AppId
 Write-host "Service Principal updated successfully" -ForegroundColor Green  
 $OutPutJson = $SP | ConvertTo-Json -Depth 20
-$fileName = "Apps-States\ServicePrincipal-"+$($SP.displayName)+"-"+$($SP.Id)+".json"
+$fileName = "Apps-States\$Environment\ServicePrincipal-"+$($SP.displayName)+"-"+$($SP.Id)+".json"
 $OutPutJson | Out-File -FilePath $fileName -Force
 Write-host "ServicePrincipal detail output to - $fileName" -ForegroundColor Green
 

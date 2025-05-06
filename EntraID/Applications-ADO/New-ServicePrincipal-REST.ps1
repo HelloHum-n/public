@@ -80,7 +80,7 @@ function MSGraphRequest{
 }
 
 Write-Host "Connecting to MS Graph, please sign in via the pop up browser window." -ForegroundColor Green
-Connect-MgGraph -TenantId $tenantID -Scopes $scopes
+Connect-MgGraph -TenantId $tenantID -ClientID $ClientID -Certificate $certFile
 
 $scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
 if ($JsonFile -like ".\*"){

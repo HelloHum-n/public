@@ -27,16 +27,29 @@ param(
     # Json file containing the Service Principal details
     [Parameter(Position=1,mandatory=$true)]
     [string]$JsonFile,
-    # CER certificate file
+    # CER certificate file (Public Key)
     [Parameter(Position=2,mandatory=$true)]
-    [string]$CertFile,
-    # Private Key pfx file
-    [Parameter(Position=2,mandatory=$true)]
+    [string]$cerCertFile,
+    # Private Key pfx file (Private Key)
+    [Parameter(Position=3,mandatory=$true)]
     [string]$PfxFile,
     # Priate Key password file
-    [Parameter(Position=2,mandatory=$true)]
-    [string]$password
+    [Parameter(Position=4,mandatory=$true)]
+    [string]$password,
+    # Client ID of the Service Principal to be used for authentication
+    [Parameter(mandatory=$true)]
+    [string]$ClientID,
+    # Certificate of the Service Principal to be used for authentication
+    [Parameter(mandatory=$true)]
+    [string]$certFile,
+    # Password of the certificate to be used for authentication
+    [Parameter(mandatory=$true)]
+    [string]$CertPwd,
+    # Environment (IST,Prod)
+    [Parameter(mandatory=$true)]
+    [string]$Environment
 )
+
 
 # Install PS modules
 $modulesRequired = @('Microsoft.Graph.Authentication')
@@ -74,7 +87,7 @@ function MSGraphRequest{
 }
 
 Write-Host "Connecting to MS Graph, please sign in via the pop up browser window." -ForegroundColor Green
-Connect-MgGraph -TenantId $tenantID -Scopes $scopes
+Connect-MgGraph -TenantId $tenantID -ClientID $ClientID -Certificate $certFile
 
 $scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
 if ($JsonFile -like ".\*"){
@@ -93,21 +106,25 @@ $json = $inputObj | ConvertTo-Json -Depth 20
 $URI = 'https://graph.microsoft.com/v1.0/servicePrincipals'+"/$($inputObj.id)"
 
 # Get the Thumbprint,subject and timestampes of the certificate
-$CERobj = Get-PfxCertificate -Filepath $CertFile 
+$CERobj = Get-PfxCertificate -Filepath $cerCertFile 
 $Thumbprint = $CERobj.Thumbprint
 $subject = $CERobj.Subject
 $startTime = $CERobj.NotBefore.ToUniversalTime().ToString("o")
 $endTime = $CERobj.NotAfter.ToUniversalTime().ToString("o")
-$startTime = $startTime.Replace(".0000000","")
-$endTime = $endTime.Replace(".0000000","")
+#$startTime = $startTime.Replace(".0000000","")
+#$endTime = $endTime.Replace(".0000000","")
+$startTime = $startTime -replace '\..*', ''
+$startTime = $startTime+"z"
+$endTime = $endTime -replace '\..*', ''
+$endTime = $endTime+"z"
 
 # Get the public key from the certificate file (CER file)
 
 if ( $($PSVersionTable.PSVersion.Major) -eq 7 ){
-    $publicKey = [convert]::ToBase64String((Get-Content $CertFile -AsByteStream -Raw)) 
+    $publicKey = [convert]::ToBase64String((Get-Content $cerCertFile -AsByteStream -Raw)) 
     $privateKey = [convert]::ToBase64String((Get-Content $PfxFile -AsByteStream -Raw)) 
 }else{
-    $publicKey = [convert]::ToBase64String((Get-Content $CertFile -Encoding Byte))
+    $publicKey = [convert]::ToBase64String((Get-Content $cerCertFile -Encoding Byte))
     $privateKey = [convert]::ToBase64String((Get-Content $PfxFile -Encoding Byte))  
 }
 
