@@ -92,12 +92,8 @@ $body =@"
         "@odata.id": "https://graph.microsoft.com/beta/policies/claimsMappingPolicies/$($CMPobj.id)"
     }
 "@
-$URI
-"__"
-$body
-pause
-MSGraphRequest -Method Post -URI $URI -Body $body
 
+MSGraphRequest -Method Post -URI $URI -Body $body
 write-host "Claims Mapping Policy assigned to Service Principal" -ForegroundColor Green
 
 Disconnect-mggraph

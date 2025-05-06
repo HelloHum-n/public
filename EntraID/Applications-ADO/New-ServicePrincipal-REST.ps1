@@ -99,11 +99,12 @@ $SP = MSGraphRequest -Method Post -URI $URI -Body $json
 $SP| Format-List id, DisplayName, AppId, SignInAudience
 Write-host "Service Principal created successfully" -ForegroundColor Green
 $OutPutJson = $SP | ConvertTo-Json -Depth 20
-$fileName = "Apps-States\$Environment\ServicePrincipal-"+$($SP.displayName)+"-"+$($SP.Id)+".json"
+$fileName = $Environment\Apps-States\ServicePrincipal-"+$($SP.displayName)+"-"+$($SP.Id)+".json"
 Write-Host "##vso[task.setvariable variable=newSPJsonFilePath;]$fileName"
 $OutPutJson | Out-File -FilePath $fileName -file
 Write-host "ServicePrincipal detail output to - $fileName" -ForegroundColor Green
-
+# insert a line here to output the filename to a pipeline variable in ADO
+Write-Host "##vso[task.setvariable variable=newSPJson;issecret=true]$fileName"
 Disconnect-mggraph
 Write-host "Disconnected from MS Graph" -ForegroundColor Green
 <#

@@ -117,7 +117,7 @@ $json_formatted = $def | ConvertTo-Json -Depth 10
 $fileName = "Apps-States\ClaimsPolicyDefinition-"+$($ClaimsPolicy.displayName)+"-"+$($ClaimsPolicy.Id)+".json"
 $json_formatted | Out-File -FilePath $fileName 
 Write-host "Claims Mapping Definition output to - $fileName" -ForegroundColor Green
-
+Write-Host "##vso[task.setvariable variable=newClaimsPolicyJson;issecret=true]$fileName"
 
 Disconnect-mggraph
 Write-host "Disconnected from MS Graph" -ForegroundColor Green

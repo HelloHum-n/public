@@ -35,7 +35,7 @@ param(
     [string]$PfxFile,
     # Priate Key password file
     [Parameter(Position=4,mandatory=$true)]
-    [string]$password,
+    [string]$privateKeyPwd,
     # Client ID of the Service Principal to be used for authentication
     [Parameter(mandatory=$true)]
     [string]$ClientID,
@@ -179,7 +179,7 @@ $body = @"
             "keyId": "$GUID",
             "endDateTime": "$endTime",
             "startDateTime": "$startTime",
-            "secretText": "$password"
+            "secretText": "$privateKeyPwd"
         }
     ]
 }
@@ -193,6 +193,7 @@ $SP | Format-List id, DisplayName, AppId
 Write-host "Service Principal updated successfully" -ForegroundColor Green  
 $OutPutJson = $SP | ConvertTo-Json -Depth 20
 $fileName = "Apps-States\ServicePrincipal-"+$($SP.displayName)+"-"+$($SP.Id)+".json"
+Write-Host "##vso[task.setvariable variable=SPJson;issecret=true]$fileName"
 $OutPutJson | Out-File -FilePath $fileName -Force
 Write-host "ServicePrincipal detail output to - $fileName" -ForegroundColor Green
 

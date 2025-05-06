@@ -102,9 +102,11 @@ $app.PSObject.Properties.Remove('@odata.context')
 Write-host "Application created successfully" -ForegroundColor Green
 $OutPutJson = $app | ConvertTo-Json -Depth 8
 
-$fileName = "Apps-States\$Environment\Application-"+$($SP.displayName)+"-"+$($SP.Id)+".json"
+$fileName = "$Environment\Apps-States\Application-"+$($SP.displayName)+"-"+$($SP.Id)+".json"
 Write-Host "##vso[task.setvariable variable=newAppJsonFilePath;]$fileName"
 $OutPutJson | Out-File -FilePath $fileName 
+# insert a line here to output the filename to a pipeline variable in ADO
+Write-Host "##vso[task.setvariable variable=newAppJson;issecret=true]$fileName"
 Write-host "Application manifest output to - $fileName" -ForegroundColor Green
 Disconnect-mggraph
 Write-host "Disconnected from MS Graph" -ForegroundColor Green
