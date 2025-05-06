@@ -102,7 +102,7 @@ $app.PSObject.Properties.Remove('@odata.context')
 Write-host "Application created successfully" -ForegroundColor Green
 $OutPutJson = $app | ConvertTo-Json -Depth 8
 
-$fileName = "$Environment\Apps-States\Application-"+$($SP.displayName)+"-"+$($SP.Id)+".json"
+$fileName = "$Environment\Apps-States\Application-"+$($app.displayName)+"-"+$($app.Id)+".json"
 Write-Host "##vso[task.setvariable variable=newAppJsonFilePath;]$fileName"
 $OutPutJson | Out-File -FilePath $fileName 
 # insert a line here to output the filename to a pipeline variable in ADO
