@@ -78,10 +78,10 @@ function MSGraphRequest{
 }
 
 $pwdSecure = ConvertTo-SecureString -String $CertPwd -Force -AsPlainText
-$Certificate = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($certFile,$pwdSecure)
+$connectionCert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($certFile,$pwdSecure)
 
 Write-Host "Connecting to MS Graph, please sign in via the pop up browser window." -ForegroundColor Green
-Connect-MgGraph -TenantId $tenantID -ClientID $ClientID -Certificate $certFile
+Connect-MgGraph -TenantId $tenantID -ClientID $ClientID -Certificate $connectionCert
 
 $scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
 if ($JsonFile -like ".\*"){
