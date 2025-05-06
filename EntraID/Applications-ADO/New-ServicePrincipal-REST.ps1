@@ -86,8 +86,12 @@ Write-Host "Connecting to MS Graph, please sign in via the pop up browser window
 Connect-MgGraph -TenantId $tenantID -ClientID $ClientID -Certificate $connectionCert
 
 $scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
-if ($spjsonfile -like ".\*"){
-    $spjsonfile = $scriptPath+$spjsonfile.substring(1) 
+if ($SPJsonFile -like ".\*"){
+    $SPJsonFile = $scriptPath+$SPJsonFile.substring(1) 
+}
+$scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
+if ($AppJsonFile -like ".\*"){
+    $AppJsonFile = $scriptPath+$AppJsonFile.substring(1) 
 }
 
 $spObj = Get-content -Path $SPJsonFile -RAW | ConvertFrom-Json
