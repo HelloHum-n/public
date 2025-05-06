@@ -86,15 +86,16 @@ Write-Host "Connecting to MS Graph, please sign in via the pop up browser window
 Connect-MgGraph -TenantId $tenantID -ClientID $ClientID -Certificate $connectionCert
 
 $scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
-if ($JsonFile -like ".\*"){
-    $JsonFile = $scriptPath+$JsonFile.substring(1) 
+if ($spjsonfile -like ".\*"){
+    $spjsonfile = $scriptPath+$spjsonfile.substring(1) 
 }
 
-$inputObj = Get-content -Path $JsonFile -RAW | ConvertFrom-Json
-$bodyObj = New-Object PSObject
-$bodyObj | Add-Member -MemberType NoteProperty -Name "appId"  -Value $($inputObj.appId)
-$bodyObj | Add-Member -MemberType NoteProperty -Name "appRoleAssignmentRequired"  -Value "true"
-$json = $bodyObj | ConvertTo-Json -Depth 8
+$spObj = Get-content -Path $SPJsonFile -RAW | ConvertFrom-Json
+$appObj = Get-content -Path $AppJsonFile -RAW | ConvertFrom-Json
+$spObj | Add-Member -MemberType NoteProperty -Name "appId"  -Value $($appObj.appId)
+$spObj | Add-Member -MemberType NoteProperty -Name "appRoleAssignmentRequired"  -Value "true"
+
+$json = $spObj | ConvertTo-Json -Depth 8
 
 $URI = 'https://graph.microsoft.com/v1.0/servicePrincipals'
 $SP = MSGraphRequest -Method Post -URI $URI -Body $json
