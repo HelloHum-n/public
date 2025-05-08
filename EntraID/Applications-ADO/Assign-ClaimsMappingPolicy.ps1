@@ -29,7 +29,19 @@ param(
     [string]$JsonFile,
     # Json file containing the Service Principal details
     [Parameter(Position=2,mandatory=$true)]
-    [string]$ClaimsMappingObjectJsonFile
+    [string]$ClaimsMappingObjectJsonFile,
+    # Client ID of the Service Principal to be used for authentication
+    [Parameter(mandatory=$true)]
+    [string]$ClientID,
+    # Certificate of the Service Principal to be used for authentication
+    [Parameter(mandatory=$true)]
+    [string]$certFile,
+    # Password of the certificate to be used for authentication
+    [Parameter(mandatory=$true)]
+    [string]$CertPwd,
+    # Environment (IST,Prod)
+    [Parameter(mandatory=$true)]
+    [string]$Environment 
 )
 
 # Install PS modules
@@ -68,8 +80,11 @@ function MSGraphRequest{
     return $fn_result
 }
 
+$pwdSecure = ConvertTo-SecureString -String $CertPwd -Force -AsPlainText
+$connectionCert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($certFile,$pwdSecure)
+
 Write-Host "Connecting to MS Graph, please sign in via the pop up browser window." -ForegroundColor Green
-Connect-MgGraph -TenantId $tenantID -Scopes $scopes
+Connect-MgGraph -TenantId $tenantID -ClientID $ClientID -Certificate $connectionCert
 
 $scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
 if ($ClaimsMappingObjectJsonFile -like ".\*"){

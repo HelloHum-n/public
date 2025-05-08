@@ -112,7 +112,7 @@ Write-host "Service Principal created successfully" -ForegroundColor Green
 $OutPutJson = $SP | ConvertTo-Json -Depth 20
 $fileName = "$Environment\Apps-States\ServicePrincipal-"+$($SP.displayName)+"-"+$($SP.Id)+".json"
 Write-Host "##vso[task.setvariable variable=newSPJsonFilePath;]$fileName"
-$OutPutJson | Out-File -FilePath $fileName -file
+$OutPutJson | Out-File -FilePath $fileName
 Write-host "ServicePrincipal detail output to - $fileName" -ForegroundColor Green
 
 Disconnect-mggraph

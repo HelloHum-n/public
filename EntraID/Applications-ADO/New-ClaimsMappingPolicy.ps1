@@ -28,7 +28,19 @@ param(
     [string]$policyName,
     # Json file containing the Claim mapping definitions
     [Parameter(Position=2,mandatory=$true)]
-    [string]$JsonFile
+    [string]$JsonFile,
+    # Client ID of the Service Principal to be used for authentication
+    [Parameter(mandatory=$true)]
+    [string]$ClientID,
+    # Certificate of the Service Principal to be used for authentication
+    [Parameter(mandatory=$true)]
+    [string]$certFile,
+    # Password of the certificate to be used for authentication
+    [Parameter(mandatory=$true)]
+    [string]$CertPwd,
+    # Environment (IST,Prod)
+    [Parameter(mandatory=$true)]
+    [string]$Environment    
 )
 
 # Install PS modules
@@ -67,8 +79,11 @@ function MSGraphRequest{
     return $fn_result
 }
 
+$pwdSecure = ConvertTo-SecureString -String $CertPwd -Force -AsPlainText
+$connectionCert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($certFile,$pwdSecure)
+
 Write-Host "Connecting to MS Graph, please sign in via the pop up browser window." -ForegroundColor Green
-Connect-MgGraph -TenantId $tenantID -Scopes $scopes
+Connect-MgGraph -TenantId $tenantID -ClientID $ClientID -Certificate $connectionCert
 
 $scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
 if ($JsonFile -like ".\*"){
@@ -108,13 +123,14 @@ $ClaimsPolicy = MSGraphRequest -Method Post -URI $URI -Body $outputJson
 
 $ClaimsPolicy | Format-List id, DisplayName
 $OutPutJson = $ClaimsPolicy | ConvertTo-Json -Depth 20
-$fileName = "Apps-States\ClaimsMappingPolicyObject-"+$($ClaimsPolicy.displayName)+"-"+$($ClaimsPolicy.Id)+".json"
+$fileName = "$Environment\Apps-States\ClaimsMappingPolicyObject-"+$($ClaimsPolicy.displayName)+"-"+$($ClaimsPolicy.Id)+".json"
 $OutPutJson | Out-File -FilePath $fileName 
 Write-host "Claims Mapping Policy Object detail output to - $fileName" -ForegroundColor Green
+Write-Host "##vso[task.setvariable variable=newClaimsObjJsonFilePath;]$fileName"
 
 $def = $ClaimsPolicy.definition  | ConvertFrom-Json
 $json_formatted = $def | ConvertTo-Json -Depth 10
-$fileName = "Apps-States\ClaimsPolicyDefinition-"+$($ClaimsPolicy.displayName)+"-"+$($ClaimsPolicy.Id)+".json"
+$fileName = "$Environment\Apps-States\ClaimsPolicyDefinition-"+$($ClaimsPolicy.displayName)+"-"+$($ClaimsPolicy.Id)+".json"
 $json_formatted | Out-File -FilePath $fileName 
 Write-host "Claims Mapping Definition output to - $fileName" -ForegroundColor Green
 Write-Host "##vso[task.setvariable variable=newClaimsPolicyJson;issecret=true]$fileName"
