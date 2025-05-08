@@ -68,7 +68,7 @@ function MSGraphRequest{
         if ($body -eq $null){    
             $fn_result = Invoke-MGGraphRequest -Method $method -Uri $URI -OutputType PSObject -ErrorAction SilentlyContinue -ErrorVariable Err
         }else{
-            $fn_result = Invoke-MGGraphRequest -Method $method -Uri $URI -Body $body -OutputType PSObject -Headers @{'ConsistencyLevel' = 'eventual' }  -ErrorAction SilentlyContinue -ErrorVariable Err
+            $fn_result = Invoke-MGGraphRequest -Method $method -Uri $URI -Body $body -OutputType PSObject -Headers  @{'ConsistencyLevel' = 'eventual' ; 'Content-type' = 'application/json' }  -ErrorAction SilentlyContinue -ErrorVariable Err
         }
         if($err -contains "TooManyRequests") {
             # Pausing to avoid Graph throttle 

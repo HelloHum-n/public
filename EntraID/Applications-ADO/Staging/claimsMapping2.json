@@ -1,0 +1,28 @@
+﻿{
+    "ClaimsMappingPolicy":  {
+                                "Version":  1,
+                                "IncludeBasicClaimSet":  "false",
+                                "ClaimsSchema":  [
+                                                     {
+                                                         "Source":  "user",
+                                                         "ID":  "mail",
+                                                         "SamlClaimType":  "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"
+                                                     },
+                                                     {
+                                                         "Source":  "user",
+                                                         "ID":  "userprincipalname",
+                                                         "SamlClaimType":  "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"
+                                                     },
+                                                     {
+                                                         "Source":  "user",
+                                                         "ID":  "surname",
+                                                         "SamlClaimType":  "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname"
+                                                     },
+                                                     {
+                                                         "Source":  "user",
+                                                         "ID":  "givenname",
+                                                         "SamlClaimType":  "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname"
+                                                     }
+                                                 ]
+                            }
+}
