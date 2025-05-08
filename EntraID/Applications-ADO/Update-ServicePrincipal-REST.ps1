@@ -99,7 +99,6 @@ $URI = 'https://graph.microsoft.com/v1.0/servicePrincipals'+"/$($existingStateOb
 $GUID = $(New-Guid).Guid
 write-host "Using $GUID for Service Principal's notes property for verification" -ForegroundColor Green
 $newSPstateObj = Get-content -Path $newJsonFile -RAW | ConvertFrom-Json
-$newSPstateObj.PSObject.Properties.Remove('@odata.context')
 $newSPstateObj | Add-Member -MemberType NoteProperty -Name "notes"  -Value $GUID
 $json = $newSPstateObj | ConvertTo-Json -Depth 20  
 # Get the Service Principal properties in Json
@@ -112,11 +111,14 @@ https://github.com/orenshatech/PowerShell-Scripts/blob/main/CompareNestedJsonFil
 #>
 
 # Update the Service Principal properties
+write-host "Updating Service Prinicapl via URI $URI" -ForegroundColor Green
 MSGraphRequest -Method PATCH -URI $URI -Body $json
 
+Write-Host "Service Principal update in progress, please wait..." -ForegroundColor Green
 $maxRetry = 5
 $i=0
 do {
+    Write-Host "Service Principal update in progress, please wait for fetching new properties... # of retry: $i" -ForegroundColor Green
     $SPobj = MSGraphRequest -Method GET -URI $URI
     if ($i -ne 0){
         Start-Sleep -Seconds 30
