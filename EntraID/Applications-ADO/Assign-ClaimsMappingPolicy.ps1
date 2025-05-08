@@ -26,7 +26,7 @@ param(
     [string]$tenantID,
     # Json file containing the Service Principal details
     [Parameter(Position=1,mandatory=$true)]
-    [string]$JsonFile,
+    [string]$SPJsonFile,
     # Json file containing the Service Principal details
     [Parameter(Position=2,mandatory=$true)]
     [string]$ClaimsMappingObjectJsonFile,
@@ -90,14 +90,14 @@ $scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
 if ($ClaimsMappingObjectJsonFile -like ".\*"){
     $ClaimsMappingObjectJsonFile = $scriptPath+$ClaimsMappingObjectJsonFile.substring(1) 
 }
-if ($JsonFile -like ".\*"){
-    $JsonFile = $scriptPath+$JsonFile.substring(1) 
+if ($SPJsonFile -like ".\*"){
+    $SPJsonFile = $scriptPath+$SPJsonFile.substring(1) 
 }
 
 $CMPobj = Get-content -Path $ClaimsMappingObjectJsonFile -RAW | ConvertFrom-Json
 $CMPobj.id
 
-$SPobj = Get-content -Path $JsonFile -RAW | ConvertFrom-Json
+$SPobj = Get-content -Path $SPJsonFile -RAW | ConvertFrom-Json
 $SPobj.id
 
 $URI = "https://graph.microsoft.com/beta/servicePrincipals/$($SPobj.id)/claimsMappingPolicies/`$ref"
