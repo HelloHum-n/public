@@ -97,10 +97,10 @@ $existingStateObj = Get-content -Path $JsonFile -RAW | ConvertFrom-Json
 #$existingStateObj.PSObject.Properties.Remove('@odata.context')  
 $URI = 'https://graph.microsoft.com/v1.0/servicePrincipals'+"/$($existingStateObj.id)"
 $GUID = $(New-Guid).Guid
-write-host "Using $GUID for Service Principal's note property for verification" -ForegroundColor Green
+write-host "Using $GUID for Service Principal's notes property for verification" -ForegroundColor Green
 $newSPstateObj = Get-content -Path $newJsonFile -RAW | ConvertFrom-Json
 $newSPstateObj.PSObject.Properties.Remove('@odata.context')
-$newSPstateObj | Add-Member -MemberType NoteProperty -Name "note"  -Value $GUID
+$newSPstateObj | Add-Member -MemberType NoteProperty -Name "notes"  -Value $GUID
 $json = $newSPstateObj | ConvertTo-Json -Depth 20  
 # Get the Service Principal properties in Json
 #$SPobj = MSGraphRequest -Method GET -URI $URI
@@ -122,14 +122,14 @@ do {
         Start-Sleep -Seconds 30
     }
     $i++
-}while($SPobj.note.ToString() -ne $GUID -or $i -lt $maxRetry)
+}while($SPobj.notes.ToString() -ne $GUID -and $i -lt $maxRetry)
 
 if ($i -eq $maxRetry){
     Write-host "Service Principal update failed (timed out)" -ForegroundColor Red
     exit 1
 }
 
-$SPobj | Format-List id, DisplayName, AppId, note
+$SPobj | Format-List id, DisplayName, AppId, notes
 Write-host "Service Principal updated successfully" -ForegroundColor Green  
 $OutPutJson = $SPobj | ConvertTo-Json -Depth 20
 #$fileName = "$Environment\Apps-States\ServicePrincipal-"+$($SPobj.displayName)+"-"+$($SPobj.Id)+".json"
