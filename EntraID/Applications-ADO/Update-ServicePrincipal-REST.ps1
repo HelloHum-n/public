@@ -82,7 +82,7 @@ function MSGraphRequest{
 $pwdSecure = ConvertTo-SecureString -String $CertPwd -Force -AsPlainText
 $connectionCert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($certFile,$pwdSecure)
 
-Write-Host "Connecting to MS Graph, please sign in via the pop up browser window." -ForegroundColor Green
+Write-Host "Connecting to MS Graph....." -ForegroundColor Green
 Connect-MgGraph -TenantId $tenantID -ClientID $ClientID -Certificate $connectionCert
 
 $scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
@@ -129,13 +129,12 @@ if ($i -eq $maxRetry){
     exit 1
 }
 
-
 $SPobj | Format-List id, DisplayName, AppId, note
 Write-host "Service Principal updated successfully" -ForegroundColor Green  
 $OutPutJson = $SPobj | ConvertTo-Json -Depth 20
-$fileName = "$Environment\Apps-States\ServicePrincipal-"+$($SPobj.displayName)+"-"+$($SPobj.Id)+".json"
-$OutPutJson | Out-File -FilePath $fileName -Force
-Write-host "ServicePrincipal detail output to - $fileName" -ForegroundColor Green
+#$fileName = "$Environment\Apps-States\ServicePrincipal-"+$($SPobj.displayName)+"-"+$($SPobj.Id)+".json"
+$OutPutJson | Out-File -FilePath $JsonFile -Force
+Write-host "ServicePrincipal detail output to - $JsonFile" -ForegroundColor Green
 
 Disconnect-mggraph
 Write-host "Disconnected from MS Graph" -ForegroundColor Green

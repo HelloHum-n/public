@@ -80,7 +80,7 @@ function MSGraphRequest{
 $pwdSecure = ConvertTo-SecureString -String $CertPwd -Force -AsPlainText
 $connectionCert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($certFile,$pwdSecure)
 
-Write-Host "Connecting to MS Graph, please sign in via the pop up browser window." -ForegroundColor Green
+Write-Host "Connecting to MS Graph....." -ForegroundColor Green
 Connect-MgGraph -TenantId $tenantID -ClientID $ClientID -Certificate $connectionCert
 
 $scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
