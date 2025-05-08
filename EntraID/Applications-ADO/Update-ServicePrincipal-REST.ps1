@@ -89,21 +89,19 @@ $scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
 if ($JsonFile -like ".\*"){
     $JsonFile = $scriptPath+$JsonFile.substring(1) 
 }
-
-
-$inputObj = Get-content -Path $JsonFile -RAW | ConvertFrom-Json
-$inputObj.PSObject.Properties.Remove('@odata.context')
-$json = $inputObj | ConvertTo-Json -Depth 20     
-$URI = 'https://graph.microsoft.com/v1.0/servicePrincipals'+"/$($inputObj.id)"
-
-if ($null -ne $newJsonFile){
-    if ($newJsonFile -like ".\*"){
-        $newJsonFile = $scriptPath+$newJsonFile.substring(1) 
-    }
-    $inputObj = Get-content -Path $newJsonFile -RAW | ConvertFrom-Json
-    $inputObj.PSObject.Properties.Remove('@odata.context')
-    $json = $inputObj | ConvertTo-Json -Depth 20   
+if ($newJsonFile -like ".\*"){
+    $newJsonFile = $scriptPath+$newJsonFile.substring(1) 
 }
+
+$existingStateObj = Get-content -Path $JsonFile -RAW | ConvertFrom-Json
+#$existingStateObj.PSObject.Properties.Remove('@odata.context')  
+$URI = 'https://graph.microsoft.com/v1.0/servicePrincipals'+"/$($existingStateObj.id)"
+$GUID = $(New-Guid).Guid
+write-host "Using $GUID for Service Principal's note property for verification" -ForegroundColor Green
+$newSPstateObj = Get-content -Path $newJsonFile -RAW | ConvertFrom-Json
+$newSPstateObj.PSObject.Properties.Remove('@odata.context')
+$newSPstateObj | Add-Member -MemberType NoteProperty -Name "note"  -Value $GUID
+$json = $newSPstateObj | ConvertTo-Json -Depth 20  
 # Get the Service Principal properties in Json
 #$SPobj = MSGraphRequest -Method GET -URI $URI
 #$SPobj.PSObject.Properties.Remove('@odata.context')
@@ -113,11 +111,29 @@ Insert comparing json file codes here
 https://github.com/orenshatech/PowerShell-Scripts/blob/main/CompareNestedJsonFiles.ps1
 #>
 
-$SP = MSGraphRequest -Method PATCH -URI $URI -Body $json
-$SP | Format-List id, DisplayName, AppId
+# Update the Service Principal properties
+MSGraphRequest -Method PATCH -URI $URI -Body $json
+
+$maxRetry = 5
+$i=0
+do {
+    $SPobj = MSGraphRequest -Method GET -URI $URI
+    if ($i -ne 0){
+        Start-Sleep -Seconds 30
+    }
+    $i++
+}while($SPobj.note.ToString() -ne $GUID -or $i -lt $maxRetry)
+
+if ($i -eq $maxRetry){
+    Write-host "Service Principal update failed (timed out)" -ForegroundColor Red
+    exit 1
+}
+
+
+$SPobj | Format-List id, DisplayName, AppId, note
 Write-host "Service Principal updated successfully" -ForegroundColor Green  
-$OutPutJson = $SP | ConvertTo-Json -Depth 20
-$fileName = "$Environment\Apps-States\ServicePrincipal-"+$($SP.displayName)+"-"+$($SP.Id)+".json"
+$OutPutJson = $SPobj | ConvertTo-Json -Depth 20
+$fileName = "$Environment\Apps-States\ServicePrincipal-"+$($SPobj.displayName)+"-"+$($SPobj.Id)+".json"
 $OutPutJson | Out-File -FilePath $fileName -Force
 Write-host "ServicePrincipal detail output to - $fileName" -ForegroundColor Green
 
