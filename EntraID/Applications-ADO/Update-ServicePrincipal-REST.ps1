@@ -114,7 +114,7 @@ $SP = MSGraphRequest -Method PATCH -URI $URI -Body $json
 $SP | Format-List id, DisplayName, AppId
 Write-host "Service Principal updated successfully" -ForegroundColor Green  
 $OutPutJson = $SP | ConvertTo-Json -Depth 20
-$fileName = "Apps-States\$Environment\ServicePrincipal-"+$($SP.displayName)+"-"+$($SP.Id)+".json"
+$fileName = "$Environment\Apps-States\ServicePrincipal-"+$($SP.displayName)+"-"+$($SP.Id)+".json"
 $OutPutJson | Out-File -FilePath $fileName -Force
 Write-host "ServicePrincipal detail output to - $fileName" -ForegroundColor Green
 
