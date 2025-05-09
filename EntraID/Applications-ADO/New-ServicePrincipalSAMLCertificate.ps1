@@ -72,9 +72,9 @@ function MSGraphRequest{
     $i = 0
     do{
         if ($body -eq $null){    
-            $fn_result = Invoke-MGGraphRequest -Method $method -Uri $URI -OutputType PSObject -Headers @{'ConsistencyLevel' = 'eventual' }  -ErrorAction SilentlyContinue -ErrorVariable Err
+            $fn_result = Invoke-MGGraphRequest -Method $method -Uri $URI -OutputType PSObject -ErrorAction SilentlyContinue -ErrorVariable Err
         }else{
-            $fn_result = Invoke-MGGraphRequest -Method $method -Uri $URI -Body $body -OutputType PSObject -Headers @{'ConsistencyLevel' = 'eventual' }  -ErrorAction SilentlyContinue -ErrorVariable Err
+            $fn_result = Invoke-MGGraphRequest -Method $method -Uri $URI -Body $body -OutputType PSObject -Headers  @{'ConsistencyLevel' = 'eventual' ; 'Content-type' = 'application/json' }  -ErrorAction SilentlyContinue -ErrorVariable Err
         }
         if($err -contains "TooManyRequests") {
             # Pausing to avoid Graph throttle 
@@ -86,8 +86,11 @@ function MSGraphRequest{
     return $fn_result
 }
 
-Write-Host "Connecting to MS Graph, please sign in via the pop up browser window." -ForegroundColor Green
-Connect-MgGraph -TenantId $tenantID -ClientID $ClientID -Certificate $certFile
+$pwdSecure = ConvertTo-SecureString -String $CertPwd -Force -AsPlainText
+$connectionCert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($certFile,$pwdSecure)
+
+Write-Host "Connecting to MS Graph....." -ForegroundColor Green
+Connect-MgGraph -TenantId $tenantID -ClientID $ClientID -Certificate $connectionCert
 
 $scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
 if ($JsonFile -like ".\*"){
@@ -145,7 +148,8 @@ if ($startIndex -ge 0 -and $endIndex -gt $startIndex) {
     Write-Host "Could not find private key block in the PEM file."
 }
 #>
-
+$privateKey = $privateKey.Replace("`n","")
+$publicKey = $publicKey.Replace("`n","")
 # Construct the body for the PATCH request
 $GUID = $(New-Guid).Guid
 
@@ -184,9 +188,9 @@ $body = @"
     ]
 }
 "@
-
-$body
-Pause
+Write-Host "Patching the following body for certificate upload"
+$body 
+$body |  Out-File -FilePath body.txt -Force
 
 $SP = MSGraphRequest -Method PATCH -URI $URI -Body $body
 $SP | Format-List id, DisplayName, AppId
