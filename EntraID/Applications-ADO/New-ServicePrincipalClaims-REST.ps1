@@ -24,12 +24,12 @@
 param(
     [Parameter(Position=0,mandatory=$true)]
     [string]$tenantID,
-    # Json file containing the Application details
+    # Json file containing the existing Service Principal details
     [Parameter(Position=1,mandatory=$true)]
-    [string]$AppJsonFile,
-    # Json file containing the Staging Service Principal details (optional)
+    [string]$JsonFile,
+    # Json file containing the custom claims details
     [Parameter(Position=2,mandatory=$false)]
-    [string]$SPJsonFile,
+    [string]$claimsJsonFile,
     # Client ID of the Service Principal to be used for authentication
     [Parameter(mandatory=$true)]
     [string]$ClientID,
@@ -79,48 +79,46 @@ function MSGraphRequest{
     return $fn_result
 }
 
-
 $pwdSecure = ConvertTo-SecureString -String $CertPwd -Force -AsPlainText
 $connectionCert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($certFile,$pwdSecure)
 
 Write-Host "Connecting to MS Graph....." -ForegroundColor Green
 Connect-MgGraph -TenantId $tenantID -ClientID $ClientID -Certificate $connectionCert
 
-
 $scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
-if ($SPJsonFile -like ".\*"){
-    $SPJsonFile = $scriptPath+$SPJsonFile.substring(1) 
+if ($JsonFile -like ".\*"){
+    $JsonFile = $scriptPath+$JsonFile.substring(1) 
 }
-$scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
-if ($AppJsonFile -like ".\*"){
-    $AppJsonFile = $scriptPath+$AppJsonFile.substring(1) 
+if ($claimsJsonFile -like ".\*"){
+    $claimsJsonFile = $scriptPath+$claimsJsonFile.substring(1) 
 }
 
-write-host "Creating Service Principal from app manifest json file path- $AppJsonFile" -ForegroundColor Green
+$existingStateObj = Get-content -Path $JsonFile -RAW | ConvertFrom-Json
+$existingStateObj.PSObject.Properties.Remove('@odata.context')  
+$URI = 'https://graph.microsoft.com/beta/servicePrincipals'+"/$($existingStateObj.id)"+"/claimsPolicy"
 
-$spObj = Get-content -Path $SPJsonFile -RAW | ConvertFrom-Json
-$appObj = Get-content -Path $AppJsonFile -RAW | ConvertFrom-Json
-$spObj | Add-Member -MemberType NoteProperty -Name "appId"  -Value $($appObj.appId)
-$spObj | Add-Member -MemberType NoteProperty -Name "appRoleAssignmentRequired"  -Value "true"
+$claimsObj = Get-content -Path $claimsJsonFile -RAW | ConvertFrom-Json
+$json = $claimsObj | ConvertTo-Json -Depth 20  
+# Get the Service Principal properties in Json
+#$SPobj = MSGraphRequest -Method GET -URI $URI
+#$SPobj.PSObject.Properties.Remove('@odata.context')
 
-$json = $spObj | ConvertTo-Json -Depth 8
+<#
+Insert comparing json file codes here
+https://github.com/orenshatech/PowerShell-Scripts/blob/main/CompareNestedJsonFiles.ps1
+#>
 
-$URI = 'https://graph.microsoft.com/v1.0/servicePrincipals'
-$SP = MSGraphRequest -Method Post -URI $URI -Body $json
-
-$SP| Format-List id, DisplayName, AppId, SignInAudience
-Write-host "Service Principal created successfully" -ForegroundColor Green
-$OutPutJson = $SP | ConvertTo-Json -Depth 20
-$fileName = "$Environment\Apps-States\ServicePrincipal-"+$($SP.displayName)+"-"+$($SP.Id)+".json"
-Write-Host "##vso[task.setvariable variable=newSPJsonFilePath;]$fileName"
-$OutPutJson | Out-File -FilePath $fileName
-Write-host "ServicePrincipal detail output to - $fileName" -ForegroundColor Green
+# Update the Service Principal properties
+write-host "Creating Service Prinicapl Custom Claims via URI $URI" -ForegroundColor Green
+MSGraphRequest -Method PUT -URI $URI -Body $json
+Write-Host "Service Prinicapl Custom Claims in progress, please wait for fetching new properties... " -ForegroundColor Green
+Start-Sleep -Seconds 30
+$SpClaimsObj = MSGraphRequest -Method GET -URI $URI
+Write-host "Custom Claims created successfully" -ForegroundColor Green  
+$OutPutJson = $SpClaimsObj | ConvertTo-Json -Depth 20
+$fileName = "$Environment\Apps-States\CustomClaims-"+$($existingStateObj.displayName)+"-"+$($existingStateObj.Id)+".json"
+$OutPutJson | Out-File -FilePath $fileName -Force
+Write-host "Custom Claims  detail output to - $fileName" -ForegroundColor Green
 
 Disconnect-mggraph
 Write-host "Disconnected from MS Graph" -ForegroundColor Green
-<#
-Write-Host "Service Principal object ID: $($result.id)" -ForegroundColor Green
-write-host "Service Principal App ID: $($result.appId)" -ForegroundColor Green
-write-host "Service Principal Display Name: $($result.displayName)" -ForegroundColor Green
-write-host "Service Principal Sign In Audience: $($result.signInAudience)" -ForegroundColor Green
-#>

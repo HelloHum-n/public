@@ -72,9 +72,9 @@ function MSGraphRequest{
     $i = 0
     do{
         if ($body -eq $null){    
-            $fn_result = Invoke-MGGraphRequest -Method $method -Uri $URI -OutputType PSObject -ErrorAction SilentlyContinue -ErrorVariable Err
+            $fn_result = Invoke-MGGraphRequest -Method $method -Uri $URI -ErrorAction SilentlyContinue -ErrorVariable Err
         }else{
-            $fn_result = Invoke-MGGraphRequest -Method $method -Uri $URI -Body $body -OutputType PSObject -Headers  @{'ConsistencyLevel' = 'eventual' ; 'Content-type' = 'application/json' }  -ErrorAction SilentlyContinue -ErrorVariable Err
+            $fn_result = Invoke-MGGraphRequest -Method $method -Uri $URI -Body $body -Headers  @{'Content-type' = 'application/json' }  -ErrorAction SilentlyContinue -ErrorVariable Err
         }
         if($err -contains "TooManyRequests") {
             # Pausing to avoid Graph throttle 
@@ -85,6 +85,7 @@ function MSGraphRequest{
     if ($fn_result -eq $null){$fn_result = $Err}
     return $fn_result
 }
+
 
 $pwdSecure = ConvertTo-SecureString -String $CertPwd -Force -AsPlainText
 $connectionCert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($certFile,$pwdSecure)
@@ -188,9 +189,13 @@ $body = @"
     ]
 }
 "@
+
+
 Write-Host "Patching the following body for certificate upload"
 $body 
 $body |  Out-File -FilePath body.txt -Force
+#exit
+
 
 $SP = MSGraphRequest -Method PATCH -URI $URI -Body $body
 $SP | Format-List id, DisplayName, AppId

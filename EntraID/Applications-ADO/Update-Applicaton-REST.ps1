@@ -24,12 +24,12 @@
 param(
     [Parameter(Position=0,mandatory=$true)]
     [string]$tenantID,
-    # Json file containing the Application details
+    # Json file containing the existing Application details
     [Parameter(Position=1,mandatory=$true)]
-    [string]$AppJsonFile,
-    # Json file containing the Staging Service Principal details (optional)
+    [string]$JsonFile,
+    # Json file containing the new SApplication details (OPTIONAL)
     [Parameter(Position=2,mandatory=$false)]
-    [string]$SPJsonFile,
+    [string]$newJsonFile,
     # Client ID of the Service Principal to be used for authentication
     [Parameter(mandatory=$true)]
     [string]$ClientID,
@@ -79,48 +79,77 @@ function MSGraphRequest{
     return $fn_result
 }
 
-
 $pwdSecure = ConvertTo-SecureString -String $CertPwd -Force -AsPlainText
 $connectionCert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($certFile,$pwdSecure)
 
 Write-Host "Connecting to MS Graph....." -ForegroundColor Green
 Connect-MgGraph -TenantId $tenantID -ClientID $ClientID -Certificate $connectionCert
 
-
 $scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
-if ($SPJsonFile -like ".\*"){
-    $SPJsonFile = $scriptPath+$SPJsonFile.substring(1) 
+if ($JsonFile -like ".\*"){
+    $JsonFile = $scriptPath+$JsonFile.substring(1) 
 }
-$scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
-if ($AppJsonFile -like ".\*"){
-    $AppJsonFile = $scriptPath+$AppJsonFile.substring(1) 
+if ($newJsonFile -like ".\*"){
+    $newJsonFile = $scriptPath+$newJsonFile.substring(1) 
 }
 
-write-host "Creating Service Principal from app manifest json file path- $AppJsonFile" -ForegroundColor Green
+Write-Host "path $JsonFile"
+$existingStateObj = Get-content -Path $JsonFile -RAW | ConvertFrom-Json
+$existingStateObj.PSObject.Properties.Remove('@odata.context')  
+$URI = 'https://graph.microsoft.com/v1.0/applications'+"/$($existingStateObj.id)"
+$GUID = $(New-Guid).Guid
+write-host "Using $GUID for Service Principal's notes property for verification" -ForegroundColor Green
+$newAppStateObj = Get-content -Path $newJsonFile -RAW | ConvertFrom-Json
 
-$spObj = Get-content -Path $SPJsonFile -RAW | ConvertFrom-Json
-$appObj = Get-content -Path $AppJsonFile -RAW | ConvertFrom-Json
-$spObj | Add-Member -MemberType NoteProperty -Name "appId"  -Value $($appObj.appId)
-$spObj | Add-Member -MemberType NoteProperty -Name "appRoleAssignmentRequired"  -Value "true"
+# Get the Service Principal properties in Json
+#$SPobj = MSGraphRequest -Method GET -URI $URI
+#$SPobj.PSObject.Properties.Remove('@odata.context')
 
-$json = $spObj | ConvertTo-Json -Depth 8
+<#
+Insert comparing json file codes here
+https://github.com/orenshatech/PowerShell-Scripts/blob/main/CompareNestedJsonFiles.ps1
+#>
 
-$URI = 'https://graph.microsoft.com/v1.0/servicePrincipals'
-$SP = MSGraphRequest -Method Post -URI $URI -Body $json
 
-$SP| Format-List id, DisplayName, AppId, SignInAudience
-Write-host "Service Principal created successfully" -ForegroundColor Green
-$OutPutJson = $SP | ConvertTo-Json -Depth 20
-$fileName = "$Environment\Apps-States\ServicePrincipal-"+$($SP.displayName)+"-"+$($SP.Id)+".json"
-Write-Host "##vso[task.setvariable variable=newSPJsonFilePath;]$fileName"
-$OutPutJson | Out-File -FilePath $fileName
-Write-host "ServicePrincipal detail output to - $fileName" -ForegroundColor Green
+$newAppStateObj | Add-Member -MemberType NoteProperty -Name "notes"  -Value $GUID
+$json = $newAppStateObj | ConvertTo-Json -Depth 20  
+
+
+# Update the Service Principal properties
+write-host "Updating Service Prinicapl via URI $URI and json body: $json" -ForegroundColor Green
+MSGraphRequest -Method PATCH -URI $URI -Body $json
+$i=0
+$maxRetry = 5
+while($err){
+    $err = $null
+    write-host "Updating Service Prinicapl via URI $URI ...  # of retry: $i" -ForegroundColor Green
+    Start-Sleep -Seconds 30
+    MSGraphRequest -Method PATCH -URI $URI -Body $json
+}
+
+Write-Host "Application update in progress, please wait..." -ForegroundColor Green
+$maxRetry = 5
+$i=0
+do {
+    Write-Host "Application update in progress, please wait for fetching new properties... # of retry: $i" -ForegroundColor Green
+    $SPobj = MSGraphRequest -Method GET -URI $URI
+    if ($i -ne 0){
+        Start-Sleep -Seconds 30
+    }
+    $i++
+}while($SPobj.notes.ToString() -ne $GUID -and $i -lt $maxRetry)
+
+if ($i -eq $maxRetry){
+    Write-host "Application update failed (timed out)" -ForegroundColor Red
+    exit 1
+}
+
+$SPobj | Format-List id, DisplayName, AppId, notes
+Write-host "Application updated successfully" -ForegroundColor Green  
+$OutPutJson = $SPobj | ConvertTo-Json -Depth 20
+#$fileName = "$Environment\Apps-States\Application-"+$($SPobj.displayName)+"-"+$($SPobj.Id)+".json"
+$OutPutJson | Out-File -FilePath $JsonFile -Force
+Write-host "Application detail output to - $JsonFile" -ForegroundColor Green
 
 Disconnect-mggraph
 Write-host "Disconnected from MS Graph" -ForegroundColor Green
-<#
-Write-Host "Service Principal object ID: $($result.id)" -ForegroundColor Green
-write-host "Service Principal App ID: $($result.appId)" -ForegroundColor Green
-write-host "Service Principal Display Name: $($result.displayName)" -ForegroundColor Green
-write-host "Service Principal Sign In Audience: $($result.signInAudience)" -ForegroundColor Green
-#>

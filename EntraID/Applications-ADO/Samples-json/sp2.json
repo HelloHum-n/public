@@ -1,0 +1,108 @@
+{
+    "@odata.context": "https://graph.microsoft.com/beta/$metadata#servicePrincipals/$entity",
+    "@microsoft.graph.tips": "Use $select to choose only the properties your app needs, as this can lead to performance improvements. For example: GET servicePrincipals('<guid>')?$select=passwordSingleSignOnSettings,accountEnabled",
+    "id": "522dee81-42f8-48f3-afe4-63a644630bfa",
+    "deletedDateTime": null,
+    "accountEnabled": true,
+    "alternativeNames": [],
+    "createdDateTime": "2025-05-09T18:08:18Z",
+    "deviceManagementAppType": null,
+    "appDescription": null,
+    "appDisplayName": "Test-SAML4",
+    "appId": "46e2569b-cba2-45f5-977a-fe5193a200d9",
+    "applicationTemplateId": "8adf8e6e-67b2-4cf2-a259-e3dc5476c621",
+    "appOwnerOrganizationId": "d6efb6af-13e5-4903-bf0b-b6e5dc81aae3",
+    "appRoleAssignmentRequired": true,
+    "assignmentRequiredForPrincipalTypes": null,
+    "description": null,
+    "disabledByMicrosoftStatus": null,
+    "displayName": "Test-SAML4",
+    "errorUrl": null,
+    "homepage": "https://account.activedirectory.windowsazure.com:444/applications/default.aspx?metadata=customappsso|ISV9.1|primary|z",
+    "isAuthorizationServiceEnabled": false,
+    "isDisabled": null,
+    "isManagementRestricted": null,
+    "loginUrl": null,
+    "logoutUrl": null,
+    "notes": null,
+    "notificationEmailAddresses": [],
+    "preferredSingleSignOnMode": null,
+    "preferredTokenSigningKeyEndDateTime": null,
+    "preferredTokenSigningKeyThumbprint": null,
+    "publisherName": "Contoso Ultra",
+    "replyUrls": [],
+    "samlMetadataUrl": null,
+    "samlSLOBindingType": "httpRedirect",
+    "servicePrincipalNames": [
+        "46e2569b-cba2-45f5-977a-fe5193a200d9"
+    ],
+    "servicePrincipalType": "Application",
+    "signInAudience": "AzureADMyOrg",
+    "tags": [
+        "WindowsAzureActiveDirectoryCustomSingleSignOnApplication",
+        "WindowsAzureActiveDirectoryIntegratedApp"
+    ],
+    "tokenEncryptionKeyId": null,
+    "certification": null,
+    "samlSingleSignOnSettings": null,
+    "addIns": [],
+    "api": {
+        "resourceSpecificApplicationPermissions": []
+    },
+    "appRoles": [
+        {
+            "allowedMemberTypes": [
+                "User"
+            ],
+            "description": "User",
+            "displayName": "User",
+            "id": "18d14569-c3bd-439b-9a66-3a2aee01d14f",
+            "isEnabled": true,
+            "origin": "Application",
+            "value": null,
+            "isPreAuthorizationRequired": false,
+            "isPrivate": false
+        },
+        {
+            "allowedMemberTypes": [
+                "User"
+            ],
+            "description": "msiam_access",
+            "displayName": "msiam_access",
+            "id": "b9632174-c057-4f7e-951b-be3adc52bfe6",
+            "isEnabled": true,
+            "origin": "Application",
+            "value": null,
+            "isPreAuthorizationRequired": false,
+            "isPrivate": false
+        }
+    ],
+    "info": {
+        "termsOfServiceUrl": null,
+        "supportUrl": null,
+        "privacyStatementUrl": null,
+        "marketingUrl": null,
+        "logoUrl": null
+    },
+    "keyCredentials": [],
+    "publishedPermissionScopes": [
+        {
+            "adminConsentDescription": "Allow the application to access Test-SAML4 on behalf of the signed-in user.",
+            "adminConsentDisplayName": "Access Test-SAML4",
+            "id": "f7cf4745-4e73-4257-80d5-50247ebc3cb9",
+            "isEnabled": true,
+            "type": "User",
+            "userConsentDescription": "Allow the application to access Test-SAML4 on your behalf.",
+            "userConsentDisplayName": "Access Test-SAML4",
+            "value": "user_impersonation",
+            "isPrivate": false
+        }
+    ],
+    "passwordCredentials": [],
+    "resourceSpecificApplicationPermissions": [],
+    "verifiedPublisher": {
+        "displayName": null,
+        "verifiedPublisherId": null,
+        "addedDateTime": null
+    }
+}

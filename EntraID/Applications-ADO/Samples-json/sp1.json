@@ -1,0 +1,69 @@
+{
+    "@odata.context": "https://graph.microsoft.com/beta/$metadata#servicePrincipals/$entity",
+    "@microsoft.graph.tips": "Use $select to choose only the properties your app needs, as this can lead to performance improvements. For example: GET servicePrincipals('<guid>')?$select=passwordSingleSignOnSettings,accountEnabled",
+    "id": "6b4556b4-cfe2-449d-bce2-a2781c725569",
+    "deletedDateTime": null,
+    "accountEnabled": true,
+    "alternativeNames": [],
+    "createdDateTime": "2025-05-09T18:07:12Z",
+    "deviceManagementAppType": null,
+    "appDescription": null,
+    "appDisplayName": "Test-Saml3",
+    "appId": "033957cc-33fd-45e4-b694-0cd3bfbdbdc5",
+    "applicationTemplateId": null,
+    "appOwnerOrganizationId": "d6efb6af-13e5-4903-bf0b-b6e5dc81aae3",
+    "appRoleAssignmentRequired": false,
+    "assignmentRequiredForPrincipalTypes": null,
+    "description": null,
+    "disabledByMicrosoftStatus": null,
+    "displayName": "Test-Saml3",
+    "errorUrl": null,
+    "homepage": null,
+    "isAuthorizationServiceEnabled": false,
+    "isDisabled": null,
+    "isManagementRestricted": null,
+    "loginUrl": null,
+    "logoutUrl": null,
+    "notes": null,
+    "notificationEmailAddresses": [],
+    "preferredSingleSignOnMode": null,
+    "preferredTokenSigningKeyEndDateTime": null,
+    "preferredTokenSigningKeyThumbprint": null,
+    "publisherName": "Contoso Ultra",
+    "replyUrls": [],
+    "samlMetadataUrl": null,
+    "samlSLOBindingType": "httpRedirect",
+    "servicePrincipalNames": [
+        "033957cc-33fd-45e4-b694-0cd3bfbdbdc5"
+    ],
+    "servicePrincipalType": "Application",
+    "signInAudience": "AzureADMyOrg",
+    "tags": [
+        "HideApp",
+        "WindowsAzureActiveDirectoryIntegratedApp"
+    ],
+    "tokenEncryptionKeyId": null,
+    "certification": null,
+    "samlSingleSignOnSettings": null,
+    "addIns": [],
+    "api": {
+        "resourceSpecificApplicationPermissions": []
+    },
+    "appRoles": [],
+    "info": {
+        "termsOfServiceUrl": null,
+        "supportUrl": null,
+        "privacyStatementUrl": null,
+        "marketingUrl": null,
+        "logoUrl": null
+    },
+    "keyCredentials": [],
+    "publishedPermissionScopes": [],
+    "passwordCredentials": [],
+    "resourceSpecificApplicationPermissions": [],
+    "verifiedPublisher": {
+        "displayName": null,
+        "verifiedPublisherId": null,
+        "addedDateTime": null
+    }
+}

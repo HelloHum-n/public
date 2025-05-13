@@ -65,9 +65,9 @@ function MSGraphRequest{
     $i = 0
     do{
         if ($body -eq $null){    
-            $fn_result = Invoke-MGGraphRequest -Method $method -Uri $URI -OutputType PSObject -ErrorAction SilentlyContinue -ErrorVariable Err
+            $fn_result = Invoke-MGGraphRequest -Method $method -Uri $URI -ErrorAction SilentlyContinue -ErrorVariable Err
         }else{
-            $fn_result = Invoke-MGGraphRequest -Method $method -Uri $URI -Body $body -OutputType PSObject -Headers  @{'ConsistencyLevel' = 'eventual' ; 'Content-type' = 'application/json' }  -ErrorAction SilentlyContinue -ErrorVariable Err
+            $fn_result = Invoke-MGGraphRequest -Method $method -Uri $URI -Body $body -Headers  @{'Content-type' = 'application/json' }  -ErrorAction SilentlyContinue -ErrorVariable Err
         }
         if($err -contains "TooManyRequests") {
             # Pausing to avoid Graph throttle 
@@ -94,7 +94,7 @@ if ($newJsonFile -like ".\*"){
 }
 
 $existingStateObj = Get-content -Path $JsonFile -RAW | ConvertFrom-Json
-#$existingStateObj.PSObject.Properties.Remove('@odata.context')  
+$existingStateObj.PSObject.Properties.Remove('@odata.context')  
 $URI = 'https://graph.microsoft.com/v1.0/servicePrincipals'+"/$($existingStateObj.id)"
 $GUID = $(New-Guid).Guid
 write-host "Using $GUID for Service Principal's notes property for verification" -ForegroundColor Green
@@ -136,7 +136,7 @@ Write-host "Service Principal updated successfully" -ForegroundColor Green
 $OutPutJson = $SPobj | ConvertTo-Json -Depth 20
 #$fileName = "$Environment\Apps-States\ServicePrincipal-"+$($SPobj.displayName)+"-"+$($SPobj.Id)+".json"
 $OutPutJson | Out-File -FilePath $JsonFile -Force
-Write-host "ServicePrincipal detail output to - $JsonFile" -ForegroundColor Green
+Write-host "Service Principal detail output to - $JsonFile" -ForegroundColor Green
 
 Disconnect-mggraph
 Write-host "Disconnected from MS Graph" -ForegroundColor Green

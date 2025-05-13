@@ -22,14 +22,11 @@
 #>
 
 param(
-    [Parameter(Position=0,mandatory=$true)]
+    [Parameter(mandatory=$true)]
     [string]$tenantID,
-    # Json file containing the Application details
-    [Parameter(Position=1,mandatory=$true)]
-    [string]$AppJsonFile,
-    # Json file containing the Staging Service Principal details (optional)
-    [Parameter(Position=2,mandatory=$false)]
-    [string]$SPJsonFile,
+    # Json file containing the application details (Hint: Create one in staging folder)
+    [Parameter(mandatory=$true)]
+    [string]$JsonFile,
     # Client ID of the Service Principal to be used for authentication
     [Parameter(mandatory=$true)]
     [string]$ClientID,
@@ -43,7 +40,7 @@ param(
     [Parameter(mandatory=$true)]
     [string]$Environment
 )
-
+<#
 # Install PS modules
 $modulesRequired = @('Microsoft.Graph.Authentication')
 foreach( $moduleName in $modulesRequired){
@@ -56,6 +53,7 @@ foreach( $moduleName in $modulesRequired){
         Write-Output "Found installed PowerShell Module: $moduleName"
     }
 }
+#>
 
 $scopes = 'Application.ReadWrite.All'
 $graphThrottleRetry = 20
@@ -79,48 +77,55 @@ function MSGraphRequest{
     return $fn_result
 }
 
-
 $pwdSecure = ConvertTo-SecureString -String $CertPwd -Force -AsPlainText
 $connectionCert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($certFile,$pwdSecure)
 
 Write-Host "Connecting to MS Graph....." -ForegroundColor Green
 Connect-MgGraph -TenantId $tenantID -ClientID $ClientID -Certificate $connectionCert
 
-
 $scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
-if ($SPJsonFile -like ".\*"){
-    $SPJsonFile = $scriptPath+$SPJsonFile.substring(1) 
-}
-$scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
-if ($AppJsonFile -like ".\*"){
-    $AppJsonFile = $scriptPath+$AppJsonFile.substring(1) 
+if ($JsonFile -like ".\*"){
+    $JsonFile = $scriptPath+$JsonFile.substring(1) 
 }
 
-write-host "Creating Service Principal from app manifest json file path- $AppJsonFile" -ForegroundColor Green
+$bodyObj = Get-content -Path $JsonFile -RAW | ConvertFrom-Json
+$bodyObj.PSObject.Properties.Remove('@odata.context')
+#Modify json property
+#$bodyObj.displayName = "New App 03"
+#$bodyObj.description = "New application Description"
+$json = $bodyObj | ConvertTo-Json -Depth 8
 
-$spObj = Get-content -Path $SPJsonFile -RAW | ConvertFrom-Json
-$appObj = Get-content -Path $AppJsonFile -RAW | ConvertFrom-Json
-$spObj | Add-Member -MemberType NoteProperty -Name "appId"  -Value $($appObj.appId)
-$spObj | Add-Member -MemberType NoteProperty -Name "appRoleAssignmentRequired"  -Value "true"
+$URI = "https://graph.microsoft.com/v1.0/applicationTemplates?`$filter=displayName eq 'Custom'"
+$appTemplate = MSGraphRequest -Method Get -URI $URI
+$appTemplateId = $appTemplate.value[0].id
+$URI = "https://graph.microsoft.com/v1.0/applicationTemplates/$appTemplateId/instantiate"
+$body =@"
+{
+    "displayName": "$($bodyObj.displayName)"
+}
+"@
 
-$json = $spObj | ConvertTo-Json -Depth 8
+Write-Host "Creating New Application from app template id: $appTemplateId ..." -ForegroundColor Green
+$AppObj = MSGraphRequest -Method Post -URI $URI -Body $json
+$URI = "https://graph.microsoft.com/v1.0/applications/$($app.application.id)"
 
-$URI = 'https://graph.microsoft.com/v1.0/servicePrincipals'
-$SP = MSGraphRequest -Method Post -URI $URI -Body $json
+$($AppObj.application) | Format-List id, DisplayName, AppId, SignInAudience
+Write-host "Application created successfully" -ForegroundColor Green
+$OutPutJson = $($AppObj.application) | Sort-Object | ConvertTo-Json -Depth 20
+$AppObj.PSObject.Properties.Remove('@odata.context')
+$fileName = "$Environment\Apps-States\Application-"+$($AppObj.application.displayName)+"-"+$($AppObj.application.id)+".json"
+Write-Host "##vso[task.setvariable variable=newAppJsonFilePath;]$fileName"
+$OutPutJson | Out-File -FilePath $fileName 
+Write-host "Application manifest output to - $fileName" -ForegroundColor Green
 
-$SP| Format-List id, DisplayName, AppId, SignInAudience
+$($AppObj.ServicePrincipal) | Format-List id, DisplayName, AppId, SignInAudience
 Write-host "Service Principal created successfully" -ForegroundColor Green
-$OutPutJson = $SP | ConvertTo-Json -Depth 20
-$fileName = "$Environment\Apps-States\ServicePrincipal-"+$($SP.displayName)+"-"+$($SP.Id)+".json"
+$OutPutJson = $($AppObj.ServicePrincipal) | Sort-Object | ConvertTo-Json -Depth 20
+$AppObj.PSObject.Properties.Remove('@odata.context')
+$fileName = "$Environment\Apps-States\ServicePrincipal-"+$($AppObj.ServicePrincipal.displayName)+"-"+$($AppObj.ServicePrincipal.Id)+".json"
 Write-Host "##vso[task.setvariable variable=newSPJsonFilePath;]$fileName"
 $OutPutJson | Out-File -FilePath $fileName
 Write-host "ServicePrincipal detail output to - $fileName" -ForegroundColor Green
 
 Disconnect-mggraph
 Write-host "Disconnected from MS Graph" -ForegroundColor Green
-<#
-Write-Host "Service Principal object ID: $($result.id)" -ForegroundColor Green
-write-host "Service Principal App ID: $($result.appId)" -ForegroundColor Green
-write-host "Service Principal Display Name: $($result.displayName)" -ForegroundColor Green
-write-host "Service Principal Sign In Audience: $($result.signInAudience)" -ForegroundColor Green
-#>

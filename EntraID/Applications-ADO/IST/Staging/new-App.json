@@ -1,5 +1,5 @@
 {
-    "displayName": "Test SAML App - 001",
+    "displayName": "Test SAML App - 003",
     "description": "My New SAML App",
     "signInAudience": "AzureADMyOrg",
     "api": {
@@ -14,13 +14,24 @@
     },
     "servicePrincipalLockConfiguration": {
         "isEnabled": true,
-        "allProperties": true,
-        "credentialsWithUsageVerify": true,
-        "credentialsWithUsageSign": true,
+        "allProperties": false,
+        "credentialsWithUsageVerify": false,
+        "credentialsWithUsageSign": false,
         "identifierUris": false,
         "tokenEncryptionKeyId": false
     },
     "identifierUris": [
         "https://samltoolkit.azurewebsites.net"
-    ]
+    ],
+    "web": {
+        "redirectUris": [
+            "https://samltoolkit.azurewebsites.net"
+        ],
+        "homePageUrl": "https://account.activedirectory.windowsazure.com:444/applications/default.aspx?metadata=customappsso|ISV9.1|primary|z",
+        "logoutUrl": null,
+        "implicitGrantSettings": {
+            "enableIdTokenIssuance": true,
+            "enableAccessTokenIssuance": false
+        }
+    }
   }
