@@ -202,7 +202,7 @@ $SP | Format-List id, DisplayName, AppId
 Write-host "Service Principal updated successfully" -ForegroundColor Green  
 $OutPutJson = $SP | ConvertTo-Json -Depth 20
 $fileName = "$Environment\Apps-States\ServicePrincipal-"+$($SP.displayName)+"-"+$($SP.Id)+".json"
-Write-Host "##vso[task.setvariable variable=SPJson;issecret=true]$fileName"
+Write-Host "##vso[task.setvariable variable=customClaimsJson;issecret=true]$fileName"
 $OutPutJson | Out-File -FilePath $fileName -Force
 Write-host "ServicePrincipal detail output to - $fileName" -ForegroundColor Green
 
