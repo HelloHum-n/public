@@ -22,14 +22,14 @@
 #>
 
 param(
-    [Parameter(Position=0,mandatory=$true)]
-    [string]$tenantID,
     # Json file containing the Application details
-    [Parameter(Position=1,mandatory=$true)]
+    [Parameter(mandatory=$true)]
     [string]$AppJsonFile,
     # Json file containing the Staging Service Principal details (optional)
-    [Parameter(Position=2,mandatory=$false)]
+    [Parameter(mandatory=$false)]
     [string]$SPJsonFile,
+    [Parameter(mandatory=$true)]
+    [string]$tenantID,
     # Client ID of the Service Principal to be used for authentication
     [Parameter(mandatory=$true)]
     [string]$ClientID,
@@ -111,10 +111,10 @@ $SP = MSGraphRequest -Method Post -URI $URI -Body $json
 $SP| Format-List id, DisplayName, AppId, SignInAudience
 Write-host "Service Principal created successfully" -ForegroundColor Green
 $OutPutJson = $SP | ConvertTo-Json -Depth 20
-$fileName = "$Environment\Apps-States\ServicePrincipal-"+$($SP.displayName)+"-"+$($SP.Id)+".json"
+$fileName = "$Environment\Apps-States\ServicePrincipal_"+$($SP.displayName)+"_"+$($SP.Id)+".json"
 Write-Host "##vso[task.setvariable variable=newSPJsonFilePath;]$fileName"
 $OutPutJson | Out-File -FilePath $fileName
-Write-host "ServicePrincipal detail output to - $fileName" -ForegroundColor Green
+Write-host "Service Principal detail output to - $fileName" -ForegroundColor Green
 
 Disconnect-mggraph
 Write-host "Disconnected from MS Graph" -ForegroundColor Green

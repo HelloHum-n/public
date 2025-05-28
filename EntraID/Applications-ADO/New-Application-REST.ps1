@@ -22,11 +22,11 @@
 #>
 
 param(
-    [Parameter(mandatory=$true)]
-    [string]$tenantID,
     # Json file containing the application details (Hint: Create one in staging folder)
     [Parameter(mandatory=$true)]
     [string]$JsonFile,
+    [Parameter(mandatory=$true)]
+    [string]$tenantID,
     # Client ID of the Service Principal to be used for authentication
     [Parameter(mandatory=$true)]
     [string]$ClientID,
@@ -55,7 +55,7 @@ foreach( $moduleName in $modulesRequired){
 }
 #>
 
-$scopes = 'Application.ReadWrite.All'
+#$scopes = 'Application.ReadWrite.All'
 $graphThrottleRetry = 20
 
 function MSGraphRequest{
@@ -103,7 +103,7 @@ $app.PSObject.Properties.Remove('@odata.context')
 Write-host "Application created successfully" -ForegroundColor Green
 $OutPutJson = $app | ConvertTo-Json -Depth 8
 
-$fileName = "$Environment\Apps-States\Application-"+$($app.displayName)+"-"+$($app.Id)+".json"
+$fileName = "$Environment\Apps-States\Application_"+$($app.displayName)+"_"+$($app.Id)+".json"
 Write-Host "##vso[task.setvariable variable=newAppJsonFilePath;]$fileName"
 $OutPutJson | Out-File -FilePath $fileName 
 Write-host "Application manifest output to - $fileName" -ForegroundColor Green

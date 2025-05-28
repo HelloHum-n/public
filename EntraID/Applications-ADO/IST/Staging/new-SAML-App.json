@@ -33,5 +33,9 @@
             "enableIdTokenIssuance": true,
             "enableAccessTokenIssuance": false
         }
+    },
+    "requestSignatureVerification": {
+        "isSignedRequestRequired": true,
+        "allowedWeakAlgorithms": null
     }
   }

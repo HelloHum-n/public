@@ -22,9 +22,9 @@
 #>
 
 param(
-    # Json file containing the application details (Hint: Create one in staging folder)
+    # Application ID of the Service Principal to be retrieved
     [Parameter(mandatory=$true)]
-    [string]$JsonFile,
+    [string]$ApplicationID,
     [Parameter(mandatory=$true)]
     [string]$tenantID,
     # Client ID of the Service Principal to be used for authentication
@@ -41,6 +41,7 @@ param(
     [string]$Environment
 )
 <#
+
 # Install PS modules
 $modulesRequired = @('Microsoft.Graph.Authentication')
 foreach( $moduleName in $modulesRequired){
@@ -55,7 +56,7 @@ foreach( $moduleName in $modulesRequired){
 }
 #>
 
-$scopes = 'Application.ReadWrite.All'
+#$scopes = 'Application.ReadWrite.All'
 $graphThrottleRetry = 20
 
 function MSGraphRequest{
@@ -77,51 +78,27 @@ function MSGraphRequest{
     return $fn_result
 }
 
+
 $pwdSecure = ConvertTo-SecureString -String $CertPwd -Force -AsPlainText
 $connectionCert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($certFile,$pwdSecure)
 
 Write-Host "Connecting to MS Graph....." -ForegroundColor Green
 Connect-MgGraph -TenantId $tenantID -ClientID $ClientID -Certificate $connectionCert
 
-$scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
-if ($JsonFile -like ".\*"){
-    $JsonFile = $scriptPath+$JsonFile.substring(1) 
+$URI = "https://graph.microsoft.com/v1.0/servicePrincipals(appId=`'{$ApplicationID}`')/claimsPolicy"
+$SpClaimsObj = MSGraphRequest -Method GET -URI $URI
+if ($SpClaimsObj -like '*{"error"*'){
+    Write-Host "Error retrieving Service Principal Custom Claims." -ForegroundColor Red
+    Disconnect-MgGraph
+    Write-host "Disconnected from MS Graph" -ForegroundColor Green
+    exit 1
+}else{
+    Write-host "Retrived Service Principal Custom Claims successfully" -ForegroundColor Green  
+    $OutPutJson = $SpClaimsObj | ConvertTo-Json -Depth 20
+    $fileName = "$Environment\Apps-States\CustomClaims_"+$($SpClaimsObj.displayName)+"_"+$($SpClaimsObj.Id)+".json"
+    $OutPutJson | Out-File -FilePath $fileName -Force
+    Write-host "Service Principal  Custom Claims  detail output to - $fileName" -ForegroundColor Green
+    
+    Disconnect-mggraph
+    Write-host "Disconnected from MS Graph" -ForegroundColor Green
 }
-
-$bodyObj = Get-content -Path $JsonFile -RAW | ConvertFrom-Json
-$bodyObj.PSObject.Properties.Remove('@odata.context')
-$json = $bodyObj | ConvertTo-Json -Depth 8
-
-$URI = "https://graph.microsoft.com/v1.0/applicationTemplates?`$filter=displayName eq 'Custom'"
-$appTemplate = MSGraphRequest -Method Get -URI $URI
-$appTemplateId = $appTemplate.value[0].id
-$URI = "https://graph.microsoft.com/v1.0/applicationTemplates/$appTemplateId/instantiate"
-$body =@"
-{
-    "displayName": "$($bodyObj.displayName)"
-}
-"@
-
-Write-Host "Creating New Application from app template id: $appTemplateId ..." -ForegroundColor Green
-$AppObj = MSGraphRequest -Method Post -URI $URI -Body $json
-$URI = "https://graph.microsoft.com/v1.0/applications/$($app.application.id)"
-
-$($AppObj.application) | Format-List id, DisplayName, AppId, SignInAudience
-Write-host "Application object created successfully" -ForegroundColor Green
-$OutPutJson = $($AppObj.application) | Sort-Object | ConvertTo-Json -Depth 20
-$AppObj.PSObject.Properties.Remove('@odata.context')
-$fileName = "$Environment\Apps-States\Application_"+$($AppObj.application.displayName)+"_"+$($AppObj.application.id)+".json"
-Write-Host "##vso[task.setvariable variable=newAppJsonFilePath;]$fileName"
-$OutPutJson | Out-File -FilePath $fileName 
-Write-host "Application manifest output to - $fileName" -ForegroundColor Green
-
-$($AppObj.ServicePrincipal) | Format-List id, DisplayName, AppId, SignInAudience
-Write-host "Service Principal object created successfully" -ForegroundColor Green
-$OutPutJson = $($AppObj.ServicePrincipal) | Sort-Object | ConvertTo-Json -Depth 20
-$AppObj.PSObject.Properties.Remove('@odata.context')
-$fileName = "$Environment\Apps-States\ServicePrincipal_"+$($AppObj.ServicePrincipal.displayName)+"_"+$($AppObj.ServicePrincipal.Id)+".json"
-Write-Host "##vso[task.setvariable variable=newSPJsonFilePath;]$fileName"
-$OutPutJson | Out-File -FilePath $fileName
-Write-host "Service Principal detail output to - $fileName" -ForegroundColor Green
-Disconnect-mggraph
-Write-host "Disconnected from MS Graph" -ForegroundColor Green

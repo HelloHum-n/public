@@ -22,14 +22,14 @@
 #>
 
 param(
-    [Parameter(Position=0,mandatory=$true)]
-    [string]$tenantID,
     # Json file containing the existing Service Principal details
-    [Parameter(Position=1,mandatory=$true)]
+    [Parameter(mandatory=$true)]
     [string]$JsonFile,
     # Json file containing the custom claims details
-    [Parameter(Position=2,mandatory=$false)]
+    [Parameter(mandatory=$false)]
     [string]$claimsJsonFile,
+    [Parameter(mandatory=$true)]
+    [string]$tenantID,
     # Client ID of the Service Principal to be used for authentication
     [Parameter(mandatory=$true)]
     [string]$ClientID,
@@ -116,7 +116,7 @@ Start-Sleep -Seconds 30
 $SpClaimsObj = MSGraphRequest -Method GET -URI $URI
 Write-host "Custom Claims created successfully" -ForegroundColor Green  
 $OutPutJson = $SpClaimsObj | ConvertTo-Json -Depth 20
-$fileName = "$Environment\Apps-States\CustomClaims-"+$($existingStateObj.displayName)+"-"+$($existingStateObj.Id)+".json"
+$fileName = "$Environment\Apps-States\CustomClaims_"+$($existingStateObj.displayName)+"_"+$($existingStateObj.Id)+".json"
 $OutPutJson | Out-File -FilePath $fileName -Force
 Write-host "Custom Claims  detail output to - $fileName" -ForegroundColor Green
 

@@ -22,14 +22,14 @@
 #>
 
 param(
-    [Parameter(Position=0,mandatory=$true)]
-    [string]$tenantID,
     # Json file containing the existing Service Principal details
-    [Parameter(Position=1,mandatory=$true)]
+    [Parameter(mandatory=$true)]
     [string]$JsonFile,
     # Json file containing the new Service Principal details (OPTIONAL)
-    [Parameter(Position=2,mandatory=$false)]
+    [Parameter(mandatory=$false)]
     [string]$newJsonFile,
+    [Parameter(mandatory=$true)]
+    [string]$tenantID,
     # Client ID of the Service Principal to be used for authentication
     [Parameter(mandatory=$true)]
     [string]$ClientID,

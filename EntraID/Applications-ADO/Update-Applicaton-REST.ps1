@@ -22,14 +22,14 @@
 #>
 
 param(
-    [Parameter(Position=0,mandatory=$true)]
-    [string]$tenantID,
     # Json file containing the existing Application details
-    [Parameter(Position=1,mandatory=$true)]
+    [Parameter(mandatory=$true)]
     [string]$JsonFile,
     # Json file containing the new SApplication details (OPTIONAL)
-    [Parameter(Position=2,mandatory=$false)]
+    [Parameter(mandatory=$false)]
     [string]$newJsonFile,
+    [Parameter(mandatory=$true)]
+    [string]$tenantID,
     # Client ID of the Service Principal to be used for authentication
     [Parameter(mandatory=$true)]
     [string]$ClientID,
@@ -132,22 +132,22 @@ $maxRetry = 5
 $i=0
 do {
     Write-Host "Application update in progress, please wait for fetching new properties... # of retry: $i" -ForegroundColor Green
-    $SPobj = MSGraphRequest -Method GET -URI $URI
+    $AppObj = MSGraphRequest -Method GET -URI $URI
     if ($i -ne 0){
         Start-Sleep -Seconds 30
     }
     $i++
-}while($SPobj.notes.ToString() -ne $GUID -and $i -lt $maxRetry)
+}while($AppObj.notes.ToString() -ne $GUID -and $i -lt $maxRetry)
 
 if ($i -eq $maxRetry){
     Write-host "Application update failed (timed out)" -ForegroundColor Red
     exit 1
 }
 
-$SPobj | Format-List id, DisplayName, AppId, notes
+$AppObj | Format-List id, DisplayName, AppId, notes
 Write-host "Application updated successfully" -ForegroundColor Green  
-$OutPutJson = $SPobj | ConvertTo-Json -Depth 20
-#$fileName = "$Environment\Apps-States\Application-"+$($SPobj.displayName)+"-"+$($SPobj.Id)+".json"
+$OutPutJson = $AppObj | ConvertTo-Json -Depth 20
+#$fileName = "$Environment\Apps-States\Application_"+$($AppObj.displayName)+"_"+$($AppObj.Id)+".json"
 $OutPutJson | Out-File -FilePath $JsonFile -Force
 Write-host "Application detail output to - $JsonFile" -ForegroundColor Green
 

@@ -22,12 +22,25 @@
 #>
 
 param(
-    [Parameter(Position=0,mandatory=$true)]
+    # Application ID of the Service Principal to be retrieved
+    [Parameter(mandatory=$true)]
+    [string]$ApplicationID,
+    [Parameter(mandatory=$true)]
     [string]$tenantID,
-    # Object ID of the Service Principal to get
-    [Parameter(Position=1,mandatory=$true)]
-    [string]$ObjectId
+    # Client ID of the Service Principal to be used for authentication
+    [Parameter(mandatory=$true)]
+    [string]$ClientID,
+    # Certificate of the Service Principal to be used for authentication
+    [Parameter(mandatory=$true)]
+    [string]$certFile,
+    # Password of the certificate to be used for authentication
+    [Parameter(mandatory=$true)]
+    [string]$CertPwd,
+    # Environment (IST,Prod)
+    [Parameter(mandatory=$true)]
+    [string]$Environment
 )
+<#
 
 # Install PS modules
 $modulesRequired = @('Microsoft.Graph.Authentication')
@@ -41,8 +54,9 @@ foreach( $moduleName in $modulesRequired){
         Write-Output "Found installed PowerShell Module: $moduleName"
     }
 }
+#>
 
-$scopes = 'Application.ReadWrite.All'
+#$scopes = 'Application.ReadWrite.All'
 $graphThrottleRetry = 20
 
 function MSGraphRequest{
@@ -50,9 +64,9 @@ function MSGraphRequest{
     $i = 0
     do{
         if ($body -eq $null){    
-            $fn_result = Invoke-MGGraphRequest -Method $method -Uri $URI -OutputType PSObject -Headers @{'ConsistencyLevel' = 'eventual' }  -ErrorAction SilentlyContinue -ErrorVariable Err
+            $fn_result = Invoke-MGGraphRequest -Method $method -Uri $URI -ErrorAction SilentlyContinue -ErrorVariable Err
         }else{
-            $fn_result = Invoke-MGGraphRequest -Method $method -Uri $URI -Body $body -OutputType PSObject -Headers @{'ConsistencyLevel' = 'eventual' }  -ErrorAction SilentlyContinue -ErrorVariable Err
+            $fn_result = Invoke-MGGraphRequest -Method $method -Uri $URI -Body $body -Headers  @{'Content-type' = 'application/json' }  -ErrorAction SilentlyContinue -ErrorVariable Err
         }
         if($err -contains "TooManyRequests") {
             # Pausing to avoid Graph throttle 
@@ -64,25 +78,26 @@ function MSGraphRequest{
     return $fn_result
 }
 
-Write-Host "Connecting to MS Graph, please sign in via the pop up browser window." -ForegroundColor Green
-Connect-MgGraph -TenantId $tenantID -Scopes $scopes
 
-$URI = 'https://graph.microsoft.com/v1.0/servicePrincipals'+"/$ObjectId"
+$pwdSecure = ConvertTo-SecureString -String $CertPwd -Force -AsPlainText
+$connectionCert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($certFile,$pwdSecure)
 
-# Get the Service Principal properties in Json
+Write-Host "Connecting to MS Graph....." -ForegroundColor Green
+Connect-MgGraph -TenantId $tenantID -ClientID $ClientID -Certificate $connectionCert
+
+$URI = "https://graph.microsoft.com/v1.0/servicePrincipals(appId=`'{$ApplicationID}`')"
 $SPobj = MSGraphRequest -Method GET -URI $URI
-
-<#
-Insert comparing json file codes here
-https://github.com/orenshatech/PowerShell-Scripts/blob/main/CompareNestedJsonFiles.ps1
-#>
-
-
-Write-host "Retrived Service Principal successfully" -ForegroundColor Green  
-$OutPutJson = $SPobj | ConvertTo-Json -Depth 20
-$fileName = "Apps-States\ServicePrincipal-"+$($SPobj.displayName)+"-"+$($SPobj.Id)+".json"
-$OutPutJson | Out-File -FilePath $fileName -Force
-Write-host "ServicePrincipal detail output to - $fileName" -ForegroundColor Green
-
-Disconnect-mggraph
-Write-host "Disconnected from MS Graph" -ForegroundColor Green
+if ($SPobj -like '*{"error"*'){
+    Write-Host "Error retrieving Service Principal object." -ForegroundColor Red
+    Disconnect-MgGraph
+    Write-host "Disconnected from MS Graph" -ForegroundColor Green
+    exit 1
+}else{
+    Write-host "Retrived Service Principal object successfully" -ForegroundColor Green  
+    $OutPutJson = $SPobj | ConvertTo-Json -Depth 20
+    $fileName = "$Environment\Apps-States\ServicePrincipal_"+$($SPobj.displayName)+"_"+$($SPobj.Id)+".json"
+    $OutPutJson | Out-File -FilePath $fileName -Force
+    Write-host "Service Principal detail output to - $fileName" -ForegroundColor Green
+    Disconnect-mggraph
+    Write-host "Disconnected from MS Graph" -ForegroundColor Green
+}

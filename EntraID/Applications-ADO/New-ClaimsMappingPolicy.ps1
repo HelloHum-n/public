@@ -22,13 +22,13 @@
 #>
 
 param(
-    [Parameter(Position=0,mandatory=$true)]
-    [string]$tenantID,
     [Parameter(Position=1,mandatory=$true)]
     [string]$policyName,
     # Json file containing the Claim mapping definitions
     [Parameter(Position=2,mandatory=$true)]
     [string]$JsonFile,
+    [Parameter(Position=0,mandatory=$true)]
+    [string]$tenantID,
     # Client ID of the Service Principal to be used for authentication
     [Parameter(mandatory=$true)]
     [string]$ClientID,
@@ -134,6 +134,5 @@ $fileName = "$Environment\Apps-States\ClaimsPolicyDefinition-"+$($ClaimsPolicy.d
 $json_formatted | Out-File -FilePath $fileName 
 Write-host "Claims Mapping Definition output to - $fileName" -ForegroundColor Green
 Write-Host "##vso[task.setvariable variable=newClaimsPolicyJson;issecret=true]$fileName"
-
 Disconnect-mggraph
 Write-host "Disconnected from MS Graph" -ForegroundColor Green
