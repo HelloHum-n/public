@@ -85,6 +85,7 @@ $connectionCert = New-Object System.Security.Cryptography.X509Certificates.X509C
 Write-Host "Connecting to MS Graph....." -ForegroundColor Green
 Connect-MgGraph -TenantId $tenantID -ClientID $ClientID -Certificate $connectionCert
 
+<#
 $scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
 if ($JsonFile -like ".\*"){
     $JsonFile = $scriptPath+$JsonFile.substring(1) 
@@ -92,6 +93,7 @@ if ($JsonFile -like ".\*"){
 if ($claimsJsonFile -like ".\*"){
     $claimsJsonFile = $scriptPath+$claimsJsonFile.substring(1) 
 }
+#>
 
 $existingStateObj = Get-content -Path $JsonFile -RAW | ConvertFrom-Json
 $existingStateObj.PSObject.Properties.Remove('@odata.context')  
@@ -116,7 +118,7 @@ Start-Sleep -Seconds 30
 $SpClaimsObj = MSGraphRequest -Method GET -URI $URI
 Write-host "Custom Claims created successfully" -ForegroundColor Green  
 $OutPutJson = $SpClaimsObj | ConvertTo-Json -Depth 20
-$fileName = "$Environment\Apps-States\CustomClaims_"+$($existingStateObj.displayName)+"_"+$($existingStateObj.Id)+".json"
+$fileName = ".\EntraID\Applications-ADO\$Environment\Apps-States\"+$($existingStateObj.displayName)+"_"+$($existingStateObj.AppId)+"_CustomClaims.json"
 $OutPutJson | Out-File -FilePath $fileName -Force
 Write-host "Custom Claims  detail output to - $fileName" -ForegroundColor Green
 

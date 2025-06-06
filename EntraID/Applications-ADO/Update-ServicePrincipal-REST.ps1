@@ -85,6 +85,7 @@ $connectionCert = New-Object System.Security.Cryptography.X509Certificates.X509C
 Write-Host "Connecting to MS Graph....." -ForegroundColor Green
 Connect-MgGraph -TenantId $tenantID -ClientID $ClientID -Certificate $connectionCert
 
+<#
 $scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
 if ($JsonFile -like ".\*"){
     $JsonFile = $scriptPath+$JsonFile.substring(1) 
@@ -92,6 +93,7 @@ if ($JsonFile -like ".\*"){
 if ($newJsonFile -like ".\*"){
     $newJsonFile = $scriptPath+$newJsonFile.substring(1) 
 }
+#>
 
 $existingStateObj = Get-content -Path $JsonFile -RAW | ConvertFrom-Json
 $existingStateObj.PSObject.Properties.Remove('@odata.context')  

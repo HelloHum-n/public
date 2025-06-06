@@ -31,9 +31,9 @@ param(
     # Priate Key password 
     [Parameter(mandatory=$true)]
     [string]$privateKeyPwd,
-    # Overwrite the current certificates if exists
+    # Overwrite the current certificates if exists (String true or false)
     [Parameter(mandatory=$false)]
-    [switch]$certOverwrite,
+    [string]$certOverwrite = "false",
     [Parameter(mandatory=$true)]
     [string]$tenantID,
     # Client ID of the Service Principal to be used for authentication
@@ -86,6 +86,7 @@ function MSGraphRequest{
     return $fn_result
 }
 
+<#
 $scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
 if ($JsonFile -like ".\*"){
     $JsonFile = $scriptPath+$JsonFile.substring(1) 
@@ -96,6 +97,7 @@ if ($CertFile -like ".\*"){
 if ($PfxCertFile -like ".\*"){
     $PfxCertFile = $scriptPath+$PfxCertFile.substring(1) 
 }
+#>
 
 $pwdSecure = ConvertTo-SecureString -String $CertPwd -Force -AsPlainText
 $connectionCert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($certFile,$pwdSecure)
@@ -112,10 +114,18 @@ $inputObj.PSObject.Properties.Remove('@odata.context')
 # Get the keys from the certificate file (pfx file)
 $privatePwdSecure = ConvertTo-SecureString -String $privateKeyPwd -Force -AsPlainText
 $pfxCert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($pfxCertFile,$privatePwdSecure)
-$tmpPubCertFile = ".\"+$((New-Guid).Guid)+".tmp"
+#$tmpPubCertFile = ".\"+$((New-Guid).Guid)+".tmp"
+$tmpPubCertFile = ".\tempPublickey.cer"
+# .\openssl.exe pkcs12 -in "C:\Certificates\abc.com.pfx" -out C:\temp\testing.cer -nokeys -passin pass:"abcde12345" 
+#$openSSLcmd = ".\EntraID\Applications-ADO\OpenSSL\openssl.exe pkcs12 -in `'$pfxCertFile`' -out `'$tmpPubCertFile`' -nokeys -passin pass:$privateKeyPwd"
+#Invoke-Expression -Command $openSSLcmd
+#$exefilePath = ".\EntraID\Applications-ADO\OpenSSL\openssl.exe"
+#$args =  " pkcs12 -in $pfxCertFile -out $tmpPubCertFile -nokeys -passin pass:$privateKeyPwd"
+#Start-Process -FilePath "$exefilePath" -argumentList $args -Verb RunAs #-WorkingDirectory ".\EntraID\Applications-ADO\Staging\"
+#Import-Module -Name ".\EntraID\Applications-ADO\pki.psd1"
 $pfxCert | Export-Certificate -FilePath $tmpPubCertFile -Type CERT
 if ( $($PSVersionTable.PSVersion.Major) -eq 7 ){
-    $publicKey = [convert]::ToBase64String((Get-Content $tmpPubCertFile -AsByteStream Raw))
+    $publicKey = [convert]::ToBase64String((Get-Content $tmpPubCertFile -AsByteStream -Raw))
     $privateKey = [convert]::ToBase64String((Get-Content $PfxCertFile -AsByteStream -Raw)) 
 }else{
     $publicKey = [convert]::ToBase64String((Get-Content $tmpPubCertFile -Encoding Byte))
@@ -136,7 +146,7 @@ $publicKey = $publicKey.Replace("`n","")
 Remove-Item -Path $tmpPubCertFile -Force
 
 # Construct the body for the PATCH request
-if ($certOverwrite.IsPresent){
+if ($certOverwrite -eq "true"){
 
 $signKeyGUID = $(New-Guid).Guid
 $body = @"
@@ -227,6 +237,11 @@ $body = @"
     $URI = "https://graph.microsoft.com/beta/servicePrincipals/$($inputObj.id)?`$select=passwordCredentials"
     $SpPwdCred = MSGraphRequest -Method GET -URI $URI
     $SpPwdCred= $SpPwdCred | ConvertTo-Json -Depth 20 | ConvertFrom-Json 
+    if($null -eq $($SpPwdCred.passwordCredentials)){
+        $modifyJson = $true    
+    }else{
+        $modifyJson = $false  
+    }
     $SpPwdCred.PSObject.Properties.Remove('@odata.context')
     foreach ( $obj in $($SpPwdCred.passwordCredentials)) {
         $startTime = $null
@@ -243,16 +258,24 @@ $body = @"
 
     $newObj = New-Object PSObject
     $newObj | Add-Member -MemberType NoteProperty -Name "customKeyIdentifier"  -Value "$Thumbprint"
-    $newObj | Add-Member -MemberType NoteProperty -Name "endDateTime"  -Value "$endTime"
+    $newObj | Add-Member -MemberType NoteProperty -Name "endDateTime"  -Value "$certEndTime"
     $newObj | Add-Member -MemberType NoteProperty -Name "keyId"  -Value "$signKeyGUID"
-    $newObj | Add-Member -MemberType NoteProperty -Name "startDateTime"  -Value "$startTime"
+    $newObj | Add-Member -MemberType NoteProperty -Name "startDateTime"  -Value "$certStartTime"
     $newObj | Add-Member -MemberType NoteProperty -Name "secretText"  -Value "$privateKeyPwd"
     $SpPwdCred.passwordCredentials += $newObj
 
-    $SpKeyCred  | Add-Member -MemberType NoteProperty -Name 'passwordCredentials' -Value $($SpPwdCred.passwordCredentials)
-    #Write-Host "Patching the following body for certificate upload"
-    $SpKeyCredJson = $SpKeyCred | ConvertTo-Json -Depth 20
-    #Write-Host "$SpKeyCredJson"
+    $SpKeyCred  | Add-Member -MemberType NoteProperty -Name 'passwordCredentials' -Value $($SpPwdCred.passwordCredentials)   
+    $SpKeyCredJson = $SpKeyCred | ConvertTo-Json -Depth 20 -Compress
+
+    if($modifyJson){
+        $SpKeyCredJson 
+        $SpKeyCredJson = $SpKeyCredJson.Replace('"passwordCredentials":','"passwordCredentials":[')
+        $SpKeyCredJson = $SpKeyCredJson.Substring(0,$($SpKeyCredJson.Length-1))
+        $SpKeyCredJson += "]}"
+    }
+
+    Write-Host "Patching the following body for certificate upload"
+    Write-Host "$SpKeyCredJson"
     #$SpKeyCredJson |  Out-File -FilePath C:\temp\body.txt -Force
     #$body = Get-Content -Path C:\Temp\body.txt -Raw
     #pause
@@ -281,9 +304,10 @@ if ($i -eq $maxRetry){
 
 Write-host "Service Principal updated successfully" -ForegroundColor Green  
 $OutPutJson = $SPobj | ConvertTo-Json -Depth 20
-$fileName = "$Environment\Apps-States\ServicePrincipal_"+$($SPobj.displayName)+"_"+$($SPobj.Id)+".json"
-Write-Host "##vso[task.setvariable variable=customClaimsJson;issecret=true]$fileName"
-$OutPutJson | Out-File -FilePath $fileName -Force
+#$fileName = ".\EntraID\Applications-ADO\$Environment\Apps-States\"+$($SPobj.displayName)+"_"+$($SPobj.appId)+"_ServicePrincipal.json"
+Write-Host "##vso[task.setvariable variable=customClaimsJson;issecret=true]$JsonFile"
+
+$OutPutJson | Out-File -FilePath $JsonFile -Force
 Write-host "ServicePrincipal detail output to - $fileName" -ForegroundColor Green
 
 Disconnect-mggraph

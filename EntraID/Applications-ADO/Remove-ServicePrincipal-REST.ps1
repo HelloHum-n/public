@@ -1,4 +1,4 @@
-<#
+ <#
 
 =========================================================================================================================
 
@@ -22,9 +22,9 @@
 #>
 
 param(
-    # Application ID of the Application to be retrieved
+    # Application ID of the Service Principal to be retrieved
     [Parameter(mandatory=$true)]
-    [string]$ApplicationID,
+    [string]$SpJsonFile,
     [Parameter(mandatory=$true)]
     [string]$tenantID,
     # Client ID of the Service Principal to be used for authentication
@@ -85,20 +85,20 @@ $connectionCert = New-Object System.Security.Cryptography.X509Certificates.X509C
 Write-Host "Connecting to MS Graph....." -ForegroundColor Green
 Connect-MgGraph -TenantId $tenantID -ClientID $ClientID -Certificate $connectionCert
 
-$URI = "https://graph.microsoft.com/v1.0/applications(appId=`'{$ApplicationID}`')"
-$AppObj = MSGraphRequest -Method GET -URI $URI
-if ($AppObj -like '*{"error"*'){
-    Write-Host "Error retrieving Application object." -ForegroundColor Red
-    Disconnect-MgGraph
-    Write-host "Disconnected from MS Graph" -ForegroundColor Green
-    exit 1
-}else{
-    Write-host "Retrived Application object successfully" -ForegroundColor Green  
-    $OutPutJson = $AppObj | ConvertTo-Json -Depth 20
-    $fileName = "$Environment\Apps-States\"+$($AppObj.displayName)+"_"+$($AppObj.appId)+"_Application.json"
-    $OutPutJson | Out-File -FilePath $fileName -Force
-    Write-host "Appication detail output to - $fileName" -ForegroundColor Green
+Write-Host "path $SpJsonFile"
+$existingStateObj = Get-content -Path $SpJsonFile -RAW | ConvertFrom-Json 
+$URI = 'https://graph.microsoft.com/v1.0/servicePrincipals'+"/$($existingStateObj.id)"
 
-    Disconnect-mggraph
-    Write-host "Disconnected from MS Graph" -ForegroundColor Green
+Write-Host "Deleting Service Principal object from Entra." -ForegroundColor Red
+MSGraphRequest -Method DELETE -URI $URI
+Write-Host "Removing Service Principal json file from Apps-State"
+Remove-Item -Path $SpJsonFile
+$customClaimsFileName = $($existingStateObj.appDisplayName)+"_CustomClaims.json"
+$parentPath = Split-Path $SpJsonFile -Parent
+$CustomClaimsJsonFile = $parentPath+"\"+$customClaimsFileName
+
+if ( Test-Path -Path $CustomClaimsJsonFile){
+    Remove-Item -Path $CustomClaimsJsonFile
 }
+Disconnect-MgGraph
+Write-host "Disconnected from MS Graph" -ForegroundColor Green

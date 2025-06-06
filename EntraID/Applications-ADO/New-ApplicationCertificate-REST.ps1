@@ -34,10 +34,10 @@ param(
     [string]$Usage,
     # Overwrite the current certificates if exists
     [Parameter(mandatory=$false)]
-    [switch]$certOverwrite,
+    [string]$certOverwrite = "false",
     # Make the new key to be active ***for token encryption only***
     [Parameter(mandatory=$false)]
-    [switch]$makeActive,
+    [string]$makeActive = "false",
     [Parameter(mandatory=$true)]
     [string]$tenantID,
     # Client ID of the Service Principal to be used for authentication
@@ -133,9 +133,9 @@ $publicKey = $publicKey.Replace("`n","")
 $encryptKeyGUID = $(New-Guid).Guid
 
 # Construct the body for the PATCH request
-if ($certOverwrite.IsPresent){
+if ($certOverwrite -eq "true"){
 
-    if ($makeActive.IsPresent -and $Usage -eq "Encrypt"){
+    if ($makeActive -eq "true" -and $Usage -eq "Encrypt"){
 $body = @"
 {
     "keyCredentials": [
@@ -209,7 +209,7 @@ $body = @"
     $newObj | Add-Member -MemberType NoteProperty -Name "usage"  -Value "$usage"
     $AppObj.keyCredentials += $newObj
 
-    if ($makeActive.IsPresent -and $Usage -eq "Encrypt"){
+    if ($makeActive -eq "true -and $Usage -eq "Encrypt"){
         $AppObj  | Add-Member -MemberType NoteProperty -Name 'tokenEncryptionKeyId' -Value $encryptKeyGUID
     }
     $SpKeyCredJson = $AppObj | ConvertTo-Json -Depth 20
@@ -241,7 +241,7 @@ if ($i -eq $maxRetry){
 
 Write-host "Application updated successfully" -ForegroundColor Green  
 $OutPutJson = $AppObj | ConvertTo-Json -Depth 20
-$fileName = "$Environment\Apps-States\Application_"+$($AppObj.displayName)+"_"+$($AppObj.Id)+".json"
+$fileName = "$Environment\Apps-States\"+$($AppObj.displayName)+"_"+$($AppObj.appId)+"_Application.json"
 Write-Host "##vso[task.setvariable variable=customClaimsJson;issecret=true]$fileName"
 $OutPutJson | Out-File -FilePath $fileName -Force
 Write-host "AppObj detail output to - $fileName" -ForegroundColor Green

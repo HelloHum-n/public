@@ -83,10 +83,12 @@ $connectionCert = New-Object System.Security.Cryptography.X509Certificates.X509C
 Write-Host "Connecting to MS Graph....." -ForegroundColor Green
 Connect-MgGraph -TenantId $tenantID -ClientID $ClientID -Certificate $connectionCert
 
+<#
 $scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
 if ($JsonFile -like ".\*"){
     $JsonFile = $scriptPath+$JsonFile.substring(1) 
 }
+#>
 
 $bodyObj = Get-content -Path $JsonFile -RAW | ConvertFrom-Json
 $bodyObj.PSObject.Properties.Remove('@odata.context')
@@ -110,7 +112,7 @@ $($AppObj.application) | Format-List id, DisplayName, AppId, SignInAudience
 Write-host "Application object created successfully" -ForegroundColor Green
 $OutPutJson = $($AppObj.application) | Sort-Object | ConvertTo-Json -Depth 20
 $AppObj.PSObject.Properties.Remove('@odata.context')
-$fileName = "$Environment\Apps-States\Application_"+$($AppObj.application.displayName)+"_"+$($AppObj.application.id)+".json"
+$fileName = ".\EntraID\Applications-ADO\$Environment\Apps-States\"+$($AppObj.application.displayName)+"_"+$($AppObj.application.appid)+"_Application.json"
 Write-Host "##vso[task.setvariable variable=newAppJsonFilePath;]$fileName"
 $OutPutJson | Out-File -FilePath $fileName 
 Write-host "Application manifest output to - $fileName" -ForegroundColor Green
@@ -119,7 +121,7 @@ $($AppObj.ServicePrincipal) | Format-List id, DisplayName, AppId, SignInAudience
 Write-host "Service Principal object created successfully" -ForegroundColor Green
 $OutPutJson = $($AppObj.ServicePrincipal) | Sort-Object | ConvertTo-Json -Depth 20
 $AppObj.PSObject.Properties.Remove('@odata.context')
-$fileName = "$Environment\Apps-States\ServicePrincipal_"+$($AppObj.ServicePrincipal.displayName)+"_"+$($AppObj.ServicePrincipal.Id)+".json"
+$fileName = ".\EntraID\Applications-ADO\$Environment\Apps-States\"+$($AppObj.ServicePrincipal.displayName)+"_"+$($AppObj.ServicePrincipal.appid)+"_ServicePrincipal.json"
 Write-Host "##vso[task.setvariable variable=newSPJsonFilePath;]$fileName"
 $OutPutJson | Out-File -FilePath $fileName
 Write-host "Service Principal detail output to - $fileName" -ForegroundColor Green

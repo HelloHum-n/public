@@ -103,7 +103,7 @@ $app.PSObject.Properties.Remove('@odata.context')
 Write-host "Application created successfully" -ForegroundColor Green
 $OutPutJson = $app | ConvertTo-Json -Depth 8
 
-$fileName = "$Environment\Apps-States\Application_"+$($app.displayName)+"_"+$($app.Id)+".json"
+$fileName = "$Environment\Apps-States\"+$($app.displayName)+"_"+$($app.appId)+"_Application.json"
 Write-Host "##vso[task.setvariable variable=newAppJsonFilePath;]$fileName"
 $OutPutJson | Out-File -FilePath $fileName 
 Write-host "Application manifest output to - $fileName" -ForegroundColor Green
