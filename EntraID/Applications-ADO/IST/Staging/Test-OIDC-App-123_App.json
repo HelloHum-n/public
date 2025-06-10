@@ -1,5 +1,5 @@
 {
-    "displayName": "Test-SAML-App-123",
+    "displayName": "Test-OIDC-App-123",
     "description": "My New SAML App",
     "signInAudience": "AzureADMyOrg",
     "api": {
