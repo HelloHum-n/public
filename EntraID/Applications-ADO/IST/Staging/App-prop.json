@@ -1,0 +1,18 @@
+{
+"web": {
+        "logoutUrl": null,
+        "redirectUris": [
+            "https://samltoolkit.azurewebsites.net/SAML/Consume/18202"
+        ],
+        "implicitGrantSettings": {
+            "enableAccessTokenIssuance": false,
+            "enableIdTokenIssuance": true
+        },
+        "redirectUriSettings": [
+            {
+                "uri": "https://samltoolkit.azurewebsites.net/SAML/Consume/18202",
+                "index": null
+            }
+        ]
+    }
+}

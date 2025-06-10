@@ -1,0 +1,29 @@
+trigger: none
+
+pool:
+  vmImage: 'windows-2019'
+
+variables:
+- name: p1
+  value: 'Tim,john,david'
+- name: p2
+  value: 'bye bye'
+
+stages:
+- stage: A
+  jobs:
+  - job: Starting
+    steps:
+    - task: PowerShell@2
+      inputs:
+        targetType: 'inline'
+        script: |
+          # Write your PowerShell commands here.
+          Write-Host "Starting for $(p1) $(p2)"
+- stage: B
+  jobs:       
+  - template: New-SAML-App.yml
+    parameters:
+      AppName: $(p1)
+      Environment: $(p2)
+

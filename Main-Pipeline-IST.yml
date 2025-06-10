@@ -1,0 +1,89 @@
+trigger: none
+
+parameters:
+  - name: csvFilePath
+    default: '.\Release.csv'
+
+variables:
+- name: Environment
+  value: IST
+
+pool:
+  vmImage: 'windows-2019'
+
+
+jobs:
+- job: csvParsing
+  steps:
+  - task: PowerShell@2
+    name: setTargets
+    inputs:
+      targetType: 'inline'
+      script: |
+        $csv = Import-Csv -Path ${{Parameters.csvFilePath}}
+        $counter = 1
+        [string]$longJsonString = "{"
+        foreach ( $row in $csv){ 
+            $outValue = $($row.Action)+";"+$($row.ApplicationName)
+            #$jobName = "action"+$counter
+            $jobName = $($row.Action)+" - "+$($row.ApplicationName)
+            $longJsonString += "`'$jobName`': {`'value`': `'$outValue`'}, "
+            $counter++
+        }
+        $longJsonString = $longJsonString.Substring(0, $($longJsonString.Length-2))
+        $longJsonString += "}"
+        Write-Host "##vso[task.setvariable variable=targets;isOutput=true]$longJsonString"
+  - script: echo $(setTargets.targets)
+    name: echoOutput
+  
+- job: Deployment
+  dependsOn: csvParsing
+  displayName: Performing action- 
+  strategy:
+    matrix: $[ dependencies.csvParsing.outputs['setTargets.targets'] ]
+    maxParallel: 2
+  variables:
+    targets: $[ dependencies.csvParsing.outputs['setTargets.targets'] ]
+  pool:
+    vmImage: 'windows-2019'
+
+  steps: 
+  - task: PowerShell@2
+    name: WriteOutput
+    inputs:
+      targetType: 'inline'
+      script: |
+          $actionValue = "$(value)"
+          $action =$($actionValue -split ";")[0]
+          $appName =$($actionValue -split ";")[1]
+          Write-Host "Preparing to perform action in $(Environment) - $action with app name - $appName" 
+
+  - task: PowerShell@2
+    condition: startsWith(variables['value'], 'New-SAML-App')
+    name: NewSAMLApp
+    inputs:
+      targetType: 'inline'
+      script: |
+          $actionValue = "$(value)"
+          $action =$($actionValue -split ";")[0]
+          $appName =$($actionValue -split ";")[1]
+          Write-Host "Performing action in $(Environment) - $action with app name - $appName" 
+          az devops configure --defaults organization=$(System.TeamFoundationCollectionUri) project=$(System.TeamProject) --use-git-aliases true
+          az pipelines run --name New-SAML-App --parameters "AppName=$appName" --variables "Testvar=$action"
+    env:
+      AZURE_DEVOPS_EXT_PAT: $(System.AccessToken)
+
+  - task: PowerShell@2
+    condition: startsWith(variables['value'], 'Update-App')
+    name: UpdateApp
+    inputs:
+      targetType: 'inline'
+      script: |
+          $actionValue = "$(value)"
+          $action =$($actionValue -split ";")[0]
+          $appName =$($actionValue -split ";")[1]
+          Write-Host "Performing action in $(Environment) - $action with app name - $appName" 
+          az devops configure --defaults organization=$(System.TeamFoundationCollectionUri) project=$(System.TeamProject) --use-git-aliases true
+          az pipelines run --name Update-SAML-App --parameters "AppName=$appName" --variables "Testvar=$action"
+    env:
+      AZURE_DEVOPS_EXT_PAT: $(System.AccessToken)

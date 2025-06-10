@@ -1,0 +1,62 @@
+trigger: none
+
+parameters:
+  - name: AppName
+    default: 'default'
+  - name: Environment
+    default: 'IST'
+    type: string
+    values:
+    - DEV
+    - IST
+    - PRD
+
+variables:
+  - name: jsonfile
+  - group: ${{parameters.Environment}}-Variables
+  - group: ${{parameters.Environment}}-Secrets
+  - name: tenantIDvar
+    value: $[variables.tenantID]
+
+pool:
+  vmImage: 'windows-latest'
+
+jobs:
+- job: 
+  #condition: eq(1,2)
+  pool:
+    vmImage: 'windows-latest'
+  steps:
+    - task: PowerShell@2
+      name: setTargets
+      inputs:
+        targetType: 'filePath'
+        filePath: './EntraID/Applications-ADO/PowerShell_Script.ps1'
+        arguments: '-tenantID $(tenantID) -ClientID $(ClientID) -certFile ${{parameters.Environment}}-Service-Connection.pfx -CertPwd $(serviceConnectionPrivateKeyPwd) -Environment ${{parameters.Environment}}'
+
+
+
+
+- deployment: ${{parameters.Environment}}_NEW_SAML_APP_${{ replace(parameters.AppName,'-','_') }}
+  environment: ${{parameters.Environment}}
+  strategy:
+    runOnce:
+      deploy:
+        steps:
+        - checkout: self
+        - task: PowerShell@2
+          name: setTargets1
+          inputs:
+             targetType: 'inline'
+             script: |
+               Get-Location
+               write-host "$(Build.Repository.LocalPath)"
+               write-host "$(Build.SourcesDirectory)"
+               get-childitem
+        - task: PowerShell@2
+          #condition: eq(1,2)
+          name: setTargets2
+          inputs:
+             targetType: 'filePath'
+             filePath: './EntraID/Applications-ADO/PowerShell_Script.ps1'
+             arguments: '-tenantID $(tenantID) -ClientID $(ClientID) -certFile ${{parameters.Environment}}-Service-Connection.pfx -CertPwd $(serviceConnectionPrivateKeyPwd) -Environment ${{parameters.Environment}}'

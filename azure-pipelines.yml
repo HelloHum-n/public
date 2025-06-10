@@ -1,0 +1,18 @@
+
+trigger: none
+
+jobs:
+- job: 
+  steps:
+  - pwsh: Write-Host "Here ya go test"
+    displayName: 'Print all variables via expression'
+  - script: az extension add -n azure-devops --upgrade
+    displayName: 'Install Azure DevOps extension'
+  - script: |
+     az devops configure --defaults organization=$(System.TeamFoundationCollectionUri) project=$(System.TeamProject) --use-git-aliases true
+    displayName: 'Set default Azure DevOps organization and project'
+  - script: |
+      az pipelines run --name New-SAML-App --parameters "AppName=fromMainParam" --variables "Testvar=fromMainVar"
+    env:
+      AZURE_DEVOPS_EXT_PAT: $(System.AccessToken)
+    displayName: 'trigger a pipeline with variables'

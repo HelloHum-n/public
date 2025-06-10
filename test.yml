@@ -1,0 +1,47 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- none
+
+pool:
+  vmImage: windows-latest
+
+variables:
+  - name: jsonfile
+  - group: IST-Variables
+  - group: IST-Secrets
+
+steps:
+- task: DownloadSecureFile@1
+  name: samlCert
+  displayName: 'Download SAML Signing certificate'
+  inputs:
+    secureFile: 'IST-SAML-Signing.pfx'
+
+- task: PowerShell@2
+  name: setTargets1
+  inputs:
+      targetType: 'inline'
+      script: |
+        $tmpPubCertFile = ".\tempPublickey.cer"
+        # .\openssl.exe pkcs12 -in "C:\Certificates\abc.com.pfx" -out C:\temp\testing.cer -nokeys -passin pass:"abcde12345" 
+        #$openSSLcmd = ".\EntraID\Applications-ADO\OpenSSL\openssl.exe pkcs12 -in `'$pfxCertFile`' -out `'$tmpPubCertFile`' -nokeys -passin pass:$privateKeyPwd"
+        #Invoke-Expression -Command $openSSLcmd
+
+        Write-host "Testing 888"
+        $privateKeyPwd = "abcde12345"
+        $exefilePath = ".\EntraID\Applications-ADO\OpenSSL\openssl.exe"
+        $args =  "pkcs12 -in $(samlCert.secureFilePath) -out $tmpPubCertFile -nokeys -passin pass:$privateKeyPwd"
+        Start-Process -FilePath "$exefilePath" -argumentList $args -Verb RunAs -WorkingDirectory $(Build.SourcesDirectory)
+        get-childitem $(Build.SourcesDirectory)
+        if ( $($PSVersionTable.PSVersion.Major) -eq 7 ){
+            $publicKey = [convert]::ToBase64String((Get-Content $tmpPubCertFile -AsByteStream Raw))
+            #$privateKey = [convert]::ToBase64String((Get-Content $PfxCertFile -AsByteStream -Raw)) 
+        }else{
+            $publicKey = [convert]::ToBase64String((Get-Content $tmpPubCertFile -Encoding Byte))
+           # $privateKey = [convert]::ToBase64String((Get-Content $PfxCertFile -Encoding Byte))  
+        }
+        write-host "$publicKey"

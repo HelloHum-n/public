@@ -1,0 +1,23 @@
+trigger: none
+
+parameters:
+  - name: AppName
+    default: 'default'
+  - name: Environment
+    default: 'IST'
+
+#variables:
+#  - name: Testvar
+#    value: 'bye bye'
+
+jobs:
+- job:
+  pool:
+    vmImage: 'windows-2019'
+  steps:
+    - task: PowerShell@2
+      name: setTargets
+      inputs:
+        targetType: 'inline'
+        script: |
+          Write-Host "job $(Testvar) is updating SAML App - ${{parameters.AppName}} in ${{parameters.Environment}}"

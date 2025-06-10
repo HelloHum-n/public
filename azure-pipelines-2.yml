@@ -1,0 +1,28 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- none
+
+pool:
+  vmImage: ubuntu-latest
+
+
+steps:
+- checkout: self
+  persistCredentials: true
+- script: |
+    #curl --output bfg-1.15.0.jar "https://repo1.maven.org/maven2/com/madgag/bfg/1.15.0/bfg-1.15.0.jar"
+    #java -jar bfg-1.15.0.jar --delete-files github-sync.yml
+    #git config --global user.email "entraidProject@azuredevops.com"
+    #git config --global user.name "Service Account"
+    #git add
+    #git commit -m "new"
+    #git push origin HEAD:$(Build.SourceBranchName)
+    python3 -m pip install --user git-filter-repo
+    ls
+    git-filter-repo --sensitive-data-removal --invert-paths --path github-sync.yml
+    git push --force --mirror origin
+  displayName: 'delete File'

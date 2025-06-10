@@ -1,0 +1,245 @@
+trigger: none
+
+parameters:
+  - name: AppName
+    default: 'Test-SAML-App-123'
+  - name: Environment
+    default: 'IST'
+    type: string
+    values:
+    - DEV
+    - IST
+    - PRD
+
+variables:
+  - name: step1succeed
+    value: false
+  - name: step2succeed
+    value: false
+  - name: step3succeed
+    value: false
+  - name: step4succeed
+    value: false
+  - name: step5succeed
+    value: false
+# - name: skipGit
+  - name: filesNotFound
+    value: false
+  - group: ${{parameters.Environment}}-Variables
+  - group: ${{parameters.Environment}}-Secrets
+  - name: tenantIDvar
+    value: $[variables.tenantID]
+
+pool:
+  vmImage: 'windows-latest'
+
+jobs:
+#- job: 
+#  pool:
+#    vmImage: 'windows-latest'
+#  steps:
+#    - task: PowerShell@2
+#      name: setTargets
+#      inputs:
+#        targetType: 'filePath'
+#        filePath: './EntraID/Applications-ADO/PowerShell_Script.ps1'
+#        arguments: '-ApplicationID $(ApplicationID) -tenantID $(tenantID) -ClientID $(ClientID) -certFile $(certFile) -CertPwd $(CertPwd) -Environment $(Environment)'
+
+- deployment: ${{parameters.Environment}}_NEW_SAML_APP_${{ replace(parameters.AppName,'-','_') }}
+  environment: ${{parameters.Environment}}
+  strategy:
+    runOnce:
+      deploy:
+        steps:
+          - checkout: self
+            persistCredentials: true
+          - task: PowerShell@2
+            name: constructVariables
+            inputs:
+              targetType: inline
+              script: |
+                $tenantID = "$(tenantIDvar)"
+                #Write-Host "tenant ID is $tenantID"
+                Write-Host "tenantID: $(tenantID)"
+                
+                # Json file containing the application details (Hint: Create one in staging folder)
+                $appStagingJsonFile  = ".\EntraID\Applications-ADO\${{parameters.Environment}}\Staging\${{parameters.AppName}}_App.json"
+                Write-Host "##vso[task.setvariable variable=appStagingJsonFile]$appStagingJsonFile"
+                Write-Host "appStagingJsonFile: $appStagingJsonFile"
+                
+                $SpStagingJsonFile  = ".\EntraID\Applications-ADO\${{parameters.Environment}}\Staging\${{parameters.AppName}}_Sp.json"
+                Write-Host "##vso[task.setvariable variable=SpStagingJsonFile]$SpStagingJsonFile"
+                Write-Host "SpStagingJsonFile: $SpStagingJsonFile"
+
+                $customClaimsJson = ".\EntraID\Applications-ADO\${{parameters.Environment}}\Staging\${{parameters.AppName}}_customClaims.json"
+                Write-Host "##vso[task.setvariable variable=customClaimsJson]$customClaimsJson"
+                Write-Host "customClaimsJson: $customClaimsJson"
+                
+          - task: PowerShell@2
+            name: verifyFiles
+            inputs:
+              targetType: inline
+              script: |
+                if (-not (Test-Path -Path '$(appStagingJsonFile)')){
+                  Write-Host "##vso[task.setvariable variable=filesNotFound]true"
+                  $noFile = $true
+                  Write-Host "Staging File- $(appStagingJsonFile) not Found"
+                }
+                if (-not (Test-Path -Path '$(SpStagingJsonFile)')){
+                  Write-Host "##vso[task.setvariable variable=filesNotFound]true"
+                  $noFile = $true
+                  Write-Host"Staging File- $(SpStagingJsonFile) not Found"
+                }
+                if (-not (Test-Path -Path '$(customClaimsJson)')){
+                  Write-Host "##vso[task.setvariable variable=filesNotFound]true"
+                  $noFile = $true
+                  Write-Host "Staging File- $(customClaimsJson) not Found"
+                }
+                if ($noFile){
+                  throw "The above staging file(s) not found."
+                }
+
+          - task: DownloadSecureFile@1
+            name: samlCert
+            displayName: 'Download SAML Signing certificate'
+            inputs:
+              secureFile: '${{parameters.Environment}}-SAML-Signing.pfx'
+          - task: DownloadSecureFile@1
+            name: connectionCert
+            displayName: 'Download Service Connection certificate'
+            inputs:
+              secureFile: '${{parameters.Environment}}-Service-Connection.pfx'
+
+          - task: PowerShell@2
+            name: New_SAML_Application_obj_SP_obj
+            inputs:
+              targetType: 'filePath'
+              filePath: './EntraID/Applications-ADO/New-SAMLApplication-REST.ps1'
+              arguments: '-JsonFile $(appStagingJsonFile) -tenantID $(tenantID) -ClientID $(ClientID) -certFile $(connectionCert.secureFilePath) -CertPwd $(serviceConnectionPrivateKeyPwd) -Environment ${{parameters.Environment}}'
+
+          - task: PowerShell@2
+            name: displayVariables
+            inputs:
+              targetType: inline
+              script: |
+                Write-Host "newAppJsonFilePath: $(newAppJsonFilePath)"
+                Write-Host "newSPJsonFilePath: $(newSPJsonFilePath)"
+                if (Test-Path -Path '$(newAppJsonFilePath)'){Write-Host "$(newAppJsonFilePath) exists"}else{throw "file not found"}
+                if (Test-Path -Path '$(newSPJsonFilePath)'){Write-Host "$(newSPJsonFilePath) exists"}else{throw "file not found"}
+          - task: PowerShell@2
+            name: step1check
+            condition: succeeded()
+            inputs:
+              targetType: inline
+              script: |
+                Write-Host "##vso[task.setvariable variable=step1succeed]true"
+          - task: PowerShell@2
+            name: Update_Application_obj
+            inputs:
+              targetType: 'filePath'
+              filePath: './EntraID/Applications-ADO/Update-Applicaton-REST.ps1'
+              arguments: '-JsonFile "$(newAppJsonFilePath)" -newJsonFile "$(appStagingJsonFile)" -tenantID $(tenantID) -ClientID $(ClientID) -certFile $(connectionCert.secureFilePath) -CertPwd $(serviceConnectionPrivateKeyPwd) -Environment ${{parameters.Environment}}'
+
+          - task: PowerShell@2
+            name: step2check
+            condition: succeeded()
+            inputs:
+              targetType: inline
+              script: |
+                Write-Host "##vso[task.setvariable variable=step2succeed]true"
+
+          - task: PowerShell@2
+            name: Update_ServicePrincipal_obj
+            inputs:
+              targetType: 'filePath'
+              filePath: './EntraID/Applications-ADO/Update-ServicePrincipal-REST.ps1'
+              arguments: '-JsonFile "$(newSPJsonFilePath)" -newJsonFile "$(SpStagingJsonFile)" -tenantID $(tenantID) -ClientID $(ClientID) -certFile $(connectionCert.secureFilePath) -CertPwd $(serviceConnectionPrivateKeyPwd) -Environment ${{parameters.Environment}}'
+
+          - task: PowerShell@2
+            name: step3check
+            condition: succeeded()
+            inputs:
+              targetType: inline
+              script: |
+                Write-Host "##vso[task.setvariable variable=step3succeed]true"
+
+          - task: PowerShell@2
+            name: New_ServicePrincipalClaims
+            inputs:
+              targetType: 'filePath'
+              filePath: './EntraID/Applications-ADO/New-ServicePrincipalClaims-REST.ps1'
+              arguments: '-JsonFile "$(newSPJsonFilePath)" -claimsJsonFile "$(customClaimsJson)" -tenantID $(tenantID) -ClientID $(ClientID) -certFile $(connectionCert.secureFilePath) -CertPwd $(serviceConnectionPrivateKeyPwd) -Environment ${{parameters.Environment}}'
+
+          - task: PowerShell@2
+            name: step4check
+            condition: succeeded()
+            inputs:
+              targetType: inline
+              script: |
+                Write-Host "##vso[task.setvariable variable=step4succeed]true"
+
+          - task: PowerShell@2
+            name: New_ServicePrincipalSamlCert
+            inputs:
+              targetType: 'filePath'
+              filePath: './EntraID/Applications-ADO/New-ServicePrincipalSAMLCertificate-REST.ps1'
+              arguments: '-JsonFile "$(newSPJsonFilePath)" -PfxCertFile $(samlCert.secureFilePath) -privateKeyPwd $(samlSigningPrivateKeyPwd) -tenantID $(tenantID) -ClientID $(ClientID) -certFile $(connectionCert.secureFilePath) -CertPwd $(serviceConnectionPrivateKeyPwd) -Environment ${{parameters.Environment}}'
+
+          - task: PowerShell@2
+            name: step5check
+            condition: succeeded()
+            inputs:
+              targetType: inline
+              script: |
+                Write-Host "##vso[task.setvariable variable=step5succeed]true"
+
+          - task: PowerShell@2
+            name: Post_Deployment_CleanUP
+            condition: always()
+            inputs:
+              targetType: inline
+              script: |
+                if ( ("$(step1succeed)" -eq "false") -or ("$(step2succeed)" -eq "false") -or ("$(step3succeed)" -eq "false") -or ("$(step4succeed)" -eq "false") -or ("$(step5succeed)" -eq "false")){ 
+                  #delete application object
+                  Write-Host "##vso[task.setvariable variable=deleteApp]true"
+                  #Write-Host "##vso[task.setvariable variable=deleteSP]true"
+                  #Write-Host "##vso[task.setvariable variable=skipGit]true"
+                  write-host "Deployment failed, cleaned up and deleted Application and ServicePrincipal object if needed."
+                }else{
+                  write-host "Deployment succeeded."
+                  Write-Host "##vso[task.setvariable variable=deleteApp]false"
+                  #Write-Host "##vso[task.setvariable variable=deleteSP]false"
+                  #Write-Host "##vso[task.setvariable variable=skipGit]false"
+                }
+
+          - task: PowerShell@2
+            condition: eq(variables.deleteApp, 'true')
+            name: delete_App_Object
+            inputs:
+              targetType: 'filePath'
+              filePath: './EntraID/Applications-ADO/Remove-Application-REST.ps1'
+              arguments: '-appJsonFile "$(newAppJsonFilePath)" -tenantID $(tenantID) -ClientID $(ClientID) -certFile $(connectionCert.secureFilePath) -CertPwd $(serviceConnectionPrivateKeyPwd) -Environment ${{parameters.Environment}}'
+
+#          - task: PowerShell@2
+#            condition: eq(variables.deleteSP, 'true')
+#            name: delete_SP_Object
+#            inputs:
+#              targetType: 'filePath'
+#              filePath: './EntraID/Applications-ADO/Remove-ServicePrincipal-REST.ps1'
+#              arguments: '-SpJsonFile "$(newSPJsonFilePath)" -tenantID $(tenantID) -ClientID $(ClientID) -certFile $(connectionCert.secureFilePath) -CertPwd $(serviceConnectionPrivateKeyPwd) -Environment ${{parameters.Environment}}'
+
+          - task: PowerShell@2
+            name: gitCommit
+            #condition: eq(variables.skipGit, 'false')
+            condition: eq(variables.deleteApp, 'false')
+            inputs:  
+              targetType: inline
+              script: |
+                git config --global user.email "entraidProject@azuredevops.com"
+                git config --global user.name "serivce account"
+                #cd $(Build.SourcesDirectory)\$(System.TeamProject)
+                git add -A
+                git commit -m "new"
+                git push origin HEAD:$(Build.SourceBranchName)
+          #- checkout: self
+            #clean: true

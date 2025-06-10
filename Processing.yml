@@ -1,0 +1,40 @@
+parameters:
+  - name: firstName
+    type: object
+    default:
+    - 111
+    - 222
+    - 333
+  - name: lastName
+    default: ''
+
+jobs:
+- job: PreProcessing
+  pool:
+    vmImage: 'windows-2019'
+    inputs:
+      targetType: 'inline'
+      script: |
+        Write-Host "pre proccessing"
+
+- job: Processing
+  dependsOn: PreProcessing
+  pool:
+    vmImage: 'windows-2019'
+  steps:
+  - ${{ each value in parameters.firstName }}:
+    - task: PowerShell@2
+      #condition: and(succeeded(), ${{ eq(parameters.firstName, 'Tim') }})
+      #condition: ${{ eq(parameters.firstName, 'Tim') }}
+      inputs:
+        targetType: 'inline'
+        script: |
+          Write-Host "Hello from second pipeline 2 task 1 ${{value}} 
+          #Write-Host "##vso[task.setvariable variable=firstNameVar;]${{value}}" 
+    - task: PowerShell@2
+      #condition: and(succeeded(), ${{ eq(parameters.firstName, 'Tim') }})
+      condition: eq(variables.firstNameVar, 'Tim')
+      inputs:
+        targetType: 'inline'
+        script: |
+          Write-Host "Hello from second pipeline 2 task 2 ${{value}} ${{parameters.lastName}}"

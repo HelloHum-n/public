@@ -1,0 +1,6 @@
+﻿Action,ApplicationName
+New-SAML-App,SAML-App-1
+Update-App,OIDC-App-2
+New-OIDC-App,OIDC-App-5
+Delete-App,OIDC-App-6
+New-SAML-App,SAML-App-8

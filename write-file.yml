@@ -1,0 +1,45 @@
+trigger: none
+
+name: Write-File
+
+
+variables:
+- name: Environment
+  value: IST
+
+pool:
+  vmImage: 'windows-2019'
+
+jobs:
+- job: writeSecretandCommit
+  displayName: writing secret to local repo
+  pool:
+    vmImage: 'windows-latest'
+
+  steps:
+  - checkout: self
+    persistCredentials: true
+  - task: PowerShell@2
+    name: writeFile
+    inputs:
+      targetType: 'inline'
+      script: |
+        ls
+        $fileName = "Entra\EntraID\Applications-ADO\IST\Apps-States\output.txt"
+        Write-Host "##vso[task.setvariable variable=fileName;]$fileName"
+        Write-Host "Writing filename $fileName"
+        "testing 123456" | Out-File -FilePath $fileName -Force
+        ls
+  - script: echo Task 2 filename - $(fileName)
+    name: echoOutput
+  - script: |
+     git config --global user.email "entraidProject@azuredevops.com"
+     git config --global user.name "serivce account"
+     cd $(Build.SourcesDirectory)\$(System.TeamProject)
+     git add -A
+     git commit -m "new"
+     git push origin HEAD:$(Build.SourceBranchName)
+    name: gitCommit
+  - checkout: self
+    clean: true
+#git branch --all
