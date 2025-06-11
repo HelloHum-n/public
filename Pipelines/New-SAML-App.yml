@@ -111,7 +111,7 @@ jobs:
               secureFile: '${{parameters.Environment}}-Service-Connection.pfx'
 
           - task: PowerShell@2
-            name: New_SAML_Application_obj_SP_obj
+            name: Step1_New_SAML_Application_obj_SP_obj
             inputs:
               targetType: 'filePath'
               filePath: './EntraID/Applications-ADO/New-SAMLApplication-REST.ps1'
@@ -134,7 +134,7 @@ jobs:
               script: |
                 Write-Host "##vso[task.setvariable variable=step1succeed]true"
           - task: PowerShell@2
-            name: Update_Application_obj
+            name: Step2_Update_Application_obj
             inputs:
               targetType: 'filePath'
               filePath: './EntraID/Applications-ADO/Update-Applicaton-REST.ps1'
@@ -149,7 +149,7 @@ jobs:
                 Write-Host "##vso[task.setvariable variable=step2succeed]true"
 
           - task: PowerShell@2
-            name: Update_ServicePrincipal_obj
+            name: Step3_Update_ServicePrincipal_obj
             inputs:
               targetType: 'filePath'
               filePath: './EntraID/Applications-ADO/Update-ServicePrincipal-REST.ps1'
@@ -164,7 +164,7 @@ jobs:
                 Write-Host "##vso[task.setvariable variable=step3succeed]true"
 
           - task: PowerShell@2
-            name: New_ServicePrincipalClaims
+            name: Step4_New_ServicePrincipalClaims
             inputs:
               targetType: 'filePath'
               filePath: './EntraID/Applications-ADO/New-ServicePrincipalClaims-REST.ps1'
@@ -179,7 +179,7 @@ jobs:
                 Write-Host "##vso[task.setvariable variable=step4succeed]true"
 
           - task: PowerShell@2
-            name: New_ServicePrincipalSamlCert
+            name: Step5_New_ServicePrincipalSamlCert
             inputs:
               targetType: 'filePath'
               filePath: './EntraID/Applications-ADO/New-ServicePrincipalSAMLCertificate-REST.ps1'
