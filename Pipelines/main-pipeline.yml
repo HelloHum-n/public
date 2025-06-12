@@ -44,7 +44,7 @@ jobs:
   steps:
   - task: PowerShell@2
     env:
-      SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+      AZURE_DEVOPS_EXT_PAT: $(System.AccessToken)
     inputs:
       targetType: 'inline'
       script: |
