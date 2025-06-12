@@ -30,9 +30,31 @@ parameters:
 pool:
   vmImage: 'windows-latest'
 variables:
-  myVar1: ${{ variables.myVar}}
-  myVar2: $(myVar)
-  apps: app1
+- name: action1
+  value: NEW-SAML-APP
+- name: action2
+  value: NEW-OIDC-APP
+- name: action3
+  value: UPDATE-APP-OBJ
+- name: action4
+  value: UPDATE-SP-OBJ
+- name: action5
+  value: DELETE-APPLICATION
+- name: action1_pipelineName
+  value: IST
+- name: action2_pipelineName
+  value: IST
+- name: action3_pipelineName
+  value: IST
+- name: action4_pipelineName
+  value: IST
+- name: action5_pipelineName
+  value: IST
+
+
+
+
+
 
 
 jobs: 
