@@ -18,6 +18,8 @@ variables:
     value: true
   - name: AppStatesFolderPath
     value: "./EntraID/Applications-ADO/${{parameters.Environment}}/Apps-States/"
+  - group: ${{parameters.Environment}}-Variables
+  - group: ${{parameters.Environment}}-Secrets
 
 jobs:
 - job:
@@ -57,7 +59,12 @@ jobs:
           }else{
              Write-Host "Error: Please provide a valid App ID or App Name."
           }  
-
+          
+    - task: DownloadSecureFile@1
+      name: connectionCert
+      displayName: 'Download Service Connection certificate'
+      inputs:
+        secureFile: '${{parameters.Environment}}-Service-Connection.pfx'
     - task: PowerShell@2
       name: delete_App_Object
       inputs:
