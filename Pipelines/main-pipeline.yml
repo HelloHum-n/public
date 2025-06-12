@@ -23,6 +23,7 @@ variables:
   value: UPDATE-SP-OBJ
 - name: action5
   value: DELETE-APPLICATION
+  
 - name: action1_pipelineName
   value: NEW-SAML-APP
 - name: action2_pipelineName
@@ -32,7 +33,7 @@ variables:
 - name: action4_pipelineName
   value: UPDATE-SP-OBJ
 - name: action5_pipelineName
-  value: DELETE-APPLICATION
+  value: DELETE-APP
 
 pool:
   vmImage: 'windows-latest'
