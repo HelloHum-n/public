@@ -26,6 +26,8 @@ jobs:
   pool:
     vmImage: 'windows-latest'
   steps:
+    - checkout: self
+      persistCredentials: true
     - task: PowerShell@2
       name: constructVariable
       inputs:
