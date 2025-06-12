@@ -45,16 +45,25 @@ jobs:
       targetType: 'inline'
       script: |
         $apps = Import-csv -Path $(Build.SourcesDirectory)\${{ Parameters.csvFilePath }}
-        ConvertTo-Json $apps
-        $NEW_SAML_APP = ($apps | Group-Object -Property Action | where-object -Property Name -eq -Value "NEW-SAML-APP").Group.ApplicationName -join ","
-        $Update_App = ($apps | Group-Object -Property Action | where-object -Property Name -eq -Value "Update-App").Group.ApplicationName -join ","
-        $New_OIDC_App = ($apps | Group-Object -Property Action | where-object -Property Name -eq -Value "New-OIDC-App").Group.ApplicationName -join ","
-        $DELETE_APP = ($apps | Group-Object -Property Action | where-object -Property Name -eq -Value "DELETE-APP").Group.ApplicationName -join ","
-
-        # Tiggering 
-        $url = "$($env:SYSTEM_TEAMFOUNDATIONCOLLECTIONURI)$env:SYSTEM_TEAMPROJECTID/_apis/pipelines/$($env:SYSTEM_DEFINITIONID)/runs?api-version=6.0-preview.1"
-        $body = ('{"stagesToSkip":[],"resources":{"repositories":{"self":{"refName":"refs/heads/main"}}},"templateParameters":{"mode":"deploy_apps","myEnv":"${{parameters.myEnv}}","NEW_SAML_APP":"'+$NEW_SAML_APP+'","Update_App":"'+$Update_App+'","New_OIDC_App":"'+$New_OIDC_App+'","DELETE_APP":"'+$DELETE_APP+'"},"variables":{"myVar":{"value":"DOTS"}}}')
-        write-host $url
-        write-host $body
-        $run = Invoke-RestMethod -Method POST -Uri $url -Headers @{Authorization = "Bearer $env:SYSTEM_ACCESSTOKEN"} -body $body -ContentType application/json
-        write-host $run
+        az devops configure --defaults organization=$(System.TeamFoundationCollectionUri) project=$(System.TeamProject) --use-git-aliases true
+        # Tiggering child ymls
+        foreach ($app in $apps){
+            if( ($app.Action) -eq $(action1) ){
+                Write-Host "Performing action in $(Environment) - ($app.Action) with app name - ($app.ApplicationName)"
+                az pipelines run --name $(action1_pipelineName) --parameters "AppName=($app.ApplicationName)" "Environment=$(Environment)"
+            }elseif( ($app.Action) -eq $(action2) ){
+                Write-Host "Performing action in $(Environment) - ($app.Action) with app name - ($app.ApplicationName)"
+                az pipelines run --name $(action2_pipelineName) --parameters "AppName=($app.ApplicationName)" "Environment=$(Environment)"
+            }elseif( ($app.Action) -eq $(action3) ){
+                Write-Host "Performing action in $(Environment) - ($app.Action) with app name - ($app.ApplicationName)"
+                az pipelines run --name $(action3_pipelineName) --parameters "AppName=($app.ApplicationName)" "Environment=$(Environment)"
+            }elseif( ($app.Action) -eq $(action4) ){
+                Write-Host "Performing action in $(Environment) - ($app.Action) with app name - ($app.ApplicationName)"
+                az pipelines run --name $(action4_pipelineName) --parameters "AppName=($app.ApplicationName)" "Environment=$(Environment)"
+            }elseif( ($app.Action) -eq $(action5) ){
+                Write-Host "Performing action in $(Environment) - ($app.Action) with app name - ($app.ApplicationName)"
+                az pipelines run --name $(action5_pipelineName) --parameters "AppName=($app.ApplicationName)" "Environment=$(Environment)"
+            }else{
+                Write-Host "($app.Action) IS NOT a valid action for app name - ($app.ApplicationName)"
+            }
+        }
