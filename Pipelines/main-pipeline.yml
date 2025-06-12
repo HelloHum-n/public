@@ -3,10 +3,10 @@ trigger: none
 parameters:
 - name: csvFilePath
   default: '.\Release.csv'
-- name: myEnv
-  displayName: my stage
+- name: Environment
+  displayName: Environment
   type: string
-  default: DEV
+  default: IST
   values:
   - DEV
   - IST
