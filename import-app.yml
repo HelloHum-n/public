@@ -1,0 +1,71 @@
+trigger: none
+
+parameters:
+#  - name: AppName
+#    default: 'defaultparaValue'
+  - name: AppID
+    default: 'defaultparaValue'
+  - name: Environment
+    default: 'IST'
+    type: string
+    values:
+    - DEV
+    - IST
+    - PRD
+
+variables:
+  - name: filesNotFound
+    value: true
+  - name: AppStatesFolderPath
+    value: "./EntraID/Applications-ADO/${{parameters.Environment}}/Apps-States/"
+  - group: ${{parameters.Environment}}-Variables
+  - group: ${{parameters.Environment}}-Secrets
+
+jobs:
+- job:
+  pool:
+    vmImage: 'windows-latest'
+  steps:
+    - checkout: self
+      persistCredentials: true
+ 
+    - task: DownloadSecureFile@1
+      name: connectionCert
+      displayName: 'Download Service Connection certificate'
+      inputs:
+        secureFile: '${{parameters.Environment}}-Service-Connection.pfx'
+    - task: PowerShell@2
+      name: Get_App_Object
+      inputs:
+        targetType: 'filePath'
+        filePath: './EntraID/Applications-ADO/Get-Application-REST.ps1'
+        arguments: '-ApplicationID "${{parameters.AppID}}" -tenantID $(tenantID) -ClientID $(ClientID) -certFile $(connectionCert.secureFilePath) -CertPwd $(serviceConnectionPrivateKeyPwd) -Environment ${{parameters.Environment}}'
+
+    - task: PowerShell@2
+      name: Get_SP_Object
+      inputs:
+        targetType: 'filePath'
+        filePath: './EntraID/Applications-ADO/Get-ServicePrincipal-REST.ps1'
+        arguments: '-ApplicationID "${{parameters.AppID}}" -tenantID $(tenantID) -ClientID $(ClientID) -certFile $(connectionCert.secureFilePath) -CertPwd $(serviceConnectionPrivateKeyPwd) -Environment ${{parameters.Environment}}'
+
+    - task: PowerShell@2
+      name: Get_CustomClaims
+      inputs:
+        targetType: 'filePath'
+        filePath: './EntraID/Applications-ADO/Get-ServicePrincipalClaims-REST.ps1'
+        arguments: '-ApplicationID "${{parameters.AppID}}" -tenantID $(tenantID) -ClientID $(ClientID) -certFile $(connectionCert.secureFilePath) -CertPwd $(serviceConnectionPrivateKeyPwd) -Environment ${{parameters.Environment}}'
+
+
+    - task: PowerShell@2
+      condition: eq(variables.filesNotFound, 'false')
+      name: gitCommit
+      inputs:  
+        targetType: inline
+        script: |
+          git config --global user.email "entraidProject@azuredevops.com"
+          git config --global user.name "serivce account"
+          git fetch origin $(Build.SourceBranchName):tmp
+          git rebase tmp
+          git add -A
+          git commit -m "new"
+          git push origin HEAD:$(Build.SourceBranchName)
