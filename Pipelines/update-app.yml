@@ -21,4 +21,4 @@ jobs:
       inputs:
         targetType: 'inline'
         script: |
-          Write-Host "Updating SAML App - ${{parameters.AppName}} in ${{parameters.Environment}}"
+          Write-Host "Updating Application Object - ${{parameters.AppName}} in ${{parameters.Environment}}"
