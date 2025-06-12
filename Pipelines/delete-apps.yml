@@ -3,6 +3,8 @@ trigger: none
 parameters:
   - name: AppName
     default: 'default'
+  - name: AppID
+    default: 'default'
   - name: Environment
     default: 'IST'
     type: string
@@ -11,11 +13,33 @@ parameters:
     - IST
     - PRD
 
+variables:
+  - name: filesNotFound
+    value: false
+  - name: filePath
+    value: "./EntraID/Applications-ADO/${{parameters.Environment}}/Apps-States/"
+    
 jobs:
 - job:
   pool:
     vmImage: 'windows-latest'
   steps:
+    - task: PowerShell@2
+      name: constructVariable
+      inputs:
+        targetType:  inline
+        script: |
+
+          if ( "${{parameters.AppID}}" -ne "default" ){
+            write-host "Searching for App-State files using Application ID: ${{parameters.AppID}}"
+            
+          }elseif ( "${{parameters.AppID}}" -eq "default" ){
+
+          }else{
+
+          }  
+
+
     - task: PowerShell@2
       name: delete_App_Object
       inputs:
