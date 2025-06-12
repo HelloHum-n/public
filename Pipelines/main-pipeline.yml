@@ -24,15 +24,15 @@ variables:
 - name: action5
   value: DELETE-APPLICATION
 - name: action1_pipelineName
-  value: IST
+  value: NEW-SAML-APP
 - name: action2_pipelineName
-  value: IST
+  value: NEW-OIDC-APP
 - name: action3_pipelineName
-  value: IST
+  value: UPDATE-APP-OBJ
 - name: action4_pipelineName
-  value: IST
+  value: UPDATE-SP-OBJ
 - name: action5_pipelineName
-  value: IST
+  value: DELETE-APPLICATION
 
 pool:
   vmImage: 'windows-latest'
