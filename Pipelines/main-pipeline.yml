@@ -54,6 +54,7 @@ jobs:
         foreach ($app in $apps){
             $action = $app.Action
             $appName = $app.ApplicationName
+            #insert addtional code to check applicationName uniqueness
             if( $action -eq "$(action1)" ){
                 Write-Host "Performing action in ${{parameters.Environment}} - $action with app name - $appName"
                 az pipelines run --name $(action1_pipelineName) --parameters "AppName=$appName" "Environment=${{parameters.Environment}}"
