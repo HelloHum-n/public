@@ -187,7 +187,7 @@ $body = @"
 
     #Write-Host "Patching the following body for certificate upload"
     #$body 
-    $URI = 'https://graph.microsoft.com/v1.0/servicePrincipals'+"/$($inputObj.id)"
+    $URI = 'https://graph.microsoft.com/beta/servicePrincipals'+"/$($inputObj.id)"
     $output = MSGraphRequest -Method PATCH -URI $URI -Body $body
 
 }else{
