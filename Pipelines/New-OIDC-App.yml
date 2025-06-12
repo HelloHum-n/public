@@ -201,6 +201,7 @@ jobs:
                 #cd $(Build.SourcesDirectory)\$(System.TeamProject)
                 git add -A
                 git commit -m "new"
+                git pull
                 git push origin HEAD:$(Build.SourceBranchName)
           #- checkout: self
             #clean: true
