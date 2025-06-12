@@ -106,7 +106,7 @@ $spObj | Add-Member -MemberType NoteProperty -Name "appRoleAssignmentRequired"  
 
 $json = $spObj | ConvertTo-Json -Depth 8
 
-$URI = 'https://graph.microsoft.com/v1.0/servicePrincipals'
+$URI = 'https://graph.microsoft.com/beta/servicePrincipals'
 $SP = MSGraphRequest -Method Post -URI $URI -Body $json
 
 $SP| Format-List id, DisplayName, AppId, SignInAudience
