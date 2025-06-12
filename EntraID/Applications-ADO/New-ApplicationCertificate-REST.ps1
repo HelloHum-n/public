@@ -176,13 +176,13 @@ $body = @"
 
     #Write-Host "Patching the following body for certificate upload"
     #$body 
-    $URI = 'https://graph.microsoft.com/v1.0/applications'+"/$($inputObj.id)"
+    $URI = 'https://graph.microsoft.com/beta/applications'+"/$($inputObj.id)"
     $output = MSGraphRequest -Method PATCH -URI $URI -Body $body
 
 }else{
 
     # Get the existing keyCredentials
-    $URI = "https://graph.microsoft.com/v1.0/applications/$($inputObj.id)?`$select=keyCredentials"
+    $URI = "https://graph.microsoft.com/beta/applications/$($inputObj.id)?`$select=keyCredentials"
     $AppObj = MSGraphRequest -Method GET -URI $URI
     $AppObj  = $AppObj | ConvertTo-Json -Depth 20 | ConvertFrom-Json 
     $AppObj.PSObject.Properties.Remove('@odata.context')
