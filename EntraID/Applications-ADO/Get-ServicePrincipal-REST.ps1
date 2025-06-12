@@ -95,7 +95,7 @@ if ($SPobj -like '*{"error"*'){
 }else{
     Write-host "Retrived Service Principal object successfully" -ForegroundColor Green  
     $OutPutJson = $SPobj | ConvertTo-Json -Depth 20
-    $fileName = "$Environment\Apps-States\"+$($SPobj.displayName)+"_"+$($SPobj.appId)+"_ServicePrincipal.json"
+    $fileName = ".\EntraID\Applications-ADO\$Environment\Apps-States\"+$($SPobj.displayName)+"_"+$($SPobj.appId)+"_ServicePrincipal.json"
     $OutPutJson | Out-File -FilePath $fileName -Force
     Write-host "Service Principal detail output to - $fileName" -ForegroundColor Green
     Disconnect-mggraph
