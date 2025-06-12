@@ -2,9 +2,9 @@ trigger: none
 
 parameters:
   - name: AppName
-    default: 'default'
+    default: 'defaultparaValue'
   - name: AppID
-    default: 'default'
+    default: 'defaultparaValue'
   - name: Environment
     default: 'IST'
     type: string
@@ -15,10 +15,10 @@ parameters:
 
 variables:
   - name: filesNotFound
-    value: false
-  - name: filePath
+    value: true
+  - name: AppStatesFolderPath
     value: "./EntraID/Applications-ADO/${{parameters.Environment}}/Apps-States/"
-    
+
 jobs:
 - job:
   pool:
@@ -29,32 +29,90 @@ jobs:
       inputs:
         targetType:  inline
         script: |
-
-          if ( "${{parameters.AppID}}" -ne "default" ){
-            write-host "Searching for App-State files using Application ID: ${{parameters.AppID}}"
-            
-          }elseif ( "${{parameters.AppID}}" -eq "default" ){
-
+          if ( "${{parameters.AppID}}" -ne "defaultparaValue" ){
+            Write-Host 'Searching for App-State files using Application ID: ${{parameters.AppID}}'
+            $appFileNamePattern = "*"+"${{parameters.AppID}}"+"_Application.json"
+            $appFile = Get-ChildItem -Path $(AppStatesFolderPath) -Name $appFileNamePattern
+            if ($appFile.Count -gt 1){
+              Write-Host "More than 1 App manifest with App ID: ${{parameters.AppID}} found, please check App-States folder inventory and try again."
+            }elseif ($appFile.Count -eq 0){
+              Write-Host "No App Manifest with App ID: ${{parameters.AppID}} found, please check App-States folder inventory and try again."
+            }else{
+              Write-Host "##vso[task.setvariable variable=filesNotFound]false"
+              Write-Host "##vso[task.setvariable variable=appFileName]appFile"
+              Write-Host "App Manifest with App ID: ${{parameters.AppID}} found: $appFile"
+            }
+          }elseif ( "${{parameters.AppName}}" -ne "defaultparaValue" ){
+            $appFileNamePattern = "${{parameters.AppName}}"+"*_Application.json"
+            $appFile = Get-ChildItem -Path $(AppStatesFolderPath) -Name $appFileNamePattern
+            if ($appFile.Count -gt 1){
+              Write-Host "More than 1 App manifest with App Name: ${{parameters.AppName}} found, please check App-States folder inventory and try again."
+            }elseif ($appFile.Count -eq 0){
+              Write-Host "No App Manifest with App Name: ${{parameters.AppName}} found, please check App-States folder inventory and try again."
+            }else{
+              Write-Host "##vso[task.setvariable variable=filesNotFound]false"
+              Write-Host "##vso[task.setvariable variable=appFileName]appFile"
+              Write-Host "App Manifest with App Name: ${{parameters.AppName}} found: $appFile"
+            }
           }else{
-
+             Write-Host "Error: Please provide a valid App ID or App Name."
           }  
-
 
     - task: PowerShell@2
       name: delete_App_Object
       inputs:
         targetType: 'filePath'
         filePath: './EntraID/Applications-ADO/Remove-Application-REST.ps1'
-        arguments: '-appJsonFile "$(newAppJsonFilePath)" -tenantID $(tenantID) -ClientID $(ClientID) -certFile $(connectionCert.secureFilePath) -CertPwd $(serviceConnectionPrivateKeyPwd) -Environment ${{parameters.Environment}}'
+        arguments: '-appJsonFile "$(AppStatesFolderPath)$(appFileName)" -tenantID $(tenantID) -ClientID $(ClientID) -certFile $(connectionCert.secureFilePath) -CertPwd $(serviceConnectionPrivateKeyPwd) -Environment ${{parameters.Environment}}'
 
     - task: PowerShell@2
+      condition: eq(variables.filesNotFound, 'false')
+      name: deleteFiles
+      inputs:
+        targetType:  inline
+        script: |
+          if ( "${{parameters.AppID}}" -ne "defaultparaValue" ){
+            Write-Host 'Searching for App-State SP file using Application ID: ${{parameters.AppID}}'
+            $SpFileNamePattern = "*"+"${{parameters.AppID}}"+"_ServicePrincipal.json"
+            $SpFile = Get-ChildItem -Path $(AppStatesFolderPath) -Name $SpFileNamePattern 
+            if (Test-Path $(AppStatesFolderPath)$SpFile){
+              Write-Host "Deleting File: $(AppStatesFolderPath)$SpFile"
+              Remove-Item $(AppStatesFolderPath)$SpFile
+            }
+            Write-Host 'Searching for App-State claims file using Application ID: ${{parameters.AppID}}'
+            $claimsFileNamePattern = "*"+"${{parameters.AppID}}"+"_CustomClaims.json"
+            $claimsFile = Get-ChildItem -Path $(AppStatesFolderPath) -Name $claimsFileNamePattern 
+            if (Test-Path $(AppStatesFolderPath)$claimsFile){
+              Write-Host "Deleting File: $(AppStatesFolderPath)$claimsFile"
+              Remove-Item $(AppStatesFolderPath)$claimsFile
+            }
+          }elseif ( "${{parameters.AppName}}" -ne "defaultparaValue" ){
+            Write-Host 'Searching for App-State SP file using Application Name: ${{parameters.AppName}}'
+            $SpFileNamePattern = "${{parameters.AppName}}"+"*_ServicePrincipal.json"
+            $SpFile = Get-ChildItem -Path $(AppStatesFolderPath) -Name $SpFileNamePattern 
+            if (Test-Path $(AppStatesFolderPath)$SpFile){
+              Write-Host "Deleting File: $(AppStatesFolderPath)$SpFile"
+              Remove-Item $(AppStatesFolderPath)$SpFile
+            }
+            Write-Host 'Searching for App-State claims file using Application Name: ${{parameters.AppName}}'
+            $claimsFileNamePattern = "${{parameters.AppName}}"+"*_CustomClaims.json"
+            $claimsFile = Get-ChildItem -Path $(AppStatesFolderPath) -Name $claimsFileNamePattern 
+            if (Test-Path $(AppStatesFolderPath)$claimsFile){
+              Write-Host "Deleting File: $(AppStatesFolderPath)$claimsFile"
+              Remove-Item $(AppStatesFolderPath)$claimsFile
+            }
+          }
+
+    - task: PowerShell@2
+      condition: eq(variables.filesNotFound, 'false')
       name: gitCommit
       inputs:  
         targetType: inline
         script: |
           git config --global user.email "entraidProject@azuredevops.com"
           git config --global user.name "serivce account"
-          #cd $(Build.SourcesDirectory)\$(System.TeamProject)
+          git fetch origin $(Build.SourceBranchName):tmp
+          git rebase tmp
           git add -A
-          git commit -m "Delete App"
+          git commit -m "new"
           git push origin HEAD:$(Build.SourceBranchName)
