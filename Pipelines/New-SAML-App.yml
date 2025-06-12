@@ -111,7 +111,7 @@ jobs:
               secureFile: '${{parameters.Environment}}-Service-Connection.pfx'
 
           - task: PowerShell@2
-            name: Step1_New_SAML_Application_obj_SP_obj
+            name: Step1_New_SAML_App_obj_SP_obj
             inputs:
               targetType: 'filePath'
               filePath: './EntraID/Applications-ADO/New-SAMLApplication-REST.ps1'
