@@ -95,7 +95,7 @@ if ($AppObj -like '*{"error"*'){
 }else{
     Write-host "Retrived Application object successfully" -ForegroundColor Green  
     $OutPutJson = $AppObj | ConvertTo-Json -Depth 20
-    $fileName = "$Environment\Apps-States\"+$($AppObj.displayName)+"_"+$($AppObj.appId)+"_Application.json"
+    $fileName = ".\EntraID\Applications-ADO\$Environment\Apps-States\"+$($AppObj.displayName)+"_"+$($AppObj.appId)+"_Application.json"
     $OutPutJson | Out-File -FilePath $fileName -Force
     Write-host "Appication detail output to - $fileName" -ForegroundColor Green
 
