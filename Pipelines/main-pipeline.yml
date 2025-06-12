@@ -53,20 +53,20 @@ jobs:
         # Tiggering child ymls
         foreach ($app in $apps){
             if( ($app.Action) -eq "$(action1)" ){
-                Write-Host "Performing action in $(Environment) - ($app.Action) with app name - ($app.ApplicationName)"
-                az pipelines run --name $(action1_pipelineName) --parameters "AppName=($app.ApplicationName)" "Environment=$(Environment)"
+                Write-Host "Performing action in ${{parameters.Environment}} - ($app.Action) with app name - ($app.ApplicationName)"
+                az pipelines run --name $(action1_pipelineName) --parameters "AppName=($app.ApplicationName)" "Environment=${{parameters.Environment}}"
             }elseif( ($app.Action) -eq "$(action2)" ){
-                Write-Host "Performing action in $(Environment) - ($app.Action) with app name - ($app.ApplicationName)"
-                az pipelines run --name $(action2_pipelineName) --parameters "AppName=($app.ApplicationName)" "Environment=$(Environment)"
+                Write-Host "Performing action in ${{parameters.Environment}} - ($app.Action) with app name - ($app.ApplicationName)"
+                az pipelines run --name $(action2_pipelineName) --parameters "AppName=($app.ApplicationName)" "Environment=${{parameters.Environment}}"
             }elseif( ($app.Action) -eq "$(action3)" ){
-                Write-Host "Performing action in $(Environment) - ($app.Action) with app name - ($app.ApplicationName)"
-                az pipelines run --name $(action3_pipelineName) --parameters "AppName=($app.ApplicationName)" "Environment=$(Environment)"
+                Write-Host "Performing action in ${{parameters.Environment}} - ($app.Action) with app name - ($app.ApplicationName)"
+                az pipelines run --name $(action3_pipelineName) --parameters "AppName=($app.ApplicationName)" "Environment=${{parameters.Environment}}"
             }elseif( ($app.Action) -eq "$(action4)" ){
-                Write-Host "Performing action in $(Environment) - ($app.Action) with app name - ($app.ApplicationName)"
-                az pipelines run --name $(action4_pipelineName) --parameters "AppName=($app.ApplicationName)" "Environment=$(Environment)"
+                Write-Host "Performing action in ${{parameters.Environment}} - ($app.Action) with app name - ($app.ApplicationName)"
+                az pipelines run --name $(action4_pipelineName) --parameters "AppName=($app.ApplicationName)" "Environment=${{parameters.Environment}}"
             }elseif( ($app.Action) -eq "$(action5)" ){
-                Write-Host "Performing action in $(Environment) - ($app.Action) with app name - ($app.ApplicationName)"
-                az pipelines run --name $(action5_pipelineName) --parameters "AppName=($app.ApplicationName)" "Environment=$(Environment)"
+                Write-Host "Performing action in ${{parameters.Environment}} - ($app.Action) with app name - ($app.ApplicationName)"
+                az pipelines run --name $(action5_pipelineName) --parameters "AppName=($app.ApplicationName)" "Environment=${{parameters.Environment}}"
             }else{
                 Write-Host "($app.Action) IS NOT a valid action for app name - ($app.ApplicationName)"
             }
