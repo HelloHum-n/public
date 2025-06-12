@@ -32,5 +32,5 @@ jobs:
           git config --global user.name "serivce account"
           #cd $(Build.SourcesDirectory)\$(System.TeamProject)
           git add -A
-          git commit -m "new"
+          git commit -m "Delete App"
           git push origin HEAD:$(Build.SourceBranchName)
