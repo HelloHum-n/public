@@ -11,24 +11,7 @@ parameters:
   - DEV
   - IST
   - PRD
-- name: NEW-SAML-APP_pipelineName
-  type: string
-  default: '.\Release.csv'
-- name: New-OIDC-App_pipelineName
-  type: string
-  default: '.\Release.csv'
-- name: Update-APP_pipelineName
-  type: string
-  default: '.\Release.csv'
-- name: DELETE-APP_pipelineName
-  type: string
-  default: '.\Release.csv'
-- name: Update_App_pipelineName
-  type: string
-  default: '.\Release.csv'
 
-pool:
-  vmImage: 'windows-latest'
 variables:
 - name: action1
   value: NEW-SAML-APP
@@ -51,10 +34,8 @@ variables:
 - name: action5_pipelineName
   value: IST
 
-
-
-
-
+pool:
+  vmImage: 'windows-latest'
 
 
 jobs: 
