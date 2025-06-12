@@ -95,7 +95,7 @@ if ($SpClaimsObj -like '*{"error"*'){
 }else{
     Write-host "Retrived Service Principal Custom Claims successfully" -ForegroundColor Green  
     $OutPutJson = $SpClaimsObj | ConvertTo-Json -Depth 20
-    $fileName = "$Environment\Apps-States\"+$($SpClaimsObj.displayName)+"_"+$($SpClaimsObj.appId)+"_CustomClaims.json"
+    $fileName = ".\EntraID\Applications-ADO\$Environment\Apps-States\"+$($SpClaimsObj.displayName)+"_"+$($SpClaimsObj.appId)+"_CustomClaims.json"
     $OutPutJson | Out-File -FilePath $fileName -Force
     Write-host "Service Principal  Custom Claims  detail output to - $fileName" -ForegroundColor Green
     
