@@ -102,7 +102,7 @@ jobs:
               secureFile: '${{parameters.Environment}}-Service-Connection.pfx'
 
           - task: PowerShell@2
-            name: New_Application_obj
+            name: Step1_New_Application_obj
             inputs:
               targetType: 'filePath'
               filePath: './EntraID/Applications-ADO/New-Application-REST.ps1'
@@ -125,7 +125,7 @@ jobs:
                 Write-Host "##vso[task.setvariable variable=step1succeed]true"
 
           - task: PowerShell@2
-            name: New_ServicePrincipal_obj
+            name: Step2_New_ServicePrincipal_obj
             inputs:
               targetType: 'filePath'
               filePath: './EntraID/Applications-ADO/New-ServicePrincipal-REST.ps1'
@@ -147,7 +147,7 @@ jobs:
                 Write-Host "##vso[task.setvariable variable=step2succeed]true"
 
           - task: PowerShell@2
-            name: New_ServicePrincipalClaims
+            name: Step3_New_ServicePrincipalClaims
             inputs:
               targetType: 'filePath'
               filePath: './EntraID/Applications-ADO/New-ServicePrincipalClaims-REST.ps1'
