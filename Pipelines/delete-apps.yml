@@ -43,7 +43,7 @@ jobs:
               Throw "No App Manifest with App ID: ${{parameters.AppID}} found, please check App-States folder inventory and try again."
             }else{
               Write-Host "##vso[task.setvariable variable=filesNotFound]false"
-              Write-Host "##vso[task.setvariable variable=appFileName]appFile"
+              Write-Host "##vso[task.setvariable variable=appFileName]$appFile"
               Write-Host "App Manifest with App ID: ${{parameters.AppID}} found: $appFile"
             }
           }elseif ( "${{parameters.AppName}}" -ne "defaultparaValue" ){
@@ -57,7 +57,7 @@ jobs:
               throw "No App Manifest with App Name: ${{parameters.AppName}} found, please check App-States folder inventory and try again."
             }else{
               Write-Host "##vso[task.setvariable variable=filesNotFound]false"
-              Write-Host "##vso[task.setvariable variable=appFileName]appFile"
+              Write-Host "##vso[task.setvariable variable=appFileName]$appFile"
               Write-Host "App Manifest with App Name: ${{parameters.AppName}} found: $appFile"
             }
           }else{
