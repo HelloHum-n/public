@@ -85,7 +85,7 @@ $connectionCert = New-Object System.Security.Cryptography.X509Certificates.X509C
 Write-Host "Connecting to MS Graph....." -ForegroundColor Green
 Connect-MgGraph -TenantId $tenantID -ClientID $ClientID -Certificate $connectionCert
 
-$URI = "https://graph.microsoft.com/v1.0/servicePrincipals(appId=`'{$ApplicationID}`')"
+$URI = "https://graph.microsoft.com/beta/servicePrincipals(appId=`'{$ApplicationID}`')"
 $SPobj = MSGraphRequest -Method GET -URI $URI
 if ($SPobj -like '*{"error"*'){
     Write-Host "Error retrieving Service Principal object." -ForegroundColor Red
