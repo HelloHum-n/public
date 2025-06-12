@@ -5,19 +5,20 @@ parameters:
     default: 'default'
   - name: Environment
     default: 'IST'
-
-#variables:
-#  - name: Testvar
-#    value: 'bye bye'
+    type: string
+    values:
+    - DEV
+    - IST
+    - PRD
 
 jobs:
 - job:
   pool:
-    vmImage: 'windows-2019'
+    vmImage: 'windows-latest'
   steps:
     - task: PowerShell@2
       name: setTargets
       inputs:
         targetType: 'inline'
         script: |
-          Write-Host "job $(Testvar) is updating SAML App - ${{parameters.AppName}} in ${{parameters.Environment}}"
+          Write-Host "Updating SAML App - ${{parameters.AppName}} in ${{parameters.Environment}}"
