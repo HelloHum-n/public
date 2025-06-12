@@ -198,10 +198,10 @@ jobs:
               script: |
                 git config --global user.email "entraidProject@azuredevops.com"
                 git config --global user.name "serivce account"
-                #cd $(Build.SourcesDirectory)\$(System.TeamProject)
+                git fetch origin $(Build.SourceBranchName):tmp
+                git rebase tmp
                 git add -A
                 git commit -m "new"
-                git pull origin
                 git push origin HEAD:$(Build.SourceBranchName)
           #- checkout: self
             #clean: true
