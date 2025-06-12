@@ -85,7 +85,7 @@ $connectionCert = New-Object System.Security.Cryptography.X509Certificates.X509C
 Write-Host "Connecting to MS Graph....." -ForegroundColor Green
 Connect-MgGraph -TenantId $tenantID -ClientID $ClientID -Certificate $connectionCert
 
-$URI = "https://graph.microsoft.com/v1.0/servicePrincipals(appId=`'{$ApplicationID}`')/claimsPolicy"
+$URI = "https://graph.microsoft.com/beta/servicePrincipals(appId=`'{$ApplicationID}`')/claimsPolicy"
 $SpClaimsObj = MSGraphRequest -Method GET -URI $URI
 if ($SpClaimsObj -like '*{"error"*'){
     Write-Host "Error retrieving Service Principal Custom Claims." -ForegroundColor Red
