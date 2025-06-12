@@ -127,5 +127,5 @@ jobs:
           git fetch origin $(Build.SourceBranchName):tmp
           git rebase tmp
           git add -A
-          git commit -m "new"
+          git commit -m "Deleted app ${{parameters.AppName}} ${{parameters.AppID}}"
           git push origin HEAD:$(Build.SourceBranchName)
