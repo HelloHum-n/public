@@ -1,0 +1,24 @@
+trigger: none
+
+parameters:
+  - name: AppName
+    default: 'default'
+  - name: Environment
+    default: 'IST'
+    type: string
+    values:
+    - DEV
+    - IST
+    - PRD
+
+jobs:
+- job:
+  pool:
+    vmImage: 'windows-latest'
+  steps:
+    - task: PowerShell@2
+      name: setTargets
+      inputs:
+        targetType: 'inline'
+        script: |
+          Write-Host "Updating SAML App - ${{parameters.AppName}} in ${{parameters.Environment}}"
