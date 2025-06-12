@@ -85,7 +85,7 @@ $connectionCert = New-Object System.Security.Cryptography.X509Certificates.X509C
 Write-Host "Connecting to MS Graph....." -ForegroundColor Green
 Connect-MgGraph -TenantId $tenantID -ClientID $ClientID -Certificate $connectionCert
 
-$URI = "https://graph.microsoft.com/v1.0/applications(appId=`'{$ApplicationID}`')"
+$URI = "https://graph.microsoft.com/beta/applications(appId=`'{$ApplicationID}`')"
 $AppObj = MSGraphRequest -Method GET -URI $URI
 if ($AppObj -like '*{"error"*'){
     Write-Host "Error retrieving Application object." -ForegroundColor Red
