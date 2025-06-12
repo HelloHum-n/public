@@ -54,7 +54,7 @@ jobs:
               Throw "More than 1 App manifest with App Name: ${{parameters.AppName}} found, please check App-States folder inventory and try again."
             }elseif ($appFile.Count -eq 0){
               Write-Host "No App Manifest with App Name: ${{parameters.AppName}} found, please check App-States folder inventory and try again."
-              throw ""No App Manifest with App Name: ${{parameters.AppName}} found, please check App-States folder inventory and try again."
+              throw "No App Manifest with App Name: ${{parameters.AppName}} found, please check App-States folder inventory and try again."
             }else{
               Write-Host "##vso[task.setvariable variable=filesNotFound]false"
               Write-Host "##vso[task.setvariable variable=appFileName]appFile"
