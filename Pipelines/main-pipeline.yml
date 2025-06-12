@@ -11,29 +11,21 @@ parameters:
   - DEV
   - IST
   - PRD
-- name: mode
-  displayName: pipeline mode
+- name: NEW-SAML-APP_pipelineName
   type: string
-  default: detect_apps
-  values:
-  - detect_apps
-  - deploy_apps
-- name: NEW_SAML_APP
-  displayName: comma separated List of NEW-SAML-APP
+  default: '.\Release.csv'
+- name: New-OIDC-App_pipelineName
   type: string
-  default: "NA"
-- name: Update_App
-  displayName: comma separated List of Update-App
+  default: '.\Release.csv'
+- name: Update-APP_pipelineName
   type: string
-  default: "NA"
-- name: New_OIDC_App
-  displayName: comma separated List of New-OIDC-App
+  default: '.\Release.csv'
+- name: DELETE-APP_pipelineName
   type: string
-  default: "NA"
-- name: DELETE_APP
-  displayName: comma separated List of DELETE-APP
+  default: '.\Release.csv'
+- name: Update_App_pipelineName
   type: string
-  default: "NA"
+  default: '.\Release.csv'
 
 pool:
   vmImage: 'windows-latest'
@@ -41,28 +33,28 @@ variables:
   myVar1: ${{ variables.myVar}}
   myVar2: $(myVar)
   apps: app1
-stages:
-- ${{ if eq(parameters.mode, 'detect_apps') }}:
-  - stage: detect_apps
-    jobs: 
-    - job: detect_apps
-      steps:
-      - task: PowerShell@2
-        env:
-          SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-        inputs:
-          targetType: 'inline'
-          script: |
-            $apps = Import-csv -Path $(Build.SourcesDirectory)\${{ Parameters.csvFilePath }}
-            ConvertTo-Json $apps
-            $NEW_SAML_APP = ($apps | Group-Object -Property Action | where-object -Property Name -eq -Value "NEW-SAML-APP").Group.ApplicationName -join ","
-            $Update_App = ($apps | Group-Object -Property Action | where-object -Property Name -eq -Value "Update-App").Group.ApplicationName -join ","
-            $New_OIDC_App = ($apps | Group-Object -Property Action | where-object -Property Name -eq -Value "New-OIDC-App").Group.ApplicationName -join ","
-            $DELETE_APP = ($apps | Group-Object -Property Action | where-object -Property Name -eq -Value "DELETE-APP").Group.ApplicationName -join ","
 
-            $url = "$($env:SYSTEM_TEAMFOUNDATIONCOLLECTIONURI)$env:SYSTEM_TEAMPROJECTID/_apis/pipelines/$($env:SYSTEM_DEFINITIONID)/runs?api-version=6.0-preview.1"
-            $body = ('{"stagesToSkip":[],"resources":{"repositories":{"self":{"refName":"refs/heads/main"}}},"templateParameters":{"mode":"deploy_apps","myEnv":"${{parameters.myEnv}}","NEW_SAML_APP":"'+$NEW_SAML_APP+'","Update_App":"'+$Update_App+'","New_OIDC_App":"'+$New_OIDC_App+'","DELETE_APP":"'+$DELETE_APP+'"},"variables":{"myVar":{"value":"DOTS"}}}')
-            write-host $url
-            write-host $body
-            $run = Invoke-RestMethod -Method POST -Uri $url -Headers @{Authorization = "Bearer $env:SYSTEM_ACCESSTOKEN"} -body $body -ContentType application/json
-            write-host $run
+
+jobs: 
+- job: ActionTriggers
+  steps:
+  - task: PowerShell@2
+    env:
+      SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+    inputs:
+      targetType: 'inline'
+      script: |
+        $apps = Import-csv -Path $(Build.SourcesDirectory)\${{ Parameters.csvFilePath }}
+        ConvertTo-Json $apps
+        $NEW_SAML_APP = ($apps | Group-Object -Property Action | where-object -Property Name -eq -Value "NEW-SAML-APP").Group.ApplicationName -join ","
+        $Update_App = ($apps | Group-Object -Property Action | where-object -Property Name -eq -Value "Update-App").Group.ApplicationName -join ","
+        $New_OIDC_App = ($apps | Group-Object -Property Action | where-object -Property Name -eq -Value "New-OIDC-App").Group.ApplicationName -join ","
+        $DELETE_APP = ($apps | Group-Object -Property Action | where-object -Property Name -eq -Value "DELETE-APP").Group.ApplicationName -join ","
+
+        # Tiggering 
+        $url = "$($env:SYSTEM_TEAMFOUNDATIONCOLLECTIONURI)$env:SYSTEM_TEAMPROJECTID/_apis/pipelines/$($env:SYSTEM_DEFINITIONID)/runs?api-version=6.0-preview.1"
+        $body = ('{"stagesToSkip":[],"resources":{"repositories":{"self":{"refName":"refs/heads/main"}}},"templateParameters":{"mode":"deploy_apps","myEnv":"${{parameters.myEnv}}","NEW_SAML_APP":"'+$NEW_SAML_APP+'","Update_App":"'+$Update_App+'","New_OIDC_App":"'+$New_OIDC_App+'","DELETE_APP":"'+$DELETE_APP+'"},"variables":{"myVar":{"value":"DOTS"}}}')
+        write-host $url
+        write-host $body
+        $run = Invoke-RestMethod -Method POST -Uri $url -Headers @{Authorization = "Bearer $env:SYSTEM_ACCESSTOKEN"} -body $body -ContentType application/json
+        write-host $run
