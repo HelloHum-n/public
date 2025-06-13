@@ -98,7 +98,7 @@ if ($newJsonFile -like ".\*"){
 Write-Host "path $JsonFile"
 $existingStateObj = Get-content -Path $JsonFile -RAW | ConvertFrom-Json
 $existingStateObj.PSObject.Properties.Remove('@odata.context')  
-$URI = 'https://graph.microsoft.com/beta/applications'+"/$($existingStateObj.id)"
+$URI = 'https://graph.microsoft.com/beta/applications/'+"$($existingStateObj.id)"
 $GUID = $(New-Guid).Guid
 write-host "Using $GUID for Service Principal's notes property for verification" -ForegroundColor Green
 $newAppStateObj = Get-content -Path $newJsonFile -RAW | ConvertFrom-Json
