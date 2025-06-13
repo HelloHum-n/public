@@ -97,7 +97,7 @@ $json = $bodyObj | ConvertTo-Json -Depth 8
 $URI = "https://graph.microsoft.com/beta/applicationTemplates?`$filter=displayName eq 'Custom'"
 $appTemplate = MSGraphRequest -Method Get -URI $URI
 $appTemplateId = $appTemplate.value[0].id
-$URI = "https://graph.microsoft.com/beta/applicationTemplates/$appTemplateId/instantiate"
+$URI = "https://graph.microsoft.com/v1.0/applicationTemplates/$appTemplateId/instantiate"
 $body =@"
 {
     "displayName": "$($bodyObj.displayName)"
@@ -106,7 +106,7 @@ $body =@"
 
 Write-Host "Creating New Application from app template id: $appTemplateId ..." -ForegroundColor Green
 $AppObj = MSGraphRequest -Method Post -URI $URI -Body $json
-$URI = "https://graph.microsoft.com/beta/applications/$($app.application.id)"
+#$URI = "https://graph.microsoft.com/beta/applications/$($app.application.id)"
 
 $($AppObj.application) | Format-List id, DisplayName, AppId, SignInAudience
 Write-host "Application object created successfully" -ForegroundColor Green
