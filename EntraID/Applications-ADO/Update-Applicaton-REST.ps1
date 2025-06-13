@@ -97,8 +97,13 @@ if ($newJsonFile -like ".\*"){
 
 Write-Host "path $JsonFile"
 $existingStateObj = Get-content -Path $JsonFile -RAW | ConvertFrom-Json
-$existingStateObj.PSObject.Properties.Remove('@odata.context')  
+$existingStateObj.PSObject.Properties.Remove('@odata.context')
+write-host" Json content of the input file:"
+Write-host "$existingStateObj"
 $URI = 'https://graph.microsoft.com/beta/applications/'+"$($existingStateObj.id)"
+Write-host "$($existingStateObj.id)"
+Write-host "URL - $URI"
+throw error
 $GUID = $(New-Guid).Guid
 write-host "Using $GUID for Service Principal's notes property for verification" -ForegroundColor Green
 $newAppStateObj = Get-content -Path $newJsonFile -RAW | ConvertFrom-Json
@@ -117,8 +122,8 @@ $newAppStateObj | Add-Member -MemberType NoteProperty -Name "notes"  -Value $GUI
 $json = $newAppStateObj | ConvertTo-Json -Depth 20  
 
 
-# Update the Service Principal properties
-write-host "Updating Service Prinicapl via URI $URI and json body: $json" -ForegroundColor Green
+# Update the Application properties
+write-host "Updating Application via URI $URI and json body: $json" -ForegroundColor Green
 MSGraphRequest -Method PATCH -URI $URI -Body $json
 $i=0
 $maxRetry = 5
