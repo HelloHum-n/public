@@ -41,7 +41,7 @@ jobs:
 #        filePath: './EntraID/Applications-ADO/PowerShell_Script.ps1'
 #        arguments: '-ApplicationID $(ApplicationID) -tenantID $(tenantID) -ClientID $(ClientID) -certFile $(certFile) -CertPwd $(CertPwd) -Environment $(Environment)'
 
-- deployment: ${{parameters.Environment}}_NEW_OIDC_APP_${{ replace(parameters.AppName,'-','_') }}
+- deployment: ${{parameters.Environment}}__NEW_OIDC_APP__${{ replace(parameters.AppName,'-','_') }}
   environment: ${{parameters.Environment}}
   strategy:
     runOnce:
