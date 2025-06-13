@@ -103,7 +103,7 @@ write-host "Json content of the input file:"
 Write-host $existingStateJson
 if( $null -eq $($existingStateObj.id)){
     $URI = 'https://graph.microsoft.com/beta/applications/'+"$($existingStateObj.objectid)" 
-}else
+}else{
     $URI = 'https://graph.microsoft.com/beta/applications/'+"$($existingStateObj.id)"
 }
 $GUID = $(New-Guid).Guid
