@@ -96,10 +96,13 @@ if ($newJsonFile -like ".\*"){
 #>
 
 Write-Host "path $JsonFile"
-$existingStateObj = Get-content -Path $JsonFile -RAW | ConvertFrom-Json
+$existingStateJson = Get-content -Path $JsonFile -RAW
+$existingStateObj = $existingStateJson | ConvertFrom-Json
 $existingStateObj.PSObject.Properties.Remove('@odata.context')
-write-host" Json content of the input file:"
+write-host "Json content of the input file object:"
 Write-host "$existingStateObj"
+write-host "Json content of the input file:"
+Write-host $existingStateJson
 $URI = 'https://graph.microsoft.com/beta/applications/'+"$($existingStateObj.id)"
 Write-host "$($existingStateObj.id)"
 Write-host "URL - $URI"
