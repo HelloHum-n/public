@@ -1,0 +1,52 @@
+{
+  "id": "5da2a344-44e6-4ef5-9a33-0eb1f4bf2247",
+  "claims": [
+    {
+      "@odata.type": "#microsoft.graph.customClaim",
+      "samlAttributeNameFormat": null,
+      "name": "test1",
+      "tokenFormat": [
+        "jwt"
+      ],
+      "configurations": [
+        {
+          "attribute": {
+            "isExtensionAttribute": false,
+            "@odata.type": "#microsoft.graph.sourcedAttribute",
+            "id": "city",
+            "source": "user"
+          },
+          "condition": null,
+          "transformations": []
+        }
+      ],
+      "namespace": null
+    },
+    {
+      "@odata.type": "#microsoft.graph.customClaim",
+      "samlAttributeNameFormat": null,
+      "name": "emailaddress",
+      "tokenFormat": [
+        "jwt"
+      ],
+      "configurations": [
+        {
+          "attribute": {
+            "isExtensionAttribute": false,
+            "@odata.type": "#microsoft.graph.sourcedAttribute",
+            "id": "mail",
+            "source": "user"
+          },
+          "condition": null,
+          "transformations": []
+        }
+      ],
+      "namespace": null
+    }
+  ],
+  "@odata.context": "https://graph.microsoft.com/beta/$metadata#servicePrincipals('%7Ba18fcfd0-a48f-439e-8679-6e30943eacf8%7D')/claimsPolicy/$entity",
+  "includeApplicationIdInIssuer": false,
+  "audienceOverride": null,
+  "includeBasicClaimSet": false,
+  "groupFilter": null
+}

@@ -1,0 +1,99 @@
+{
+  "appId": "a18fcfd0-a48f-439e-8679-6e30943eacf8",
+  "api": {
+    "resourceSpecificApplicationPermissions": []
+  },
+  "appRoles": [
+    {
+      "origin": "Application",
+      "description": "AppRoleWriter",
+      "id": "25b6f527-aa43-4954-8d6b-4f2ca8775ebb",
+      "displayName": "AppRoleWriter",
+      "allowedMemberTypes": [
+        "User",
+        "Application"
+      ],
+      "isPreAuthorizationRequired": false,
+      "isPrivate": false,
+      "value": "AppRoleWriter",
+      "isEnabled": true
+    }
+  ],
+  "createdDateTime": "2025-05-20T18:10:47Z",
+  "tokenEncryptionKeyId": null,
+  "accountEnabled": true,
+  "logoutUrl": null,
+  "publisherName": "Contoso Ultra",
+  "loginUrl": null,
+  "isAuthorizationServiceEnabled": false,
+  "certification": null,
+  "errorUrl": null,
+  "tags": [
+    "HideApp",
+    "WindowsAzureActiveDirectoryIntegratedApp"
+  ],
+  "servicePrincipalNames": [
+    "https://Webapp1.entraidlab.com",
+    "a18fcfd0-a48f-439e-8679-6e30943eacf8"
+  ],
+  "addIns": [],
+  "alternativeNames": [],
+  "publishedPermissionScopes": [
+    {
+      "userConsentDescription": null,
+      "id": "e00f7990-40d6-4adb-9bcd-278085c7d88e",
+      "type": "Admin",
+      "adminConsentDisplayName": "AppName-ABCD-version-Admin.Read",
+      "userConsentDisplayName": null,
+      "value": "AppName-ABCD-version-Admin.Read",
+      "isPrivate": false,
+      "isEnabled": true,
+      "adminConsentDescription": "AppName-ABCD-version-Admin.Read"
+    }
+  ],
+  "id": "c6bdc990-4ddb-43c2-9d90-89e0ec262e1c",
+  "passwordCredentials": [],
+  "description": null,
+  "isManagementRestricted": null,
+  "displayName": "Test-Client-App-1",
+  "deletedDateTime": null,
+  "samlSingleSignOnSettings": null,
+  "applicationTemplateId": null,
+  "replyUrls": [
+    "https://testom.com",
+    "https://oauth.pstmn.io/v1/browser-callback"
+  ],
+  "homepage": null,
+  "assignmentRequiredForPrincipalTypes": null,
+  "preferredTokenSigningKeyEndDateTime": null,
+  "appDisplayName": "Test-Client-App-1",
+  "samlMetadataUrl": null,
+  "appOwnerOrganizationId": "d6efb6af-13e5-4903-bf0b-b6e5dc81aae3",
+  "deviceManagementAppType": null,
+  "resourceSpecificApplicationPermissions": [],
+  "preferredSingleSignOnMode": null,
+  "servicePrincipalType": "Application",
+  "notes": null,
+  "isDisabled": null,
+  "samlSLOBindingType": "httpRedirect",
+  "@odata.context": "https://graph.microsoft.com/beta/$metadata#servicePrincipals/$entity",
+  "disabledByMicrosoftStatus": null,
+  "keyCredentials": [],
+  "appDescription": null,
+  "signInAudience": "AzureADMyOrg",
+  "verifiedPublisher": {
+    "displayName": null,
+    "verifiedPublisherId": null,
+    "addedDateTime": null
+  },
+  "notificationEmailAddresses": [],
+  "appRoleAssignmentRequired": false,
+  "preferredTokenSigningKeyThumbprint": null,
+  "info": {
+    "supportUrl": null,
+    "privacyStatementUrl": null,
+    "logoUrl": null,
+    "termsOfServiceUrl": null,
+    "marketingUrl": null
+  }
+}
