@@ -87,7 +87,7 @@ Connect-MgGraph -TenantId $tenantID -ClientID $ClientID -Certificate $connection
 
 Write-Host "path $appJsonFile"
 $existingStateObj = Get-content -Path $appJsonFile -RAW | ConvertFrom-Json 
-$URI = 'https://graph.microsoft.com/v1.0/applications'+"/$($existingStateObj.id)"
+$URI = 'https://graph.microsoft.com/beta/applications'+"/$($existingStateObj.id)"
 
 Write-Host "Deleting Application object from Entra." -ForegroundColor Red
 MSGraphRequest -Method DELETE -URI $URI
