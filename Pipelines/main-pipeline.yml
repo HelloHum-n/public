@@ -40,7 +40,7 @@ pool:
 
 
 jobs: 
-- job: ${{replace(parameters.csvFileName,'.','_')}}_MainPipeline
+- job: ${{replace(replace(parameters.csvFileName,'.','_'),'-','_')}}_MainPipeline
   steps:
   - task: PowerShell@2
     env:
