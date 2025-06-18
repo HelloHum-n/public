@@ -35,6 +35,17 @@ variables:
 - name: action5_pipelineName
   value: DELETE-APP
 
+- name: action1_pipelineID
+  value: 16
+- name: action2_pipelineID
+  value: 26
+- name: action3_pipelineID
+  value: 19
+- name: action4_pipelineID
+  value: 32
+- name: action5_pipelineID
+  value: 31
+
 pool:
   vmImage: 'windows-latest'
 
@@ -50,29 +61,60 @@ jobs:
       script: |
         $csvFilePath = "EntraID\Applications-ADO\${{parameters.Environment}}\Releases\"+"${{parameters.csvFileName}}"
         $apps = Import-csv -Path $(Build.SourcesDirectory)\$csvFilePath
-        az devops configure --defaults organization=$(System.TeamFoundationCollectionUri) project=$(System.TeamProject) --use-git-aliases true
+        #az devops configure --defaults organization=$(System.TeamFoundationCollectionUri) project=$(System.TeamProject) --use-git-aliases true
         # Tiggering child ymls
         $csvFileName = "${{parameters.csvFileName}}"
         $csvFileName = $csvFileName -replace ".csv",""
+        Write-Host "Importing jobs from CSV: $csvFilePath"
         foreach ($app in $apps){
             $action = $app.Action
             $appName = $app.ApplicationName
             #insert addtional code to check applicationName uniqueness
             if( $action -eq "$(action1)" ){
                 Write-Host "Performing action in ${{parameters.Environment}} - $action with app name - $appName"
-                az pipelines run --name $(action1_pipelineName) --parameters "csvFileName=$csvFileName" "AppName=$appName" "Environment=${{parameters.Environment}}"
+                #az pipelines run --name $(action1_pipelineName) --parameters "csvFileName=$csvFileName" "AppName=$appName" "Environment=${{parameters.Environment}}"
+                $url = "$($env:SYSTEM_TEAMFOUNDATIONCOLLECTIONURI)$env:SYSTEM_TEAMPROJECTID/_apis/pipelines/$(action1_pipelineID)/runs?api-version=6.0-preview.1"
+                $body = ('{"stagesToSkip":[],"resources":{"repositories":{"self":{"refName":"refs/heads/main"}}},"templateParameters":{"csvFileName":"$csvFileName","AppName":"$appName","Environment":"${{parameters.Environment}}"}}')
+                write-host $url
+                write-host $body
+                $run = Invoke-RestMethod -Method POST -Uri $url -Headers @{Authorization = "Bearer $env:SYSTEM_ACCESSTOKEN"} -body $body -ContentType application/json
+                write-host $run
             }elseif( $action -eq "$(action2)" ){
                 Write-Host "Performing action in ${{parameters.Environment}} - $action with app name - $appName"
-                az pipelines run --name $(action2_pipelineName) --parameters "csvFileName=$csvFileName" "AppName=$appName" "Environment=${{parameters.Environment}}"
+                #az pipelines run --name $(action2_pipelineName) --parameters "csvFileName=$csvFileName" "AppName=$appName" "Environment=${{parameters.Environment}}"
+                $url = "$($env:SYSTEM_TEAMFOUNDATIONCOLLECTIONURI)$env:SYSTEM_TEAMPROJECTID/_apis/pipelines/$(action2_pipelineID)/runs?api-version=6.0-preview.1"
+                $body = ('{"stagesToSkip":[],"resources":{"repositories":{"self":{"refName":"refs/heads/main"}}},"templateParameters":{"csvFileName":"$csvFileName","AppName":"$appName","Environment":"${{parameters.Environment}}"}}')
+                write-host $url
+                write-host $body
+                $run = Invoke-RestMethod -Method POST -Uri $url -Headers @{Authorization = "Bearer $env:SYSTEM_ACCESSTOKEN"} -body $body -ContentType application/json
+                write-host $run
             }elseif( $action -eq "$(action3)" ){
                 Write-Host "Performing action in ${{parameters.Environment}} - $action with app name - $appName"
-                az pipelines run --name $(action3_pipelineName) --parameters "csvFileName=$csvFileName" "AppName=$appName" "Environment=${{parameters.Environment}}"
+                #az pipelines run --name $(action3_pipelineName) --parameters "csvFileName=$csvFileName" "AppName=$appName" "Environment=${{parameters.Environment}}"
+                $url = "$($env:SYSTEM_TEAMFOUNDATIONCOLLECTIONURI)$env:SYSTEM_TEAMPROJECTID/_apis/pipelines/$(action3_pipelineID)/runs?api-version=6.0-preview.1"
+                $body = ('{"stagesToSkip":[],"resources":{"repositories":{"self":{"refName":"refs/heads/main"}}},"templateParameters":{"csvFileName":"$csvFileName","AppName":"$appName","Environment":"${{parameters.Environment}}"}}')
+                write-host $url
+                write-host $body
+                $run = Invoke-RestMethod -Method POST -Uri $url -Headers @{Authorization = "Bearer $env:SYSTEM_ACCESSTOKEN"} -body $body -ContentType application/json
+                write-host $run
             }elseif( $action -eq "$(action4)" ){
                 Write-Host "Performing action in ${{parameters.Environment}} - $action with app name - $appName"
-                az pipelines run --name $(action4_pipelineName) --parameters "csvFileName=$$csvFileName" "AppName=$appName" "Environment=${{parameters.Environment}}"
+                #az pipelines run --name $(action4_pipelineName) --parameters "csvFileName=$$csvFileName" "AppName=$appName" "Environment=${{parameters.Environment}}"
+                $url = "$($env:SYSTEM_TEAMFOUNDATIONCOLLECTIONURI)$env:SYSTEM_TEAMPROJECTID/_apis/pipelines/$(action4_pipelineID)/runs?api-version=6.0-preview.1"
+                $body = ('{"stagesToSkip":[],"resources":{"repositories":{"self":{"refName":"refs/heads/main"}}},"templateParameters":{"csvFileName":"$csvFileName","AppName":"$appName","Environment":"${{parameters.Environment}}"}}')
+                write-host $url
+                write-host $body
+                $run = Invoke-RestMethod -Method POST -Uri $url -Headers @{Authorization = "Bearer $env:SYSTEM_ACCESSTOKEN"} -body $body -ContentType application/json
+                write-host $run
             }elseif( $action -eq "$(action5)" ){
                 Write-Host "Performing action in ${{parameters.Environment}} - $action with app name - $appName"
-                az pipelines run --name $(action5_pipelineName) --parameters "csvFileName=$csvFileName" "AppName=$appName" "Environment=${{parameters.Environment}}"
+                #az pipelines run --name $(action5_pipelineName) --parameters "csvFileName=$csvFileName" "AppName=$appName" "Environment=${{parameters.Environment}}"
+                url = "$($env:SYSTEM_TEAMFOUNDATIONCOLLECTIONURI)$env:SYSTEM_TEAMPROJECTID/_apis/pipelines/$(action5_pipelineID)/runs?api-version=6.0-preview.1"
+                $body = ('{"stagesToSkip":[],"resources":{"repositories":{"self":{"refName":"refs/heads/main"}}},"templateParameters":{"csvFileName":"$csvFileName","AppName":"$appName","Environment":"${{parameters.Environment}}"}}')
+                write-host $url
+                write-host $body
+                $run = Invoke-RestMethod -Method POST -Uri $url -Headers @{Authorization = "Bearer $env:SYSTEM_ACCESSTOKEN"} -body $body -ContentType application/json
+                write-host $run
             }else{
                 Write-Host "$action IS NOT a valid action for app name - ($app.ApplicationName)"
             }
