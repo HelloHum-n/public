@@ -1,8 +1,8 @@
 trigger: none
 
 parameters:
-- name: csvFilePath
-  default: '.\Release.csv'
+- name: csvFileName
+  default: 'Release.csv'
 - name: Environment
   displayName: Environment
   type: string
@@ -40,7 +40,7 @@ pool:
 
 
 jobs: 
-- job: ActionTriggers
+- job: ${{replace(parameters.csvFileName,'.','_')}}_MainPipeline
   steps:
   - task: PowerShell@2
     env:
@@ -48,7 +48,8 @@ jobs:
     inputs:
       targetType: 'inline'
       script: |
-        $apps = Import-csv -Path $(Build.SourcesDirectory)\${{ Parameters.csvFilePath }}
+        $csvFilePath = "EntraID\Applications-ADO\${{parameters.Environment}}\Releases\"+"${{parameters.csvFileName}}"
+        $apps = Import-csv -Path $(Build.SourcesDirectory)\$csvFilePath
         az devops configure --defaults organization=$(System.TeamFoundationCollectionUri) project=$(System.TeamProject) --use-git-aliases true
         # Tiggering child ymls
         foreach ($app in $apps){
