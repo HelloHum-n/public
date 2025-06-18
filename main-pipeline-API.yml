@@ -22,7 +22,7 @@ variables:
 - name: action4
   value: UPDATE-SP-OBJ
 - name: action5
-  value: DELETE-APPLICATION
+  value: DELETE-APP
   
 - name: action1_pipelineName
   value: NEW-SAML-APP
