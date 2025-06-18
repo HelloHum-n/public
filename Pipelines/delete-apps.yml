@@ -2,9 +2,11 @@ trigger: none
 
 parameters:
   - name: AppName
-    default: 'defaultparaValue'
+    default: 'defaultparaAppName'
   - name: AppID
-    default: 'defaultparaValue'
+    default: 'defaultparaAppID'
+  - name: csvFileName
+    default: 'defaultCSV'
   - name: Environment
     default: 'IST'
     type: string
@@ -35,7 +37,7 @@ jobs:
             inputs:
               targetType:  inline
               script: |
-                if ( "${{parameters.AppID}}" -ne "defaultparaValue" ){
+                if ( "${{parameters.AppID}}" -ne "defaultparaAppID" ){
                   Write-Host 'Searching for App-State files using Application ID: ${{parameters.AppID}}'
                   $appFileNamePattern = "*"+"${{parameters.AppID}}"+"_Application.json"
                   $appFile = Get-ChildItem -Path $(AppStatesFolderPath) -Name $appFileNamePattern
@@ -50,7 +52,7 @@ jobs:
                     Write-Host "##vso[task.setvariable variable=appFileName]$appFile"
                     Write-Host "App Manifest with App ID: ${{parameters.AppID}} found: $appFile"
                   }
-                }elseif ( "${{parameters.AppName}}" -ne "defaultparaValue" ){
+                }elseif ( "${{parameters.AppName}}" -ne "defaultparaAppName" ){
                   $appFileNamePattern = "${{parameters.AppName}}"+"*_Application.json"
                   $appFile = Get-ChildItem -Path $(AppStatesFolderPath) -Name $appFileNamePattern
                   if ($appFile.Count -gt 1){
@@ -86,7 +88,7 @@ jobs:
             inputs:
               targetType:  inline
               script: |
-                if ( "${{parameters.AppID}}" -ne "defaultparaValue" ){
+                if ( "${{parameters.AppID}}" -ne "defaultparaAppID" ){
                   Write-Host 'Searching for App-State SP file using Application ID: ${{parameters.AppID}}'
                   $SpFileNamePattern = "*"+"${{parameters.AppID}}"+"_ServicePrincipal.json"
                   $SpFile = Get-ChildItem -Path $(AppStatesFolderPath) -Name $SpFileNamePattern 
@@ -101,7 +103,7 @@ jobs:
                     Write-Host "Deleting File: $(AppStatesFolderPath)$claimsFile"
                     Remove-Item $(AppStatesFolderPath)$claimsFile
                   }
-                }elseif ( "${{parameters.AppName}}" -ne "defaultparaValue" ){
+                }elseif ( "${{parameters.AppName}}" -ne "defaultparaAppName" ){
                   Write-Host 'Searching for App-State SP file using Application Name: ${{parameters.AppName}}'
                   $SpFileNamePattern = "${{parameters.AppName}}"+"*_ServicePrincipal.json"
                   $SpFile = Get-ChildItem -Path $(AppStatesFolderPath) -Name $SpFileNamePattern 
