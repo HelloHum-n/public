@@ -3,6 +3,8 @@ trigger: none
 parameters:
   - name: AppName
     default: 'Test-SAML-App-123'
+  - name: csvFileName
+    default: 'defaultCSV'
   - name: Environment
     default: 'IST'
     type: string
@@ -45,7 +47,7 @@ jobs:
 #        filePath: './EntraID/Applications-ADO/PowerShell_Script.ps1'
 #        arguments: '-ApplicationID $(ApplicationID) -tenantID $(tenantID) -ClientID $(ClientID) -certFile $(certFile) -CertPwd $(CertPwd) -Environment $(Environment)'
 
-- deployment: ${{parameters.Environment}}__NEW_SAML_APP__${{ replace(parameters.AppName,'-','_') }}
+- deployment: ${{ replace(parameters.csvFileName,'.','_')}}__NEW_SAML_APP__${{ replace(parameters.AppName,'-','_') }}
   environment: ${{parameters.Environment}}
   strategy:
     runOnce:
