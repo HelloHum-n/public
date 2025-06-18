@@ -52,25 +52,27 @@ jobs:
         $apps = Import-csv -Path $(Build.SourcesDirectory)\$csvFilePath
         az devops configure --defaults organization=$(System.TeamFoundationCollectionUri) project=$(System.TeamProject) --use-git-aliases true
         # Tiggering child ymls
+        $csvFileName = "${{parameters.csvFileName}}"
+        $csvFileName = $csvFileName -replace ".csv",""
         foreach ($app in $apps){
             $action = $app.Action
             $appName = $app.ApplicationName
             #insert addtional code to check applicationName uniqueness
             if( $action -eq "$(action1)" ){
                 Write-Host "Performing action in ${{parameters.Environment}} - $action with app name - $appName"
-                az pipelines run --name $(action1_pipelineName) --parameters "csvFileName=${{parameters.csvFileName}}" "AppName=$appName" "Environment=${{parameters.Environment}}"
+                az pipelines run --name $(action1_pipelineName) --parameters "csvFileName=$csvFileName" "AppName=$appName" "Environment=${{parameters.Environment}}"
             }elseif( $action -eq "$(action2)" ){
                 Write-Host "Performing action in ${{parameters.Environment}} - $action with app name - $appName"
-                az pipelines run --name $(action2_pipelineName) --parameters "csvFileName=${{parameters.csvFileName}}" "AppName=$appName" "Environment=${{parameters.Environment}}"
+                az pipelines run --name $(action2_pipelineName) --parameters "csvFileName=$csvFileName" "AppName=$appName" "Environment=${{parameters.Environment}}"
             }elseif( $action -eq "$(action3)" ){
                 Write-Host "Performing action in ${{parameters.Environment}} - $action with app name - $appName"
-                az pipelines run --name $(action3_pipelineName) --parameters "csvFileName=${{parameters.csvFileName}}" "AppName=$appName" "Environment=${{parameters.Environment}}"
+                az pipelines run --name $(action3_pipelineName) --parameters "csvFileName=$csvFileName" "AppName=$appName" "Environment=${{parameters.Environment}}"
             }elseif( $action -eq "$(action4)" ){
                 Write-Host "Performing action in ${{parameters.Environment}} - $action with app name - $appName"
-                az pipelines run --name $(action4_pipelineName) --parameters "csvFileName=${{parameters.csvFileName}}" "AppName=$appName" "Environment=${{parameters.Environment}}"
+                az pipelines run --name $(action4_pipelineName) --parameters "csvFileName=$$csvFileName" "AppName=$appName" "Environment=${{parameters.Environment}}"
             }elseif( $action -eq "$(action5)" ){
                 Write-Host "Performing action in ${{parameters.Environment}} - $action with app name - $appName"
-                az pipelines run --name $(action5_pipelineName) --parameters "csvFileName=${{parameters.csvFileName}}" "AppName=$appName" "Environment=${{parameters.Environment}}"
+                az pipelines run --name $(action5_pipelineName) --parameters "csvFileName=$csvFileName" "AppName=$appName" "Environment=${{parameters.Environment}}"
             }else{
                 Write-Host "$action IS NOT a valid action for app name - ($app.ApplicationName)"
             }
