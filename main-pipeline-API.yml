@@ -1,0 +1,79 @@
+trigger: none
+
+parameters:
+- name: csvFileName
+  default: 'Release.csv'
+- name: Environment
+  displayName: Environment
+  type: string
+  default: IST
+  values:
+  - DEV
+  - IST
+  - PRD
+
+variables:
+- name: action1
+  value: NEW-SAML-APP
+- name: action2
+  value: NEW-OIDC-APP
+- name: action3
+  value: UPDATE-APP-OBJ
+- name: action4
+  value: UPDATE-SP-OBJ
+- name: action5
+  value: DELETE-APPLICATION
+  
+- name: action1_pipelineName
+  value: NEW-SAML-APP
+- name: action2_pipelineName
+  value: NEW-OIDC-APP
+- name: action3_pipelineName
+  value: UPDATE-APP-OBJ
+- name: action4_pipelineName
+  value: UPDATE-SP-OBJ
+- name: action5_pipelineName
+  value: DELETE-APP
+
+pool:
+  vmImage: 'windows-latest'
+
+
+jobs: 
+- job: ${{replace(replace(parameters.csvFileName,'.','_'),'-','_')}}_MainPipeline
+  steps:
+  - task: PowerShell@2
+    env:
+      AZURE_DEVOPS_EXT_PAT: $(System.AccessToken)
+    inputs:
+      targetType: 'inline'
+      script: |
+        $csvFilePath = "EntraID\Applications-ADO\${{parameters.Environment}}\Releases\"+"${{parameters.csvFileName}}"
+        $apps = Import-csv -Path $(Build.SourcesDirectory)\$csvFilePath
+        az devops configure --defaults organization=$(System.TeamFoundationCollectionUri) project=$(System.TeamProject) --use-git-aliases true
+        # Tiggering child ymls
+        $csvFileName = "${{parameters.csvFileName}}"
+        $csvFileName = $csvFileName -replace ".csv",""
+        foreach ($app in $apps){
+            $action = $app.Action
+            $appName = $app.ApplicationName
+            #insert addtional code to check applicationName uniqueness
+            if( $action -eq "$(action1)" ){
+                Write-Host "Performing action in ${{parameters.Environment}} - $action with app name - $appName"
+                az pipelines run --name $(action1_pipelineName) --parameters "csvFileName=$csvFileName" "AppName=$appName" "Environment=${{parameters.Environment}}"
+            }elseif( $action -eq "$(action2)" ){
+                Write-Host "Performing action in ${{parameters.Environment}} - $action with app name - $appName"
+                az pipelines run --name $(action2_pipelineName) --parameters "csvFileName=$csvFileName" "AppName=$appName" "Environment=${{parameters.Environment}}"
+            }elseif( $action -eq "$(action3)" ){
+                Write-Host "Performing action in ${{parameters.Environment}} - $action with app name - $appName"
+                az pipelines run --name $(action3_pipelineName) --parameters "csvFileName=$csvFileName" "AppName=$appName" "Environment=${{parameters.Environment}}"
+            }elseif( $action -eq "$(action4)" ){
+                Write-Host "Performing action in ${{parameters.Environment}} - $action with app name - $appName"
+                az pipelines run --name $(action4_pipelineName) --parameters "csvFileName=$$csvFileName" "AppName=$appName" "Environment=${{parameters.Environment}}"
+            }elseif( $action -eq "$(action5)" ){
+                Write-Host "Performing action in ${{parameters.Environment}} - $action with app name - $appName"
+                az pipelines run --name $(action5_pipelineName) --parameters "csvFileName=$csvFileName" "AppName=$appName" "Environment=${{parameters.Environment}}"
+            }else{
+                Write-Host "$action IS NOT a valid action for app name - ($app.ApplicationName)"
+            }
+        }
