@@ -24,7 +24,7 @@ variables:
   - group: ${{parameters.Environment}}-Secrets
 
 jobs:
-- deployment: ${{parameters.Environment}}__DELETE_APP__${{ replace(parameters.AppName,'-','_') }}_${{ replace(parameters.AppID,'-','_') }}
+- deployment: ${{parameters.csvFileName}}__DELETE_APP__${{ replace(parameters.AppName,'-','_') }}_${{ replace(parameters.AppID,'-','_') }}
   environment: ${{parameters.Environment}}
   strategy:
     runOnce:
