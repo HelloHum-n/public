@@ -74,8 +74,10 @@ jobs:
                 Write-Host "Performing action in ${{parameters.Environment}} - $action with app name - $appName"
                 #az pipelines run --name $(action1_pipelineName) --parameters "csvFileName=$csvFileName" "AppName=$appName" "Environment=${{parameters.Environment}}"
                 $url = "$($env:SYSTEM_TEAMFOUNDATIONCOLLECTIONURI)$($env:SYSTEM_TEAMPROJECTID)/_apis/pipelines/$(action1_pipelineID)/runs?api-version=6.0-preview.1"
-                $body = ('{"stagesToSkip":[],"resources":{"repositories":{"self":{"refName":"refs/heads/main"}}},"templateParameters":{"csvFileName":"$csvFileName","AppName":"$appName","Environment":"${{parameters.Environment}}"}}')
+                $body = ('{"stagesToSkip":[],"resources":{"repositories":{"self":{"refName":"refs/heads/main"}}},"templateParameters":{"csvFileName":"'+$csvFileName+'","AppName":"'+$appName+'","Environment":"${{parameters.Environment}}"}}')
+                write-host "____url:____"
                 write-host $url
+                write-host "____body:____"
                 write-host $body
                 $run = Invoke-RestMethod -Method POST -Uri $url -Headers @{Authorization = "Bearer $env:SYSTEM_ACCESSTOKEN"} -body $body -ContentType application/json
                 write-host $run
@@ -83,8 +85,10 @@ jobs:
                 Write-Host "Performing action in ${{parameters.Environment}} - $action with app name - $appName"
                 #az pipelines run --name $(action2_pipelineName) --parameters "csvFileName=$csvFileName" "AppName=$appName" "Environment=${{parameters.Environment}}"
                 $url = "$($env:SYSTEM_TEAMFOUNDATIONCOLLECTIONURI)$($env:SYSTEM_TEAMPROJECTID)/_apis/pipelines/$(action2_pipelineID)/runs?api-version=6.0-preview.1"
-                $body = ('{"stagesToSkip":[],"resources":{"repositories":{"self":{"refName":"refs/heads/main"}}},"templateParameters":{"csvFileName":"$csvFileName","AppName":"$appName","Environment":"${{parameters.Environment}}"}}')
+                $body = ('{"stagesToSkip":[],"resources":{"repositories":{"self":{"refName":"refs/heads/main"}}},"templateParameters":{"csvFileName":"'+$csvFileName+'","AppName":"'+$appName+'","Environment":"${{parameters.Environment}}"}}')
+                write-host "____url:____"
                 write-host $url
+                write-host "____body:____"
                 write-host $body
                 $run = Invoke-RestMethod -Method POST -Uri $url -Headers @{Authorization = "Bearer $env:SYSTEM_ACCESSTOKEN"} -body $body -ContentType application/json
                 write-host $run
@@ -93,7 +97,9 @@ jobs:
                 #az pipelines run --name $(action3_pipelineName) --parameters "csvFileName=$csvFileName" "AppName=$appName" "Environment=${{parameters.Environment}}"
                 $url = "$($env:SYSTEM_TEAMFOUNDATIONCOLLECTIONURI)$($env:SYSTEM_TEAMPROJECTID)/_apis/pipelines/$(action3_pipelineID)/runs?api-version=6.0-preview.1"
                 $body = ('{"stagesToSkip":[],"resources":{"repositories":{"self":{"refName":"refs/heads/main"}}},"templateParameters":{"csvFileName":"'+$csvFileName+'","AppName":"'+$appName+'","Environment":"${{parameters.Environment}}"}}')
+                write-host "____url:____"
                 write-host $url
+                write-host "____body:____"
                 write-host $body
                 $run = Invoke-RestMethod -Method POST -Uri $url -Headers @{Authorization = "Bearer $env:SYSTEM_ACCESSTOKEN"} -body $body -ContentType application/json
                 write-host $run
@@ -101,8 +107,10 @@ jobs:
                 Write-Host "Performing action in ${{parameters.Environment}} - $action with app name - $appName"
                 #az pipelines run --name $(action4_pipelineName) --parameters "csvFileName=$$csvFileName" "AppName=$appName" "Environment=${{parameters.Environment}}"
                 $url = "$($env:SYSTEM_TEAMFOUNDATIONCOLLECTIONURI)$($env:SYSTEM_TEAMPROJECTID)/_apis/pipelines/$(action4_pipelineID)/runs?api-version=6.0-preview.1"
-                $body = ('{"stagesToSkip":[],"resources":{"repositories":{"self":{"refName":"refs/heads/main"}}},"templateParameters":{"csvFileName":"$csvFileName","AppName":"$appName","Environment":"${{parameters.Environment}}"}}')
+                $body = ('{"stagesToSkip":[],"resources":{"repositories":{"self":{"refName":"refs/heads/main"}}},"templateParameters":{"csvFileName":"'+$csvFileName+'","AppName":"'+$appName+'","Environment":"${{parameters.Environment}}"}}')
+                write-host "____url:____"
                 write-host $url
+                write-host "____body:____"
                 write-host $body
                 $run = Invoke-RestMethod -Method POST -Uri $url -Headers @{Authorization = "Bearer $env:SYSTEM_ACCESSTOKEN"} -body $body -ContentType application/json
                 write-host $run
@@ -111,7 +119,9 @@ jobs:
                 #az pipelines run --name $(action5_pipelineName) --parameters "csvFileName=$csvFileName" "AppName=$appName" "Environment=${{parameters.Environment}}"
                 $url = "$($env:SYSTEM_TEAMFOUNDATIONCOLLECTIONURI)$($env:SYSTEM_TEAMPROJECTID)/_apis/pipelines/$(action5_pipelineID)/runs?api-version=6.0-preview.1"
                 $body = ('{"stagesToSkip":[],"resources":{"repositories":{"self":{"refName":"refs/heads/main"}}},"templateParameters":{"csvFileName":"'+$csvFileName+'","AppName":"'+$appName+'","Environment":"${{parameters.Environment}}"}}')
+                write-host "____url:____"
                 write-host $url
+                write-host "____body:____"
                 write-host $body
                 $run = Invoke-RestMethod -Method POST -Uri $url -Headers @{Authorization = "Bearer $env:SYSTEM_ACCESSTOKEN"} -body $body -ContentType application/json
                 write-host $run
