@@ -73,7 +73,7 @@ jobs:
             if( $action -eq "$(action1)" ){
                 Write-Host "Performing action in ${{parameters.Environment}} - $action with app name - $appName"
                 #az pipelines run --name $(action1_pipelineName) --parameters "csvFileName=$csvFileName" "AppName=$appName" "Environment=${{parameters.Environment}}"
-                $url = "$($env:SYSTEM_TEAMFOUNDATIONCOLLECTIONURI)$(action1_pipelineID)/_apis/pipelines/$(action1_pipelineID)/runs?api-version=6.0-preview.1"
+                $url = "$($env:SYSTEM_TEAMFOUNDATIONCOLLECTIONURI)/_apis/pipelines/$(action1_pipelineID)/runs?api-version=6.0-preview.1"
                 $body = ('{"stagesToSkip":[],"resources":{"repositories":{"self":{"refName":"refs/heads/main"}}},"templateParameters":{"csvFileName":"$csvFileName","AppName":"$appName","Environment":"${{parameters.Environment}}"}}')
                 write-host $url
                 write-host $body
@@ -82,7 +82,7 @@ jobs:
             }elseif( $action -eq "$(action2)" ){
                 Write-Host "Performing action in ${{parameters.Environment}} - $action with app name - $appName"
                 #az pipelines run --name $(action2_pipelineName) --parameters "csvFileName=$csvFileName" "AppName=$appName" "Environment=${{parameters.Environment}}"
-                $url = "$($env:SYSTEM_TEAMFOUNDATIONCOLLECTIONURI)$(action2_pipelineID)/_apis/pipelines/$(action2_pipelineID)/runs?api-version=6.0-preview.1"
+                $url = "$($env:SYSTEM_TEAMFOUNDATIONCOLLECTIONURI)/_apis/pipelines/$(action2_pipelineID)/runs?api-version=6.0-preview.1"
                 $body = ('{"stagesToSkip":[],"resources":{"repositories":{"self":{"refName":"refs/heads/main"}}},"templateParameters":{"csvFileName":"$csvFileName","AppName":"$appName","Environment":"${{parameters.Environment}}"}}')
                 write-host $url
                 write-host $body
@@ -91,7 +91,7 @@ jobs:
             }elseif( $action -eq "$(action3)" ){
                 Write-Host "Performing action in ${{parameters.Environment}} - $action with app name - $appName"
                 #az pipelines run --name $(action3_pipelineName) --parameters "csvFileName=$csvFileName" "AppName=$appName" "Environment=${{parameters.Environment}}"
-                $url = "$($env:SYSTEM_TEAMFOUNDATIONCOLLECTIONURI)$(action3_pipelineID)/_apis/pipelines/$(action3_pipelineID)/runs?api-version=6.0-preview.1"
+                $url = "$($env:SYSTEM_TEAMFOUNDATIONCOLLECTIONURI)/_apis/pipelines/$(action3_pipelineID)/runs?api-version=6.0-preview.1"
                 $body = ('{"stagesToSkip":[],"resources":{"repositories":{"self":{"refName":"refs/heads/main"}}},"templateParameters":{"csvFileName":"$csvFileName","AppName":"$appName","Environment":"${{parameters.Environment}}"}}')
                 write-host $url
                 write-host $body
@@ -100,7 +100,7 @@ jobs:
             }elseif( $action -eq "$(action4)" ){
                 Write-Host "Performing action in ${{parameters.Environment}} - $action with app name - $appName"
                 #az pipelines run --name $(action4_pipelineName) --parameters "csvFileName=$$csvFileName" "AppName=$appName" "Environment=${{parameters.Environment}}"
-                $url = "$($env:SYSTEM_TEAMFOUNDATIONCOLLECTIONURI)$(action4_pipelineID)/_apis/pipelines/$(action4_pipelineID)/runs?api-version=6.0-preview.1"
+                $url = "$($env:SYSTEM_TEAMFOUNDATIONCOLLECTIONURI)/_apis/pipelines/$(action4_pipelineID)/runs?api-version=6.0-preview.1"
                 $body = ('{"stagesToSkip":[],"resources":{"repositories":{"self":{"refName":"refs/heads/main"}}},"templateParameters":{"csvFileName":"$csvFileName","AppName":"$appName","Environment":"${{parameters.Environment}}"}}')
                 write-host $url
                 write-host $body
@@ -109,7 +109,7 @@ jobs:
             }elseif( $action -eq "$(action5)" ){
                 Write-Host "Performing action in ${{parameters.Environment}} - $action with app name - $appName"
                 #az pipelines run --name $(action5_pipelineName) --parameters "csvFileName=$csvFileName" "AppName=$appName" "Environment=${{parameters.Environment}}"
-                $url = "$($env:SYSTEM_TEAMFOUNDATIONCOLLECTIONURI)$(action5_pipelineID)/_apis/pipelines/$(action5_pipelineID)/runs?api-version=6.0-preview.1"
+                $url = "$($env:SYSTEM_TEAMFOUNDATIONCOLLECTIONURI)/_apis/pipelines/$(action5_pipelineID)/runs?api-version=6.0-preview.1"
                 $body = ('{"stagesToSkip":[],"resources":{"repositories":{"self":{"refName":"refs/heads/main"}}},"templateParameters":{"csvFileName":"$csvFileName","AppName":"$appName","Environment":"${{parameters.Environment}}"}}')
                 write-host $url
                 write-host $body
