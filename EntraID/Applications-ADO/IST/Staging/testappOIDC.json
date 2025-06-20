@@ -29,7 +29,18 @@
 		"acceptMappedClaims": true,
 		"knownClientApplications": [],
 		"requestedAccessTokenVersion": 2,
-		"oauth2PermissionScopes": [],
+		"oauth2PermissionScopes": [
+			{
+				"adminConsentDescription": "Admin.write",
+				"adminConsentDisplayName": "Admin.write",
+				"id": "7e7542f8-c9a7-4aae-ba88-58d85336a59c",
+				"isEnabled": true,
+				"type": "Admin",
+				"userConsentDescription": null,
+				"userConsentDisplayName": null,
+				"value": "Admin.write"
+			}
+		],
 		"preAuthorizedApplications": []
 	},
 	"appRoles": [],
