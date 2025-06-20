@@ -60,7 +60,17 @@
 	"publicClient": {
 		"redirectUris": []
 	},
-	"requiredResourceAccess": [],
+	"requiredResourceAccess": [
+		{
+			"resourceAppId": "7b137021-3634-49de-94d1-6b3beebf1b92",
+			"resourceAccess": [
+				{
+					"id": "7e7542f8-c9a7-4aae-ba88-58d85336a59c",
+					"type": "Scope"
+				}
+			]
+		}
+	],
 	"verifiedPublisher": {
 		"displayName": null,
 		"verifiedPublisherId": null,
