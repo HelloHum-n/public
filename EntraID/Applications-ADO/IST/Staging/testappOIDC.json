@@ -1,0 +1,90 @@
+{
+	"id": "f7c7f86b-a102-4e58-872b-3eb1ce412e22",
+	"deletedDateTime": null,
+	"appId": "7b137021-3634-49de-94d1-6b3beebf1b92",
+	"applicationTemplateId": null,
+	"disabledByMicrosoftStatus": null,
+	"createdDateTime": "2025-06-20T18:31:53Z",
+	"displayName": "Test-OIDC-App-123",
+	"description": "My New SAML App",
+	"groupMembershipClaims": null,
+	"identifierUris": [
+		"https://118samltoolkit.azurewebsites.net"
+	],
+	"isDeviceOnlyAuthSupported": null,
+	"isFallbackPublicClient": null,
+	"nativeAuthenticationApisEnabled": null,
+	"notes": null,
+	"publisherDomain": "lab293.m365dpoc.com",
+	"serviceManagementReference": null,
+	"signInAudience": "AzureADMyOrg",
+	"tags": [],
+	"tokenEncryptionKeyId": null,
+	"samlMetadataUrl": null,
+	"defaultRedirectUri": null,
+	"certification": null,
+	"optionalClaims": null,
+	"addIns": [],
+	"api": {
+		"acceptMappedClaims": true,
+		"knownClientApplications": [],
+		"requestedAccessTokenVersion": 2,
+		"oauth2PermissionScopes": [],
+		"preAuthorizedApplications": []
+	},
+	"appRoles": [],
+	"info": {
+		"logoUrl": null,
+		"marketingUrl": "https://www.example.com/",
+		"privacyStatementUrl": "https://www.example.com/",
+		"supportUrl": "https://www.example.com/",
+		"termsOfServiceUrl": "https://www.example.com/"
+	},
+	"keyCredentials": [],
+	"parentalControlSettings": {
+		"countriesBlockedForMinors": [],
+		"legalAgeGroupRule": "Allow"
+	},
+	"passwordCredentials": [],
+	"publicClient": {
+		"redirectUris": []
+	},
+	"requiredResourceAccess": [],
+	"verifiedPublisher": {
+		"displayName": null,
+		"verifiedPublisherId": null,
+		"addedDateTime": null
+	},
+	"web": {
+		"homePageUrl": "https://account.activedirectory.windowsazure.com:444/applications/default.aspx?metadata=customappsso|ISV9.1|primary|z",
+		"logoutUrl": null,
+		"redirectUris": [
+			"https://118samltoolkit.azurewebsites.net"
+		],
+		"implicitGrantSettings": {
+			"enableAccessTokenIssuance": false,
+			"enableIdTokenIssuance": true
+		},
+		"redirectUriSettings": [
+			{
+				"uri": "https://118samltoolkit.azurewebsites.net",
+				"index": null
+			}
+		]
+	},
+	"servicePrincipalLockConfiguration": {
+		"isEnabled": true,
+		"allProperties": false,
+		"credentialsWithUsageVerify": false,
+		"credentialsWithUsageSign": false,
+		"identifierUris": false,
+		"tokenEncryptionKeyId": false
+	},
+	"spa": {
+		"redirectUris": []
+	},
+	"requestSignatureVerification": {
+		"isSignedRequestRequired": true,
+		"allowedWeakAlgorithms": null
+	}
+}
