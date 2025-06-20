@@ -1,0 +1,68 @@
+{
+    "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#servicePrincipals/$entity",
+    "@microsoft.graph.tips": "Use $select to choose only the properties your app needs, as this can lead to performance improvements. For example: GET servicePrincipals('<guid>')?$select=accountEnabled,addIns",
+    "id": "b0992bdf-2b63-4e01-a261-723845942ee9",
+    "deletedDateTime": null,
+    "accountEnabled": true,
+    "alternativeNames": [],
+    "appDisplayName": "Test-OIDC-App-123",
+    "appDescription": "My New SAML App",
+    "appId": "7b137021-3634-49de-94d1-6b3beebf1b92",
+    "applicationTemplateId": null,
+    "appOwnerOrganizationId": "d6efb6af-13e5-4903-bf0b-b6e5dc81aae3",
+    "appRoleAssignmentRequired": true,
+    "createdDateTime": "2025-06-20T18:32:14Z",
+    "description": null,
+    "disabledByMicrosoftStatus": null,
+    "displayName": "Test-OIDC-App-123",
+    "homepage": "https://account.activedirectory.windowsazure.com:444/applications/default.aspx?metadata=customappsso|ISV9.1|primary|z",
+    "loginUrl": null,
+    "logoutUrl": null,
+    "notes": null,
+    "notificationEmailAddresses": [],
+    "preferredSingleSignOnMode": null,
+    "preferredTokenSigningKeyThumbprint": null,
+    "replyUrls": [
+        "https://118samltoolkit.azurewebsites.net"
+    ],
+    "servicePrincipalNames": [
+        "https://118samltoolkit.azurewebsites.net",
+        "7b137021-3634-49de-94d1-6b3beebf1b92"
+    ],
+    "servicePrincipalType": "Application",
+    "signInAudience": "AzureADMyOrg",
+    "tags": [
+        "WindowsAzureActiveDirectoryIntegratedApp"
+    ],
+    "tokenEncryptionKeyId": null,
+    "samlSingleSignOnSettings": null,
+    "addIns": [],
+    "appRoles": [],
+    "info": {
+        "logoUrl": null,
+        "marketingUrl": "https://www.example.com/",
+        "privacyStatementUrl": "https://www.example.com/",
+        "supportUrl": "https://www.example.com/",
+        "termsOfServiceUrl": "https://www.example.com/"
+    },
+    "keyCredentials": [],
+    "oauth2PermissionScopes": [
+        {
+            "adminConsentDescription": "Admin.write",
+            "adminConsentDisplayName": "Admin.write",
+            "id": "7e7542f8-c9a7-4aae-ba88-58d85336a59c",
+            "isEnabled": true,
+            "type": "Admin",
+            "userConsentDescription": null,
+            "userConsentDisplayName": null,
+            "value": "Admin.write"
+        }
+    ],
+    "passwordCredentials": [],
+    "resourceSpecificApplicationPermissions": [],
+    "verifiedPublisher": {
+        "displayName": null,
+        "verifiedPublisherId": null,
+        "addedDateTime": null
+    }
+}
