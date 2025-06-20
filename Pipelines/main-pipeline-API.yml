@@ -65,6 +65,9 @@ jobs:
             script: |
               $csvFilePath = "EntraID\Applications-ADO\${{parameters.Environment}}\Releases\"+"${{parameters.csvFileName}}"
               $apps = Import-csv -Path $(Build.SourcesDirectory)\$csvFilePath
+              pwd
+              ls $(Build.SourcesDirectory)
+              quit
               #az devops configure --defaults organization=$(System.TeamFoundationCollectionUri) project=$(System.TeamProject) --use-git-aliases true
               # Tiggering child ymls
               $csvFileName = "${{parameters.csvFileName}}"
