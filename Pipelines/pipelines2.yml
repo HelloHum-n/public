@@ -10,6 +10,12 @@ parameters:
     - PRD
 
 
+variables:
+  - group: ${{parameters.Environment}}-Variables
+  - group: ${{parameters.Environment}}-Secrets
+  - name: tenantIDvar
+    value: $[variables.tenantID]
+
 pool:
   vmImage: 'windows-latest'
 
