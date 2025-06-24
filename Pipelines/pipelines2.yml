@@ -47,7 +47,7 @@ jobs:
           # Get the keys from the certificate file (pfx file)
           $privateKeyPwd = "abcde12345"
           $privatePwdSecure = ConvertTo-SecureString -String $privateKeyPwd -Force -AsPlainText
-          $pfxCertFile = "$(connectionCert.secureFilePath)"
+          $pfxCertFile = "$(abc.secureFilePath)"
           write-host "pfxCertFile $pfxCertFile"
           write-host "privatePwdSecure: $privatePwdSecure"
           $pfxCert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($pfxCertFile,$privatePwdSecure)
