@@ -42,6 +42,8 @@ jobs:
           $privateKeyPwd = "abcde12345"
           $privatePwdSecure = ConvertTo-SecureString -String $privateKeyPwd -Force -AsPlainText
           $pfxCertFile = $(abc.secureFilePath)
+          write-host "pfxCertFile $pfxCertFile"
+          write-host "privatePwdSecure: $privatePwdSecure"
           $pfxCert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($pfxCertFile,$privatePwdSecure)
           #$pfxCert | Export-Certificate -FilePath $tmpPubCertFile -Type CERT
           if ( $($PSVersionTable.PSVersion.Major) -eq 7 ){
