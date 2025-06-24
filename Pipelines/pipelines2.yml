@@ -25,7 +25,7 @@ variables:
     value: $[variables.tenantID]
 
 jobs:
-- job: 
+- job: Start
   pool:
     vmImage: 'windows-latest'
     steps:
