@@ -9,20 +9,6 @@ parameters:
     - IST
     - PRD
 
-variables:
-  - name: step1succeed
-    value: false
-  - name: step2succeed
-    value: false
-  - name: step3succeed
-    value: false
-# - name: skipGit
-  - name: filesNotFound
-    value: false
-  - group: ${{parameters.Environment}}-Variables
-  - group: ${{parameters.Environment}}-Secrets
-  - name: tenantIDvar
-    value: $[variables.tenantID]
 
 pool:
   vmImage: 'windows-latest'
@@ -38,8 +24,8 @@ jobs:
         targetType: inline
         script: |
           $tenantID = "$(tenantIDvar)"
-          Write-Host "tenantID: $(tenantID)"
-          Write-Host "tenantID: $(serviceConnectionPrivateKeyPwd)"
+          Write-Host "tenantID: $tenantID"
+          #Write-Host "tenantID: $(serviceConnectionPrivateKeyPwd)"
           #$(serviceConnectionPrivateKeyPwd) | Out-file -force whatif.txt
           
     - task: PowerShell@2
