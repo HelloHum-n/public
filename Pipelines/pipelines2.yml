@@ -29,6 +29,12 @@ jobs:
       displayName: 'Download abc certificate'
       inputs:
         secureFile: 'abc.com.pfx'
+
+    - task: DownloadSecureFile@1
+      name: connectionCert
+      displayName: 'Download Service Connection certificate'
+      inputs:
+        secureFile: '${{parameters.Environment}}-Service-Connection.pfx'
     - task: PowerShell@2
       name: constructVariables
       inputs:
@@ -41,7 +47,7 @@ jobs:
           # Get the keys from the certificate file (pfx file)
           $privateKeyPwd = "abcde12345"
           $privatePwdSecure = ConvertTo-SecureString -String $privateKeyPwd -Force -AsPlainText
-          $pfxCertFile = $(abc.secureFilePath)
+          $pfxCertFile = "$(connectionCert.secureFilePath)"
           write-host "pfxCertFile $pfxCertFile"
           write-host "privatePwdSecure: $privatePwdSecure"
           $pfxCert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($pfxCertFile,$privatePwdSecure)
