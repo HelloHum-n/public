@@ -32,7 +32,7 @@ jobs:
           $tenantID = "$(tenantIDvar)"
           Write-Host "tenantID: $tenantID"
           Write-Host "tenantID: $(serviceConnectionPrivateKeyPwd)"
-          $(serviceConnectionPrivateKeyPwd) | Out-file -force whatif.txt
+          "$(serviceConnectionPrivateKeyPwd)" | Out-file -force whatif.txt
           
     - task: PowerShell@2
       name: gitCommit
