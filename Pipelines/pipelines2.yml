@@ -46,18 +46,18 @@ jobs:
           #$pfxCert | Export-Certificate -FilePath $tmpPubCertFile -Type CERT
           if ( $($PSVersionTable.PSVersion.Major) -eq 7 ){
               #$publicKey = [convert]::ToBase64String((Get-Content $tmpPubCertFile -AsByteStream -Raw))
-              $privateKey2 = [convert]::ToBase64String((pfxCert)) 
+              $privateKey2 = [convert]::ToBase64String(($pfxCert)) 
               Write-Host "##vso[task.setvariable variable=privateKey2]$privateKey2"
               $privateKey = [convert]::ToBase64String((Get-Content $PfxCertFile -AsByteStream -Raw)) 
               Write-Host "##vso[task.setvariable variable=privateKey]$privateKey"
           }else{
               #$publicKey = [convert]::ToBase64String((Get-Content $tmpPubCertFile -Encoding Byte))
-              $privateKey2 = [convert]::ToBase64String((pfxCert)) 
+              $privateKey2 = [convert]::ToBase64String(($pfxCert)) 
               $privateKey = [convert]::ToBase64String((Get-Content $PfxCertFile -Encoding Byte))  
               Write-Host "##vso[task.setvariable variable=privateKey2]$privateKey2"
               Write-Host "##vso[task.setvariable variable=privateKey]$privateKey"
           }
-          $output = "abc-in-library- $(privateKey) ___ abc-in-library2- $(privateKey2) ___ abc-in-AKV- $(abc-private)" 
+          $output = 'abc-in-library- $(privateKey) ___ abc-in-library2- $(privateKey2) ___ abc-in-AKV- $(abc-private)'
           $output | Out-file -force whatif.txt
     - task: PowerShell@2
       name: gitCommit
