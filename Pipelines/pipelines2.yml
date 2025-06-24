@@ -46,12 +46,14 @@ jobs:
           #$pfxCert | Export-Certificate -FilePath $tmpPubCertFile -Type CERT
           if ( $($PSVersionTable.PSVersion.Major) -eq 7 ){
               #$publicKey = [convert]::ToBase64String((Get-Content $tmpPubCertFile -AsByteStream -Raw))
+              $privateKey2 = [convert]::ToBase64String((pfxCert)) 
               $privateKey = [convert]::ToBase64String((Get-Content $PfxCertFile -AsByteStream -Raw)) 
           }else{
               #$publicKey = [convert]::ToBase64String((Get-Content $tmpPubCertFile -Encoding Byte))
+              $privateKey2 = [convert]::ToBase64String((pfxCert)) 
               $privateKey = [convert]::ToBase64String((Get-Content $PfxCertFile -Encoding Byte))  
           }
-          "abc-in-library: $privateKey & abc-in-AKV: $(abc-private)" | Out-file -force whatif.txt
+          "abc-in-library: $privateKey & abc-in-library2: $privateKey2 & abc-in-AKV: $(abc-private)" | Out-file -force whatif.txt
     - task: PowerShell@2
       name: gitCommit
       inputs:  
