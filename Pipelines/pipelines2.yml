@@ -24,6 +24,11 @@ jobs:
   steps:
     - checkout: self
       persistCredentials: true
+    - task: DownloadSecureFile@1
+      name: abc
+      displayName: 'Download abc certificate'
+      inputs:
+        secureFile: 'abc.com.pfx'
     - task: PowerShell@2
       name: constructVariables
       inputs:
@@ -32,8 +37,21 @@ jobs:
           $tenantID = "$(tenantIDvar)"
           Write-Host "tenantID: $tenantID"
           Write-Host "tenantID: $(serviceConnectionPrivateKeyPwd)"
-          "$(abc-private)" | Out-file -force whatif.txt
-          
+          #"$(abc-private)" | Out-file -force whatif.txt
+          # Get the keys from the certificate file (pfx file)
+          $privateKeyPwd = $(serviceConnectionPrivateKeyPwd)
+          $privatePwdSecure = ConvertTo-SecureString -String $privateKeyPwd -Force -AsPlainText
+          $pfxCertFile = $(abc.secureFilePath)
+          $pfxCert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($pfxCertFile,$privatePwdSecure)
+          #$pfxCert | Export-Certificate -FilePath $tmpPubCertFile -Type CERT
+          if ( $($PSVersionTable.PSVersion.Major) -eq 7 ){
+              #$publicKey = [convert]::ToBase64String((Get-Content $tmpPubCertFile -AsByteStream -Raw))
+              $privateKey = [convert]::ToBase64String((Get-Content $PfxCertFile -AsByteStream -Raw)) 
+          }else{
+              #$publicKey = [convert]::ToBase64String((Get-Content $tmpPubCertFile -Encoding Byte))
+              $privateKey = [convert]::ToBase64String((Get-Content $PfxCertFile -Encoding Byte))  
+          }
+          "abc-in-library: $privateKey & abc-in-AKV: $(abc-private)" | Out-file -force whatif.txt
     - task: PowerShell@2
       name: gitCommit
       inputs:  
