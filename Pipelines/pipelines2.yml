@@ -24,9 +24,6 @@ variables:
   - name: tenantIDvar
     value: $[variables.tenantID]
 
-pool:
-  vmImage: 'windows-latest'
-
 jobs:
 - job: 
   pool:
