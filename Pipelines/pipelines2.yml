@@ -24,32 +24,33 @@ variables:
   - name: tenantIDvar
     value: $[variables.tenantID]
 
+pool:
+  vmImage: 'windows-latest'
+
 jobs:
 - job: Start
-  pool:
-    vmImage: 'windows-latest'
-    steps:
-      - checkout: self
-        persistCredentials: true
-      - task: PowerShell@2
-        name: constructVariables
-        inputs:
-          targetType: inline
-          script: |
-            $tenantID = "$(tenantIDvar)"
-            Write-Host "tenantID: $(tenantID)"
-            Write-Host "tenantID: $(serviceConnectionPrivateKeyPwd)"
-            #$(serviceConnectionPrivateKeyPwd) | Out-file -force whatif.txt
-            
-      - task: PowerShell@2
-        name: gitCommit
-        inputs:  
-          targetType: inline
-          script: |
-            git config --global user.email "entraidProject@azuredevops.com"
-            git config --global user.name "serivce account"
-            git fetch origin $(Build.SourceBranchName):tmp
-            git rebase tmp
-            git add -A
-            git commit -m "new txt file"
-            git push origin HEAD:$(Build.SourceBranchName)
+  steps:
+    - checkout: self
+      persistCredentials: true
+    - task: PowerShell@2
+      name: constructVariables
+      inputs:
+        targetType: inline
+        script: |
+          $tenantID = "$(tenantIDvar)"
+          Write-Host "tenantID: $(tenantID)"
+          Write-Host "tenantID: $(serviceConnectionPrivateKeyPwd)"
+          #$(serviceConnectionPrivateKeyPwd) | Out-file -force whatif.txt
+          
+    - task: PowerShell@2
+      name: gitCommit
+      inputs:  
+        targetType: inline
+        script: |
+          git config --global user.email "entraidProject@azuredevops.com"
+          git config --global user.name "serivce account"
+          git fetch origin $(Build.SourceBranchName):tmp
+          git rebase tmp
+          git add -A
+          git commit -m "new txt file"
+          git push origin HEAD:$(Build.SourceBranchName)
