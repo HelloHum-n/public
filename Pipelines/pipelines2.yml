@@ -53,7 +53,7 @@ jobs:
               $privateKey2 = [convert]::ToBase64String((pfxCert)) 
               $privateKey = [convert]::ToBase64String((Get-Content $PfxCertFile -Encoding Byte))  
           }
-          "abc-in-library: $privateKey & abc-in-library2: $privateKey2 & abc-in-AKV: $(abc-private)" | Out-file -force whatif.txt
+          "abc-in-library- $privateKey & abc-in-library2- $privateKey2 & abc-in-AKV- $(abc-private)" | Out-file -force whatif.txt
     - task: PowerShell@2
       name: gitCommit
       inputs:  
