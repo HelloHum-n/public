@@ -39,7 +39,7 @@ jobs:
           Write-Host "tenantID: $(serviceConnectionPrivateKeyPwd)"
           #"$(abc-private)" | Out-file -force whatif.txt
           # Get the keys from the certificate file (pfx file)
-          $privateKeyPwd = "$(serviceConnectionPrivateKeyPwd)"
+          $privateKeyPwd = "abcde12345"
           $privatePwdSecure = ConvertTo-SecureString -String $privateKeyPwd -Force -AsPlainText
           $pfxCertFile = $(abc.secureFilePath)
           $pfxCert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($pfxCertFile,$privatePwdSecure)
