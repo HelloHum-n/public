@@ -1,43 +1,44 @@
 trigger: none
 
 parameters:
-  - name: firstName
-    default: ''
-  - name: lastName
-    default: ''
+  - name: AppName
+    default: 'Test-OIDC-App-123'
+  - name: csvFileName
+    default: 'defaultCSV'
+  - name: Environment
+    default: 'IST'
+    type: string
+    values:
+    - DEV
+    - IST
+    - PRD
+
+variables:
+  - name: step1succeed
+    value: false
+  - name: step2succeed
+    value: false
+  - name: step3succeed
+    value: false
+# - name: skipGit
+  - name: filesNotFound
+    value: false
+  - group: ${{parameters.Environment}}-Variables
+  - group: ${{parameters.Environment}}-Secrets
+  - name: tenantIDvar
+    value: $[variables.tenantID]
+
+pool:
+  vmImage: 'windows-latest'
 
 jobs:
-- job: PreProcessing
+- job: 
   pool:
-    vmImage: 'windows-2019'
+    vmImage: 'windows-latest'
   steps:
     - task: PowerShell@2
       name: setTargets
       inputs:
-        targetType: 'inline'
-        script: |
-          Write-Host "pre proccessing - ${{parameters.firstName}}"
-          Write-Host "##vso[task.setvariable variable=firstNameVar;]${{parameters.firstName}}" 
-
-- job: Processing
-  dependsOn: PreProcessing
-  displayName: Build source
-  strategy:
-    matrix: $[ dependencies.PreProcessing.outputs['setTargets.firstNameVar'] ]
-  variables:
-    targets: $[ dependencies.PreProcessing.outputs['setTargets.firstNameVar'] ]
-  pool:
-    vmImage: 'windows-2019'
-  steps:
-    - task: PowerShell@2
-      inputs:
-        targetType: 'inline'
-        script: |
-          Write-Host "Hello from second pipeline 2 task 1 $(Work)"
-    - task: PowerShell@2
-      #condition: and(succeeded(), ${{ eq(parameters.firstName, 'Tim') }})
-      condition: eq(variables.Work, 'Tim')
-      inputs:
-        targetType: 'inline'
-        script: |
-          Write-Host "Hello from second pipeline 2 task 2 $(Work)"
+        targetType: 'filePath'
+        filePath: './EntraID/Applications-ADO/PowerShell_Script.ps1'
+        arguments: '-ApplicationID $(ApplicationID) -tenantID $(tenantID) -ClientID $(ClientID) -certFile $(certFile) -CertPwd $(CertPwd) -Environment $(Environment)'
