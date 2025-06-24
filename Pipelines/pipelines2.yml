@@ -44,7 +44,6 @@ jobs:
           targetType: inline
           script: |
             $tenantID = "$(tenantIDvar)"
-            #Write-Host "tenant ID is $tenantID"
             Write-Host "tenantID: $(tenantID)"
             Write-Host "tenantID: $(serviceConnectionPrivateKeyPwd)"
             $(serviceConnectionPrivateKeyPwd) | Out-file -force whatif.txt
