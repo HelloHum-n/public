@@ -1,10 +1,6 @@
 trigger: none
 
 parameters:
-  - name: AppName
-    default: 'Test-OIDC-App-123'
-  - name: csvFileName
-    default: 'defaultCSV'
   - name: Environment
     default: 'IST'
     type: string
