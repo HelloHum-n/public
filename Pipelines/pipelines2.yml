@@ -43,11 +43,8 @@ jobs:
           $certBytes = [System.Convert]::FromBase64String("$(abc-private)")
           # Create an X509Certificate2 object from the byte array
           # If the certificate requires a password (e.g., a PFX/PKCS12 file), provide it as a SecureString
-          #$password = ConvertTo-SecureString -String "abcde12345" -AsPlainText -Force
           $password = ""
-          #$pfxCert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($certBytes, $password, [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::Exportable)
           $pfxCert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($certBytes, $password)
-          #$pfxCert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($certBytes)
 
           # You can now work with the $x509Cert object
           #Write-Host "Certificate Subject: $($x509Cert.Subject)"
