@@ -111,9 +111,9 @@ jobs:
               targetType: inline
               script: |
                 if (("$(step2succeed)" -eq "false")){ 
-                  write-host "Deployment failed"
+                  write-host "Update Application Obj failed"
                 }else{
-                  write-host "Deployment succeeded."
+                  write-host "Update Application Obj succeeded."
                 }
 
           - task: PowerShell@2
