@@ -23,7 +23,7 @@ pool:
   vmImage: 'windows-latest'
 
 jobs:
-- deployment: ${{ replace(parameters.csvFileName,'.','_')}}__UPDATE_APP_OBJ__${{ replace(parameters.AppName,'-','_') }}
+- deployment: ${{ replace(parameters.csvFileName,'.','_')}}__UPDATE_SP_OBJ__${{ replace(parameters.AppName,'-','_') }}
   environment: ${{parameters.Environment}}
   strategy:
     runOnce:
