@@ -2,7 +2,9 @@ trigger: none
 
 parameters:
   - name: AppName
-    default: 'default'
+    default: 'Test-SAML-App-123'
+  - name: csvFileName
+    default: 'defaultCSV'
   - name: Environment
     default: 'IST'
     type: string
@@ -11,14 +13,95 @@ parameters:
     - IST
     - PRD
 
+variables:
+  - name: stepSucceed
+    value: false
+  - group: ${{parameters.Environment}}-Variables
+  - group: ${{parameters.Environment}}-Secrets
+  
+pool:
+  vmImage: 'windows-latest'
+
 jobs:
-- job:
-  pool:
-    vmImage: 'windows-latest'
-  steps:
-    - task: PowerShell@2
-      name: setTargets
-      inputs:
-        targetType: 'inline'
-        script: |
-          Write-Host "Updating ServicePrincipal Object - ${{parameters.AppName}} in ${{parameters.Environment}}"
+- deployment: ${{ replace(parameters.csvFileName,'.','_')}}__UPDATE_APP_OBJ__${{ replace(parameters.AppName,'-','_') }}
+  environment: ${{parameters.Environment}}
+  strategy:
+    runOnce:
+      deploy:
+        steps:
+          - checkout: self
+            persistCredentials: true
+          - task: PowerShell@2
+            name: constructVariables
+            inputs:
+              targetType: inline
+              script: |
+                $tenantID = "$(tenantIDvar)"
+                #Write-Host "tenant ID is $tenantID"
+                Write-Host "tenantID: $(tenantID)"
+
+                $SpStagingJsonFile  = ".\EntraID\Applications-ADO\${{parameters.Environment}}\Staging\${{parameters.AppName}}_Sp.json"
+                Write-Host "##vso[task.setvariable variable=SpStagingJsonFile]$SpStagingJsonFile"
+                Write-Host "SpStagingJsonFile: $SpStagingJsonFile"
+
+          - task: PowerShell@2
+            name: verifyFiles
+            inputs:
+              targetType: inline
+              script: |
+                if (-not (Test-Path -Path '$(SpStagingJsonFile)')){
+                  Write-Host "##vso[task.setvariable variable=filesNotFound]true"
+                  $noFile = $true
+                  Write-Host"Staging File- $(SpStagingJsonFile) not Found"
+                }
+
+          - task: DownloadSecureFile@1
+            name: connectionCert
+            displayName: 'Download Service Connection certificate'
+            inputs:
+              secureFile: '${{parameters.Environment}}-Service-Connection.pfx'
+
+          - task: PowerShell@2
+            name: Update_ServicePrincipal_obj
+            inputs:
+              targetType: 'filePath'
+              filePath: './EntraID/Applications-ADO/Update-ServicePrincipal-REST.ps1'
+              arguments: '-JsonFile "$(newSPJsonFilePath)" -newJsonFile "$(SpStagingJsonFile)" -tenantID $(tenantID) -ClientID $(ClientID) -certFile $(connectionCert.secureFilePath) -CertPwd $(serviceConnectionPrivateKeyPwd) -Environment ${{parameters.Environment}}'
+
+          - task: PowerShell@2
+            name: stepCheck
+            condition: succeeded()
+            inputs:
+              targetType: inline
+              script: |
+                Write-Host "##vso[task.setvariable variable=stepSucceed]true"
+
+
+          - task: PowerShell@2
+            name: Post_Deployment_CleanUP
+            condition: always()
+            inputs:
+              targetType: inline
+              script: |
+                if (("$(step2succeed)" -eq "false")){ 
+                  write-host "Update ServicePrincipal Obj failed"
+                }else{
+                  write-host "Update ServicePrincipal Obj succeeded."
+                }
+
+          - task: PowerShell@2
+            name: gitCommit
+            #condition: eq(variables.skipGit, 'false')
+            condition: eq(variables.stepSucceed, 'true')
+            inputs:  
+              targetType: inline
+              script: |
+                git config --global user.email "entraidProject@azuredevops.com"
+                git config --global user.name "serivce account"
+                git fetch origin $(Build.SourceBranchName):tmp
+                git rebase tmp
+                git add -A
+                git commit -m "Updated SP obj - ${{parameters.AppName}}"
+                git push origin HEAD:$(Build.SourceBranchName)
+          #- checkout: self
+            #clean: true
