@@ -2,7 +2,9 @@ trigger: none
 
 parameters:
   - name: AppName
-    default: 'Test-SAML-App-123'
+    default: 'defaultparaAppName'
+  - name: AppID
+    default: 'defaultparaAppID'
   - name: csvFileName
     default: 'defaultCSV'
   - name: Environment
@@ -16,6 +18,8 @@ parameters:
 variables:
   - name: stepSucceed
     value: false
+  - name: AppStatesFolderPath
+    value: "./EntraID/Applications-ADO/${{parameters.Environment}}/Apps-States/"    
   - group: ${{parameters.Environment}}-Variables
   - group: ${{parameters.Environment}}-Secrets
   
@@ -45,14 +49,39 @@ jobs:
                 Write-Host "##vso[task.setvariable variable=appStagingJsonFile]$appStagingJsonFile"
                 Write-Host "appStagingJsonFile: $appStagingJsonFile"
                 
-                $SpStagingJsonFile  = ".\EntraID\Applications-ADO\${{parameters.Environment}}\Staging\${{parameters.AppName}}_Sp.json"
-                Write-Host "##vso[task.setvariable variable=SpStagingJsonFile]$SpStagingJsonFile"
-                Write-Host "SpStagingJsonFile: $SpStagingJsonFile"
-
-                $customClaimsJson = ".\EntraID\Applications-ADO\${{parameters.Environment}}\Staging\${{parameters.AppName}}_customClaims.json"
-                Write-Host "##vso[task.setvariable variable=customClaimsJson]$customClaimsJson"
-                Write-Host "customClaimsJson: $customClaimsJson"
-                
+                if ( "${{parameters.AppID}}" -ne "defaultparaAppID" ){
+                  Write-Host 'Searching for App-State files using Application ID: ${{parameters.AppID}}'
+                  $appFileNamePattern = "*"+"${{parameters.AppID}}"+"_Application.json"
+                  $appFile = Get-ChildItem -Path $(AppStatesFolderPath) -Name $appFileNamePattern
+                  if ($appFile.Count -gt 1){
+                    Write-Host "More than 1 App manifest with App ID: ${{parameters.AppID}} found, please check App-States folder inventory and try again."
+                    Throw "More than 1 App manifest with App ID: ${{parameters.AppID}} found, please check App-States folder inventory and try again."
+                  }elseif ($appFile.Count -eq 0){
+                    Write-Host "No App Manifest with App ID: ${{parameters.AppID}} found, please check App-States folder inventory and try again."
+                    Throw "No App Manifest with App ID: ${{parameters.AppID}} found, please check App-States folder inventory and try again."
+                  }else{
+                    Write-Host "##vso[task.setvariable variable=filesNotFound]false"
+                    Write-Host "##vso[task.setvariable variable=appFileName]$appFile"
+                    Write-Host "App Manifest with App ID: ${{parameters.AppID}} found: $appFile"
+                  }
+                }elseif ( "${{parameters.AppName}}" -ne "defaultparaAppName" ){
+                  $appFileNamePattern = "${{parameters.AppName}}"+"*_Application.json"
+                  $appFile = Get-ChildItem -Path $(AppStatesFolderPath) -Name $appFileNamePattern
+                  if ($appFile.Count -gt 1){
+                    Write-Host "More than 1 App manifest with App Name: ${{parameters.AppName}} found, please check App-States folder inventory and try again."
+                    Throw "More than 1 App manifest with App Name: ${{parameters.AppName}} found, please check App-States folder inventory and try again."
+                  }elseif ($appFile.Count -eq 0){
+                    Write-Host "No App Manifest with App Name: ${{parameters.AppName}} found, please check App-States folder inventory and try again."
+                    throw "No App Manifest with App Name: ${{parameters.AppName}} found, please check App-States folder inventory and try again."
+                  }else{
+                    Write-Host "##vso[task.setvariable variable=filesNotFound]false"
+                    Write-Host "##vso[task.setvariable variable=appFileName]$appFile"
+                    Write-Host "App Manifest with App Name: ${{parameters.AppName}} found: $appFile"
+                  }
+                }else{
+                  Write-Host "Error: Please provide a valid App ID or App Name."
+                  Throw "Error: Please provide a valid App ID or App Name."
+                }  
           - task: PowerShell@2
             name: verifyFiles
             inputs:
@@ -63,25 +92,7 @@ jobs:
                   $noFile = $true
                   Write-Host "Staging File- $(appStagingJsonFile) not Found"
                 }
-                if (-not (Test-Path -Path '$(SpStagingJsonFile)')){
-                  Write-Host "##vso[task.setvariable variable=filesNotFound]true"
-                  $noFile = $true
-                  Write-Host"Staging File- $(SpStagingJsonFile) not Found"
-                }
-                if (-not (Test-Path -Path '$(customClaimsJson)')){
-                  Write-Host "##vso[task.setvariable variable=filesNotFound]true"
-                  $noFile = $true
-                  Write-Host "Staging File- $(customClaimsJson) not Found"
-                }
-                if ($noFile){
-                  throw "The above staging file(s) not found."
-                }
 
-          - task: DownloadSecureFile@1
-            name: samlCert
-            displayName: 'Download SAML Signing certificate'
-            inputs:
-              secureFile: '${{parameters.Environment}}-SAML-Signing.pfx'
           - task: DownloadSecureFile@1
             name: connectionCert
             displayName: 'Download Service Connection certificate'
@@ -93,7 +104,7 @@ jobs:
             inputs:
               targetType: 'filePath'
               filePath: './EntraID/Applications-ADO/Update-Applicaton-REST.ps1'
-              arguments: '-JsonFile "$(newAppJsonFilePath)" -newJsonFile "$(appStagingJsonFile)" -tenantID $(tenantID) -ClientID $(ClientID) -certFile $(connectionCert.secureFilePath) -CertPwd $(serviceConnectionPrivateKeyPwd) -Environment ${{parameters.Environment}}'
+              arguments: '-JsonFile "$(AppStatesFolderPath)$(appFileName)" -newJsonFile "$(appStagingJsonFile)" -tenantID $(tenantID) -ClientID $(ClientID) -certFile $(connectionCert.secureFilePath) -CertPwd $(serviceConnectionPrivateKeyPwd) -Environment ${{parameters.Environment}}'
 
           - task: PowerShell@2
             name: stepCheck
