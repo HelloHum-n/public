@@ -126,10 +126,11 @@ jobs:
             inputs:  
               targetType: inline
               script: |
+                $tmpBranch = [guid]::NewGuid().ToString()
                 git config --global user.email "entraidProject@azuredevops.com"
                 git config --global user.name "serivce account"
-                git fetch origin $(Build.SourceBranchName):tmp
-                git rebase tmp
+                git fetch origin $(Build.SourceBranchName):$tmpBranch
+                git rebase $tmpBranch
                 git add -A
                 git commit -m "Deleted app ${{parameters.AppName}} ${{parameters.AppID}}"
                 git push origin HEAD:$(Build.SourceBranchName)
