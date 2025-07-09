@@ -2,7 +2,9 @@ trigger: none
 
 parameters:
   - name: AppName
-    default: 'Test-SAML-App-123'
+    default: 'defaultparaAppName'
+  - name: AppID
+    default: 'defaultparaAppID'
   - name: csvFileName
     default: 'defaultCSV'
   - name: Environment
@@ -23,7 +25,7 @@ pool:
   vmImage: 'windows-latest'
 
 jobs:
-- deployment: ${{ replace(parameters.csvFileName,'.','_')}}__UPDATE_CLAIMS__${{ replace(parameters.AppName,'-','_') }}
+- deployment: ${{ replace(parameters.csvFileName,'.','_')}}__UPDATE_SP_CLAIMS__${{ replace(parameters.AppName,'-','_') }}
   environment: ${{parameters.Environment}}
   strategy:
     runOnce:
