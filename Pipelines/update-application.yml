@@ -14,7 +14,7 @@ parameters:
     - PRD
 
 variables:
-  - name: step2succeed
+  - name: stepSucceed
     value: false
   - group: ${{parameters.Environment}}-Variables
   - group: ${{parameters.Environment}}-Secrets
@@ -89,19 +89,19 @@ jobs:
               secureFile: '${{parameters.Environment}}-Service-Connection.pfx'
 
           - task: PowerShell@2
-            name: Step2_Update_Application_obj
+            name: Update_Application_obj
             inputs:
               targetType: 'filePath'
               filePath: './EntraID/Applications-ADO/Update-Applicaton-REST.ps1'
               arguments: '-JsonFile "$(newAppJsonFilePath)" -newJsonFile "$(appStagingJsonFile)" -tenantID $(tenantID) -ClientID $(ClientID) -certFile $(connectionCert.secureFilePath) -CertPwd $(serviceConnectionPrivateKeyPwd) -Environment ${{parameters.Environment}}'
 
           - task: PowerShell@2
-            name: step2check
+            name: stepCheck
             condition: succeeded()
             inputs:
               targetType: inline
               script: |
-                Write-Host "##vso[task.setvariable variable=step2succeed]true"
+                Write-Host "##vso[task.setvariable variable=stepSucceed]true"
 
 
           - task: PowerShell@2
@@ -119,7 +119,7 @@ jobs:
           - task: PowerShell@2
             name: gitCommit
             #condition: eq(variables.skipGit, 'false')
-            condition: eq(variables.step2succeed, 'true')
+            condition: eq(variables.stepSucceed, 'true')
             inputs:  
               targetType: inline
               script: |
