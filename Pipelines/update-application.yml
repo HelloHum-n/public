@@ -56,7 +56,7 @@ jobs:
                   # Get AppName
                   $appNameAry = $appFile -split "\"
                   $appName = $appNameAry[($appNameAry.count)-1]
-                  $appName = $appName -replace "_Application.json" ""
+                  $appName = $appName -replace "_Application.json"
                   # Get App Staging File Path
                   # Json file containing the application details (Hint: Create one in staging folder)
                   $appStagingFileNamePattern = "$appName "+"*_App.json"
