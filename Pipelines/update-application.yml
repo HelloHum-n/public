@@ -52,7 +52,8 @@ jobs:
                   Write-Host 'Searching for App-State files using Application ID: ${{parameters.AppID}}'
                   $appFileNamePattern = "*"+"${{parameters.AppID}}"+"_Application.json"
                   $appFile = Get-ChildItem -Path $(AppStatesFolderPath) -Name $appFileNamePattern
-
+                  Write-host " ____appFileNamePattern______$appFileNamePattern_______"
+                  Write-host " ____AppStatesFolderPath______$(AppStatesFolderPath)_______"
                   # Get AppName
                   Write-host " ____appFile_before______$appFile_______"
                   $appNameAry = $appFile -split "\\"
