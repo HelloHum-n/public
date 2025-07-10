@@ -19,7 +19,9 @@ variables:
   - name: stepSucceed
     value: false
   - name: AppStatesFolderPath
-    value: "./EntraID/Applications-ADO/${{parameters.Environment}}/Apps-States/"    
+    value: "./EntraID/Applications-ADO/${{parameters.Environment}}/Apps-States/"
+  - name: AppStagingFolderPath
+    value: "./EntraID/Applications-ADO/${{parameters.Environment}}/Staging/"   
   - group: ${{parameters.Environment}}-Variables
   - group: ${{parameters.Environment}}-Secrets
   - name: tenantIDvar
@@ -45,16 +47,23 @@ jobs:
                 $tenantID = "$(tenantIDvar)"
                 #Write-Host "tenant ID is $tenantID"
                 Write-Host "tenantID: $(tenantID)"
-                
-                # Json file containing the application details (Hint: Create one in staging folder)
-                $appStagingJsonFile  = ".\EntraID\Applications-ADO\${{parameters.Environment}}\Staging\${{parameters.AppName}}_App.json"
-                Write-Host "##vso[task.setvariable variable=appStagingJsonFile]$appStagingJsonFile"
-                Write-Host "appStagingJsonFile: $appStagingJsonFile"
-                
+
                 if ( "${{parameters.AppID}}" -ne "defaultparaAppID" ){
                   Write-Host 'Searching for App-State files using Application ID: ${{parameters.AppID}}'
                   $appFileNamePattern = "*"+"${{parameters.AppID}}"+"_Application.json"
                   $appFile = Get-ChildItem -Path $(AppStatesFolderPath) -Name $appFileNamePattern
+
+                  # Get AppName
+                  $appNameAry = $appFile -split "\"
+                  $appName = $appNameAry[($appNameAry.count)-1]
+                  $appName = $appName -replace "_Application.json" ""
+                  # Get App Staging File Path
+                  # Json file containing the application details (Hint: Create one in staging folder)
+                  $appStagingFileNamePattern = "$appName "+"*_App.json"
+                  $appStagingJsonFile = Get-ChildItem -Path $(AppStagingFolderPath) -Name $appStagingFileNamePattern
+                  Write-Host "##vso[task.setvariable variable=appStagingJsonFile]$appStagingJsonFile"
+                  Write-Host "appStagingJsonFile: $appStagingJsonFile"
+
                   if ($appFile.Count -gt 1){
                     Write-Host "More than 1 App manifest with App ID: ${{parameters.AppID}} found, please check App-States folder inventory and try again."
                     Throw "More than 1 App manifest with App ID: ${{parameters.AppID}} found, please check App-States folder inventory and try again."
@@ -67,6 +76,11 @@ jobs:
                     Write-Host "App Manifest with App ID: ${{parameters.AppID}} found: $appFile"
                   }
                 }elseif ( "${{parameters.AppName}}" -ne "defaultparaAppName" ){
+                  # Json file containing the application details (Hint: Create one in staging folder)
+                  $appStagingJsonFile  = "$(AppStagingFolderPath)\${{parameters.AppName}}_App.json"
+                  Write-Host "##vso[task.setvariable variable=appStagingJsonFile]$appStagingJsonFile"
+                  Write-Host "appStagingJsonFile: $appStagingJsonFile"
+
                   $appFileNamePattern = "${{parameters.AppName}}"+"*_Application.json"
                   $appFile = Get-ChildItem -Path $(AppStatesFolderPath) -Name $appFileNamePattern
                   if ($appFile.Count -gt 1){
