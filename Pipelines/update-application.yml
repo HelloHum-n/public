@@ -54,10 +54,14 @@ jobs:
                   $appFile = Get-ChildItem -Path $(AppStatesFolderPath) -Name $appFileNamePattern
 
                   # Get AppName
+                  Write-host " ____appFile_before______$appFile_______"
                   $appNameAry = $appFile -split "\\"
+                  Write-host " ____appFile_after______$appFile_______"
                   $appName = $appNameAry[($appNameAry.count)-1]
+                  Write-host " ____appName1______$appName_______"
+                  Write-host " ____appNameAry______$appNameAry_______"
                   $appName = $appName -replace "_Application.json"
-                  Write-host " ____appName______$appName_______"
+                  Write-host " ____appName2______$appName_______"
                   # Get App Staging File Path
                   # Json file containing the application details (Hint: Create one in staging folder)
                   $appStagingFileNamePattern = "$appName "+"*_App.json"
