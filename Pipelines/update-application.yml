@@ -54,7 +54,7 @@ jobs:
                   $appFile = Get-ChildItem -Path $(AppStatesFolderPath) -Name $appFileNamePattern
 
                   # Get AppName
-                  $appNameAry = $appFile -split "\"
+                  $appNameAry = $appFile -split "\\"
                   $appName = $appNameAry[($appNameAry.count)-1]
                   $appName = $appName -replace "_Application.json"
                   # Get App Staging File Path
