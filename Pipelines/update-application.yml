@@ -65,10 +65,10 @@ jobs:
                   Write-host " ____appName2______ $appName _______"
                   # Get App Staging File Path
                   # Json file containing the application details (Hint: Create one in staging folder)
-                  $appStagingFileNamePattern = "$appName"+"_App.json"
-                  Write-host " ____pattern______ $appStagingFileNamePattern ______"
+                  $appStagingFileName = "$appName"+"_App.json"
+                  Write-host " ____pattern______ $appStagingFileName ______"
                   Write-host " ____path______ $(AppStagingFolderPath) ___"
-                  $appStagingJsonFile = Get-ChildItem -Path $(AppStagingFolderPath) -Name $appStagingFileNamePattern
+                  $appStagingJsonFile = "$(AppStagingFolderPath)+"/"+"$appStagingFileName"
                   Write-Host "##vso[task.setvariable variable=appStagingJsonFile]$appStagingJsonFile"
                   Write-Host "appStagingJsonFile: $appStagingJsonFile"
 
@@ -85,7 +85,7 @@ jobs:
                   }
                 }elseif ( "${{parameters.AppName}}" -ne "defaultparaAppName" ){
                   # Json file containing the application details (Hint: Create one in staging folder)
-                  $appStagingJsonFile  = "$(AppStagingFolderPath)\${{parameters.AppName}}_App.json"
+                  $appStagingJsonFile  = "$(AppStagingFolderPath)/${{parameters.AppName}}_App.json"
                   Write-Host "##vso[task.setvariable variable=appStagingJsonFile]$appStagingJsonFile"
                   Write-Host "appStagingJsonFile: $appStagingJsonFile"
 
