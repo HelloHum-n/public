@@ -57,9 +57,12 @@ jobs:
                   $appNameAry = $appFile -split "\\"
                   $appName = $appNameAry[($appNameAry.count)-1]
                   $appName = $appName -replace "_Application.json"
+                  Write-host " ____appName______$appName_______"
                   # Get App Staging File Path
                   # Json file containing the application details (Hint: Create one in staging folder)
                   $appStagingFileNamePattern = "$appName "+"*_App.json"
+                  Write-host " ____pattern______$appStagingFileNamePattern______"
+                  Write-host " ____path______$(AppStagingFolderPath)___"
                   $appStagingJsonFile = Get-ChildItem -Path $(AppStagingFolderPath) -Name $appStagingFileNamePattern
                   Write-Host "##vso[task.setvariable variable=appStagingJsonFile]$appStagingJsonFile"
                   Write-Host "appStagingJsonFile: $appStagingJsonFile"
