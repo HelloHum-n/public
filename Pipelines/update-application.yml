@@ -61,11 +61,11 @@ jobs:
                   $appName = $appNameAry[($appNameAry.count)-1]
                   Write-host " ____appName1______ $appName _______"
                   Write-host " ____appNameAry______ $appNameAry _______"
-                  $appName = $appName -replace "_Application.json"
+                  $appName = $appName -replace "_${{parameters.AppID}}_Application.json"
                   Write-host " ____appName2______ $appName _______"
                   # Get App Staging File Path
                   # Json file containing the application details (Hint: Create one in staging folder)
-                  $appStagingFileNamePattern = "$appName "+"*_App.json"
+                  $appStagingFileNamePattern = "$appName"+"_App.json"
                   Write-host " ____pattern______ $appStagingFileNamePattern ______"
                   Write-host " ____path______ $(AppStagingFolderPath) ___"
                   $appStagingJsonFile = Get-ChildItem -Path $(AppStagingFolderPath) -Name $appStagingFileNamePattern
