@@ -123,7 +123,7 @@ jobs:
             inputs:
               targetType: inline
               script: |
-                if (("$(step2succeed)" -eq "false")){ 
+                if (("$(stepSucceed)" -eq "false")){ 
                   write-host "Update Application Obj failed"
                 }else{
                   write-host "Update Application Obj succeeded."
