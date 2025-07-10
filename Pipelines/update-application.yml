@@ -52,22 +52,22 @@ jobs:
                   Write-Host 'Searching for App-State files using Application ID: ${{parameters.AppID}}'
                   $appFileNamePattern = "*"+"${{parameters.AppID}}"+"_Application.json"
                   $appFile = Get-ChildItem -Path $(AppStatesFolderPath) -Name $appFileNamePattern
-                  Write-host " ____appFileNamePattern______$appFileNamePattern_______"
-                  Write-host " ____AppStatesFolderPath______$(AppStatesFolderPath)_______"
+                  Write-host " ____appFileNamePattern______ $appFileNamePattern _______"
+                  Write-host " ____AppStatesFolderPath______ $(AppStatesFolderPath) _______"
                   # Get AppName
-                  Write-host " ____appFile_before______$appFile_______"
+                  Write-host " ____appFile_before______ $appFile _______"
                   $appNameAry = $appFile -split "\\"
-                  Write-host " ____appFile_after______$appFile_______"
+                  Write-host " ____appFile_after______ $appFile _______"
                   $appName = $appNameAry[($appNameAry.count)-1]
-                  Write-host " ____appName1______$appName_______"
-                  Write-host " ____appNameAry______$appNameAry_______"
+                  Write-host " ____appName1______ $appName _______"
+                  Write-host " ____appNameAry______ $appNameAry _______"
                   $appName = $appName -replace "_Application.json"
-                  Write-host " ____appName2______$appName_______"
+                  Write-host " ____appName2______ $appName _______"
                   # Get App Staging File Path
                   # Json file containing the application details (Hint: Create one in staging folder)
                   $appStagingFileNamePattern = "$appName "+"*_App.json"
-                  Write-host " ____pattern______$appStagingFileNamePattern______"
-                  Write-host " ____path______$(AppStagingFolderPath)___"
+                  Write-host " ____pattern______ $appStagingFileNamePattern ______"
+                  Write-host " ____path______ $(AppStagingFolderPath) ___"
                   $appStagingJsonFile = Get-ChildItem -Path $(AppStagingFolderPath) -Name $appStagingFileNamePattern
                   Write-Host "##vso[task.setvariable variable=appStagingJsonFile]$appStagingJsonFile"
                   Write-Host "appStagingJsonFile: $appStagingJsonFile"
