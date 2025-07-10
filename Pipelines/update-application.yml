@@ -47,7 +47,7 @@ jobs:
                 Write-Host "tenantID: $(tenantID)"
                 
                 # Json file containing the application details (Hint: Create one in staging folder)
-                $appStagingJsonFile  = ".\EntraID\Applications-ADO\${{parameters.Environment}}\Staging\${{parameters.AppName}}_Application.json"
+                $appStagingJsonFile  = ".\EntraID\Applications-ADO\${{parameters.Environment}}\Staging\${{parameters.AppName}}_App.json"
                 Write-Host "##vso[task.setvariable variable=appStagingJsonFile]$appStagingJsonFile"
                 Write-Host "appStagingJsonFile: $appStagingJsonFile"
                 
