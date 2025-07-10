@@ -68,7 +68,7 @@ jobs:
                   $appStagingFileName = "$appName"+"_App.json"
                   Write-host " ____pattern______ $appStagingFileName ______"
                   Write-host " ____path______ $(AppStagingFolderPath) ___"
-                  $appStagingJsonFile = "$(AppStagingFolderPath)+"/"+"$appStagingFileName"
+                  $appStagingJsonFile = "$(AppStagingFolderPath)"+"/"+"$appStagingFileName"
                   Write-Host "##vso[task.setvariable variable=appStagingJsonFile]$appStagingJsonFile"
                   Write-Host "appStagingJsonFile: $appStagingJsonFile"
 
