@@ -1,130 +1,167 @@
 {
-    "includeBasicClaimSet": true,
-    "includeApplicationIdInIssuer": false,
-    "audienceOverride": null,
-    "groupFilter": null,
-    "claims": [
-        {
-            "@odata.type": "#microsoft.graph.samlNameIdClaim",
-            "serviceProviderNameQualifier": null,
-            "nameIdFormat": "emailAddress",
-            "configurations": [
-                {
-                    "condition": null,
-                    "attribute": {
-                        "@odata.type": "#microsoft.graph.sourcedAttribute",
-                        "id": "userprincipalname",
-                        "source": "user",
-                        "isExtensionAttribute": false
-                    },
-                    "transformations": []
-                }
-            ]
-        },
-        {
-            "@odata.type": "#microsoft.graph.customClaim",
-            "name": "givenname",
-            "namespace": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims",
-            "tokenFormat": [
-                "saml"
-            ],
-            "samlAttributeNameFormat": null,
-            "configurations": [
-                {
-                    "condition": null,
-                    "attribute": {
-                        "@odata.type": "#microsoft.graph.sourcedAttribute",
-                        "id": "givenname",
-                        "source": "user",
-                        "isExtensionAttribute": false
-                    },
-                    "transformations": []
-                }
-            ]
-        },
-        {
-            "@odata.type": "#microsoft.graph.customClaim",
-            "name": "surname",
-            "namespace": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims",
-            "tokenFormat": [
-                "saml"
-            ],
-            "samlAttributeNameFormat": null,
-            "configurations": [
-                {
-                    "condition": null,
-                    "attribute": {
-                        "@odata.type": "#microsoft.graph.sourcedAttribute",
-                        "id": "surname",
-                        "source": "user",
-                        "isExtensionAttribute": false
-                    },
-                    "transformations": []
-                }
-            ]
-        },
-        {
-            "@odata.type": "#microsoft.graph.customClaim",
-            "name": "emailaddress",
-            "namespace": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims",
-            "tokenFormat": [
-                "saml"
-            ],
-            "samlAttributeNameFormat": null,
-            "configurations": [
-                {
-                    "condition": null,
-                    "attribute": {
-                        "@odata.type": "#microsoft.graph.sourcedAttribute",
-                        "id": "mail",
-                        "source": "user",
-                        "isExtensionAttribute": false
-                    },
-                    "transformations": []
-                }
-            ]
-        },
-        {
-            "@odata.type": "#microsoft.graph.customClaim",
-            "name": "name",
-            "namespace": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims",
-            "tokenFormat": [
-                "saml"
-            ],
-            "samlAttributeNameFormat": null,
-            "configurations": [
-                {
-                    "condition": null,
-                    "attribute": {
-                        "@odata.type": "#microsoft.graph.sourcedAttribute",
-                        "id": "userprincipalname",
-                        "source": "user",
-                        "isExtensionAttribute": false
-                    },
-                    "transformations": []
-                }
-            ]
-        },
-        {
-            "@odata.type": "#microsoft.graph.customClaim",
-            "name": "test",
-            "namespace": null,
-            "tokenFormat": [
-                "saml"
-            ],
-            "samlAttributeNameFormat": null,
-            "configurations": [
-                {
-                    "condition": null,
-                    "attribute": {
-                        "@odata.type": "#microsoft.graph.sourcedAttribute",
-                        "id": "city",
-                        "source": "user",
-                        "isExtensionAttribute": false
-                    },
-                    "transformations": []
-                }
-            ]
-        }
-    ]
+    "id":  "437d3f57-4c42-4b71-9da6-dec8e930466e",
+    "@odata.context":  "https://graph.microsoft.com/beta/$metadata#servicePrincipals(\u0027b0992bdf-2b63-4e01-a261-723845942ee9\u0027)/claimsPolicy/$entity",
+    "includeBasicClaimSet":  true,
+    "groupFilter":  null,
+    "includeApplicationIdInIssuer":  false,
+    "audienceOverride":  null,
+    "claims":  [
+                   {
+                       "configurations":  [
+                                              {
+                                                  "condition":  null,
+                                                  "attribute":  {
+                                                                    "id":  "userprincipalname",
+                                                                    "@odata.type":  "#microsoft.graph.sourcedAttribute",
+                                                                    "isExtensionAttribute":  false,
+                                                                    "source":  "user"
+                                                                },
+                                                  "transformations":  [
+
+                                                                      ]
+                                              }
+                                          ],
+                       "@odata.type":  "#microsoft.graph.samlNameIdClaim",
+                       "nameIdFormat":  "emailAddress",
+                       "serviceProviderNameQualifier":  null
+                   },
+                   {
+                       "configurations":  [
+                                              {
+                                                  "condition":  null,
+                                                  "attribute":  {
+                                                                    "id":  "givenname",
+                                                                    "@odata.type":  "#microsoft.graph.sourcedAttribute",
+                                                                    "isExtensionAttribute":  false,
+                                                                    "source":  "user"
+                                                                },
+                                                  "transformations":  [
+
+                                                                      ]
+                                              }
+                                          ],
+                       "tokenFormat":  [
+                                           "saml"
+                                       ],
+                       "@odata.type":  "#microsoft.graph.customClaim",
+                       "samlAttributeNameFormat":  null,
+                       "namespace":  "http://schemas.xmlsoap.org/ws/2005/05/identity/claims",
+                       "name":  "givenname"
+                   },
+                   {
+                       "configurations":  [
+                                              {
+                                                  "condition":  null,
+                                                  "attribute":  {
+                                                                    "id":  "employeeId",
+                                                                    "@odata.type":  "#microsoft.graph.sourcedAttribute",
+                                                                    "isExtensionAttribute":  false,
+                                                                    "source":  "user"
+                                                                },
+                                                  "transformations":  [
+
+                                                                      ]
+                                              }
+                                          ],
+                       "tokenFormat":  [
+                                           "saml"
+                                       ],
+                       "@odata.type":  "#microsoft.graph.customClaim",
+                       "samlAttributeNameFormat":  null,
+                       "namespace":  "http://schemas.xmlsoap.org/ws/2005/05/identity/claims",
+                       "name":  "employeeId"
+                   },
+                   {
+                       "configurations":  [
+                                              {
+                                                  "condition":  null,
+                                                  "attribute":  {
+                                                                    "id":  "surname",
+                                                                    "@odata.type":  "#microsoft.graph.sourcedAttribute",
+                                                                    "isExtensionAttribute":  false,
+                                                                    "source":  "user"
+                                                                },
+                                                  "transformations":  [
+
+                                                                      ]
+                                              }
+                                          ],
+                       "tokenFormat":  [
+                                           "saml"
+                                       ],
+                       "@odata.type":  "#microsoft.graph.customClaim",
+                       "samlAttributeNameFormat":  null,
+                       "namespace":  "http://schemas.xmlsoap.org/ws/2005/05/identity/claims",
+                       "name":  "surname"
+                   },
+                   {
+                       "configurations":  [
+                                              {
+                                                  "condition":  null,
+                                                  "attribute":  {
+                                                                    "id":  "mail",
+                                                                    "@odata.type":  "#microsoft.graph.sourcedAttribute",
+                                                                    "isExtensionAttribute":  false,
+                                                                    "source":  "user"
+                                                                },
+                                                  "transformations":  [
+
+                                                                      ]
+                                              }
+                                          ],
+                       "tokenFormat":  [
+                                           "saml"
+                                       ],
+                       "@odata.type":  "#microsoft.graph.customClaim",
+                       "samlAttributeNameFormat":  null,
+                       "namespace":  "http://schemas.xmlsoap.org/ws/2005/05/identity/claims",
+                       "name":  "emailaddress"
+                   },
+                   {
+                       "configurations":  [
+                                              {
+                                                  "condition":  null,
+                                                  "attribute":  {
+                                                                    "id":  "userprincipalname",
+                                                                    "@odata.type":  "#microsoft.graph.sourcedAttribute",
+                                                                    "isExtensionAttribute":  false,
+                                                                    "source":  "user"
+                                                                },
+                                                  "transformations":  [
+
+                                                                      ]
+                                              }
+                                          ],
+                       "tokenFormat":  [
+                                           "saml"
+                                       ],
+                       "@odata.type":  "#microsoft.graph.customClaim",
+                       "samlAttributeNameFormat":  null,
+                       "namespace":  "http://schemas.xmlsoap.org/ws/2005/05/identity/claims",
+                       "name":  "name"
+                   },
+                   {
+                       "configurations":  [
+                                              {
+                                                  "condition":  null,
+                                                  "attribute":  {
+                                                                    "id":  "city",
+                                                                    "@odata.type":  "#microsoft.graph.sourcedAttribute",
+                                                                    "isExtensionAttribute":  false,
+                                                                    "source":  "user"
+                                                                },
+                                                  "transformations":  [
+
+                                                                      ]
+                                              }
+                                          ],
+                       "tokenFormat":  [
+                                           "saml"
+                                       ],
+                       "@odata.type":  "#microsoft.graph.customClaim",
+                       "samlAttributeNameFormat":  null,
+                       "namespace":  null,
+                       "name":  "test"
+                   }
+               ]
 }
