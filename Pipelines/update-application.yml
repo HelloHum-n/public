@@ -79,7 +79,7 @@ jobs:
                 # -----Updating app by locating application with App Name----  
                 }elseif ( "${{parameters.AppName}}" -ne "defaultparaAppName" ){
                   # Json file containing the application details (Hint: Create one in staging folder)
-                  $appStagingJsonFile  = "$(AppStagingFolderPath)/${{parameters.AppName}}_App.json"
+                  $appStagingJsonFile  = "$(AppStagingFolderPath)${{parameters.AppName}}_App.json"
                   Write-Host "##vso[task.setvariable variable=appStagingJsonFile]$appStagingJsonFile"
                   Write-Host "appStagingJsonFile: $appStagingJsonFile"
 
