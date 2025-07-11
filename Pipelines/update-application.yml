@@ -51,11 +51,12 @@ jobs:
                 if ( "${{parameters.AppID}}" -ne "defaultparaAppID" ){
                   Write-Host 'Searching for App-State files using Application ID: ${{parameters.AppID}}'
                   $appFileNamePattern = "*"+"${{parameters.AppID}}"+"_Application.json"
+                  # Put some logic to catch file not found
                   $appFile = Get-ChildItem -Path $(AppStatesFolderPath) -Name $appFileNamePattern
-                  write-host "---AppFile:--- $appFile "
-                  $appNameAry = $appFile -split "\\"
-                  $appName = $appNameAry[($appNameAry.count)-1]
-                  $appName = $appName -replace "_${{parameters.AppID}}_Application.json"
+                  #write-host "---AppFile:--- $appFile "
+                  #$appNameAry = $appFile -split "\\"
+                  #$appName = $appNameAry[($appNameAry.count)-1]
+                  $appName = $appFile -replace "_${{parameters.AppID}}_Application.json"
 
                   # Get App Staging File Path
                   # Json file containing the application details (Hint: Create one in staging folder)
