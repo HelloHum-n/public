@@ -47,7 +47,7 @@ jobs:
                 $tenantID = "$(tenantIDvar)"
                 #Write-Host "tenant ID is $tenantID"
                 Write-Host "tenantID: $(tenantID)"
-
+                 # -----Updating app by locating application with App ID---- 
                 if ( "${{parameters.AppID}}" -ne "defaultparaAppID" ){
                   Write-Host 'Searching for App-State files using Application ID: ${{parameters.AppID}}'
                   $appFileNamePattern = "*"+"${{parameters.AppID}}"+"_Application.json"
@@ -74,6 +74,7 @@ jobs:
                     Write-Host "##vso[task.setvariable variable=appFileName]$appFile"
                     Write-Host "App Manifest with App ID: ${{parameters.AppID}} found: $appFile"
                   }
+                # -----Updating app by locating application with App Name----  
                 }elseif ( "${{parameters.AppName}}" -ne "defaultparaAppName" ){
                   # Json file containing the application details (Hint: Create one in staging folder)
                   $appStagingJsonFile  = "$(AppStagingFolderPath)/${{parameters.AppName}}_App.json"
