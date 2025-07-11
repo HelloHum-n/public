@@ -139,7 +139,7 @@ jobs:
             inputs:
               targetType: inline
               script: |
-                if (("$(step2succeed)" -eq "false")){ 
+                if (("$(stepSucceed)" -eq "false")){ 
                   write-host "Update ServicePrincipal Obj failed"
                 }else{
                   write-host "Update ServicePrincipal Obj succeeded."
