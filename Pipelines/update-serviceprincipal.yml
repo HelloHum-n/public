@@ -79,7 +79,7 @@ jobs:
                 # -----Updating SP by locating application with App Name----  
                 }elseif ( "${{parameters.AppName}}" -ne "defaultparaAppName" ){
                   # Json file containing the ServicePrincipal details (Hint: Create one in staging folder)
-                  $SpStagingJsonFile  = "$(AppStagingFolderPath)/${{parameters.AppName}}_Sp.json"
+                  $SpStagingJsonFile  = "$(AppStagingFolderPath)${{parameters.AppName}}_Sp.json"
                   Write-Host "##vso[task.setvariable variable=SpStagingJsonFile]$SpStagingJsonFile"
                   Write-Host "SpStagingJsonFile: $SpStagingJsonFile"
 
