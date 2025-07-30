@@ -14,6 +14,12 @@ parameters:
     - DEV
     - IST
     - PRD
+  - name: OverWrite
+    default: 'false'
+    type: string
+    values:
+    - false
+    - true
 
 variables:
   - name: stepSucceed
@@ -105,7 +111,7 @@ jobs:
             inputs:
               targetType: 'filePath'
               filePath: './EntraID/Applications-ADO/New-ServicePrincipalSAMLCertificate-REST.ps1'
-              arguments: '-JsonFile "$(AppStatesFolderPath)$(SpFile)" -PfxCertFile $(samlCert.secureFilePath) -privateKeyPwd $(samlSigningPrivateKeyPwd) -tenantID $(tenantID) -ClientID $(ClientID) -certFile $(connectionCert.secureFilePath) -CertPwd $(serviceConnectionPrivateKeyPwd) -Environment ${{parameters.Environment}}'
+              arguments: '-JsonFile "$(AppStatesFolderPath)$(SpFile)" -certOverwrite ${{parameters.OverWrite}} -PfxCertFile $(samlCert.secureFilePath) -privateKeyPwd $(samlSigningPrivateKeyPwd) -tenantID $(tenantID) -ClientID $(ClientID) -certFile $(connectionCert.secureFilePath) -CertPwd $(serviceConnectionPrivateKeyPwd) -Environment ${{parameters.Environment}}'
 
           - task: PowerShell@2
             name: stepCheck
