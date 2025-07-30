@@ -12,6 +12,12 @@ parameters:
     - DEV
     - IST
     - PRD
+  - name: Usage
+    default: 'verify'
+    type: string
+    values:
+    - verify
+    - encrypt
 
 variables:
   - name: stepSucceed
@@ -23,7 +29,7 @@ pool:
   vmImage: 'windows-latest'
 
 jobs:
-- deployment: ${{ replace(parameters.csvFileName,'.','_')}}__UPDATE_APP_OBJ__${{ replace(parameters.AppName,'-','_') }}
+- deployment: ${{ replace(parameters.csvFileName,'.','_')}}__UPDATE_APPOBJ_CERT__${{ replace(parameters.AppName,'-','_') }}
   environment: ${{parameters.Environment}}
   strategy:
     runOnce:
