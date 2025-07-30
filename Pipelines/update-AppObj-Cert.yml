@@ -111,7 +111,7 @@ jobs:
             inputs:
               targetType: 'filePath'
               filePath: './EntraID/Applications-ADO/New-ApplicationCertificate-REST.ps1'
-              arguments: '-JsonFile "$(AppStatesFolderPath)$(SpFile)" -cerCertFile $(appCert.secureFilePath) -Usage $(Usage) -tenantID $(tenantID) -ClientID $(ClientID) -certFile $(connectionCert.secureFilePath) -CertPwd $(serviceConnectionPrivateKeyPwd) -Environment ${{parameters.Environment}}'
+              arguments: '-JsonFile "$(AppStatesFolderPath)$(appFile)" -cerCertFile $(appCert.secureFilePath) -Usage $(Usage) -tenantID $(tenantID) -ClientID $(ClientID) -certFile $(connectionCert.secureFilePath) -CertPwd $(serviceConnectionPrivateKeyPwd) -Environment ${{parameters.Environment}}'
 
           - task: PowerShell@2
             name: stepCheck
