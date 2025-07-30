@@ -20,6 +20,9 @@ parameters:
     values:
     - verify
     - encrypt
+  - name: Certname
+    default: 'Path to Cert'
+    type: string
 
 variables:
   - name: stepSucceed
@@ -111,7 +114,7 @@ jobs:
             inputs:
               targetType: 'filePath'
               filePath: './EntraID/Applications-ADO/New-ApplicationCertificate-REST.ps1'
-              arguments: '-JsonFile "$(AppStatesFolderPath)$(appFile)" -cerCertFile $(appCert.secureFilePath) -Usage $(Usage) -tenantID $(tenantID) -ClientID $(ClientID) -certFile $(connectionCert.secureFilePath) -CertPwd $(serviceConnectionPrivateKeyPwd) -Environment ${{parameters.Environment}}'
+              arguments: '-JsonFile "$(AppStagingFolderPath)/Public-certificate/${{parameters.Certname}}" -cerCertFile $(appCert.secureFilePath) -Usage ${{parameters.Usage}} -tenantID $(tenantID) -ClientID $(ClientID) -certFile $(connectionCert.secureFilePath) -CertPwd $(serviceConnectionPrivateKeyPwd) -Environment ${{parameters.Environment}}'
 
           - task: PowerShell@2
             name: stepCheck
