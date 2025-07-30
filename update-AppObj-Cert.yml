@@ -56,49 +56,49 @@ jobs:
                  # -----Updating app by locating application with App ID---- 
                 if ( "${{parameters.AppID}}" -ne "defaultparaAppID" ){
                   Write-Host 'Searching for App-State files using Application ID: ${{parameters.AppID}}'
-                  $SpFileNamePattern = "*"+"${{parameters.AppID}}"+"_ServicePrincipal.json"
+                  $appFileNamePattern = "*"+"${{parameters.AppID}}"+"_Application.json"
                   # Put some logic to catch file not found
-                  $SpFile = Get-ChildItem -Path $(AppStatesFolderPath) -Name $SpFileNamePattern
+                  $appFile = Get-ChildItem -Path $(AppStatesFolderPath) -Name $appFileNamePattern
                   #write-host "---AppFile:--- $appFile "
                   #$appNameAry = $appFile -split "\\"
                   #$appName = $appNameAry[($appNameAry.count)-1]
-                  $appName = $SpFile -replace "_${{parameters.AppID}}_ServicePrincipal.json"
+                  $appName = $appFile -replace "_${{parameters.AppID}}_Application.json"
 
-                  if ($SpFile.Count -gt 1){
-                    Write-Host "More than 1 SP manifest with App ID: ${{parameters.AppID}} found, please check App-States folder inventory and try again."
-                    Throw "More than 1 Sp manifest with App ID: ${{parameters.AppID}} found, please check App-States folder inventory and try again."
-                  }elseif ($SpFile.Count -eq 0){
-                    Write-Host "No SP Manifest with App ID: ${{parameters.AppID}} found, please check App-States folder inventory and try again."
-                    Throw "No SP Manifest with App ID: ${{parameters.AppID}} found, please check App-States folder inventory and try again."
+                  if ($appFile.Count -gt 1){
+                    Write-Host "More than 1 App manifest with App ID: ${{parameters.AppID}} found, please check App-States folder inventory and try again."
+                    Throw "More than 1 App manifest with App ID: ${{parameters.AppID}} found, please check App-States folder inventory and try again."
+                  }elseif ($appFile.Count -eq 0){
+                    Write-Host "No App Manifest with App ID: ${{parameters.AppID}} found, please check App-States folder inventory and try again."
+                    Throw "No App Manifest with App ID: ${{parameters.AppID}} found, please check App-States folder inventory and try again."
                   }else{
                     Write-Host "##vso[task.setvariable variable=filesNotFound]false"
-                    Write-Host "##vso[task.setvariable variable=SpFile]$SpFile"
-                    Write-Host "SP Manifest with App ID: ${{parameters.AppID}} found: $SpFile"
+                    Write-Host "##vso[task.setvariable variable=appFile]$appFile"
+                    Write-Host "appFile Manifest with App ID: ${{parameters.AppID}} found: $appFile"
                   }
                 # -----Updating SP by locating application with App Name----  
                 }elseif ( "${{parameters.AppName}}" -ne "defaultparaAppName" ){
-                  $SpFileNamePattern = "${{parameters.AppName}}"+"*_ServicePrincipal.json"
-                  $SpFile = Get-ChildItem -Path $(AppStatesFolderPath) -Name $SpFileNamePattern
-                  if ($SpFile.Count -gt 1){
-                    Write-Host "More than 1 SP manifest with App Name: ${{parameters.AppName}} found, please check App-States folder inventory and try again."
-                    Throw "More than 1 SP manifest with App Name: ${{parameters.AppName}} found, please check App-States folder inventory and try again."
-                  }elseif ($SpFile.Count -eq 0){
-                    Write-Host "No SP Manifest with App Name: ${{parameters.AppName}} found, please check App-States folder inventory and try again."
-                    throw "No SP Manifest with App Name: ${{parameters.AppName}} found, please check App-States folder inventory and try again."
+                  $appFileNamePattern = "${{parameters.AppName}}"+"*_Application.json"
+                  $appFile = Get-ChildItem -Path $(AppStatesFolderPath) -Name $appFileNamePattern
+                  if ($appFile.Count -gt 1){
+                    Write-Host "More than 1 App manifest with App Name: ${{parameters.AppName}} found, please check App-States folder inventory and try again."
+                    Throw "More than 1 App manifest with App Name: ${{parameters.AppName}} found, please check App-States folder inventory and try again."
+                  }elseif ($appFile.Count -eq 0){
+                    Write-Host "No App Manifest with App Name: ${{parameters.AppName}} found, please check App-States folder inventory and try again."
+                    throw "No App Manifest with App Name: ${{parameters.AppName}} found, please check App-States folder inventory and try again."
                   }else{
                     Write-Host "##vso[task.setvariable variable=filesNotFound]false"
-                    Write-Host "##vso[task.setvariable variable=SpFile]$SpFile"
-                    Write-Host "App Manifest with App Name: ${{parameters.AppName}} found: $SpFile"
+                    Write-Host "##vso[task.setvariable variable=appFile]$appFile"
+                    Write-Host "App Manifest with App Name: ${{parameters.AppName}} found: $appFile"
                   }
                 }else{
                   Write-Host "Error: Please provide a valid App ID or App Name."
                   Throw "Error: Please provide a valid App ID or App Name."
                 }
           - task: DownloadSecureFile@1
-            name: samlCert
+            name: appCert
             displayName: 'Download SAML Signing certificate'
             inputs:
-              secureFile: '${{parameters.Environment}}-SAML-Signing.pfx'  
+              secureFile: '${{parameters.Environment}}-Application.cer'  
 
           - task: DownloadSecureFile@1
             name: connectionCert
@@ -110,8 +110,8 @@ jobs:
             name: Update_ServicePrincipal_Certs
             inputs:
               targetType: 'filePath'
-              filePath: './EntraID/Applications-ADO/New-ServicePrincipalSAMLCertificate-REST.ps1'
-              arguments: '-JsonFile "$(AppStatesFolderPath)$(SpFile)" -PfxCertFile $(samlCert.secureFilePath) -privateKeyPwd $(samlSigningPrivateKeyPwd) -tenantID $(tenantID) -ClientID $(ClientID) -certFile $(connectionCert.secureFilePath) -CertPwd $(serviceConnectionPrivateKeyPwd) -Environment ${{parameters.Environment}}'
+              filePath: './EntraID/Applications-ADO/New-ApplicationCertificate-REST.ps1'
+              arguments: '-JsonFile "$(AppStatesFolderPath)$(SpFile)" -cerCertFile $(appCert.secureFilePath) -Usage $(Usage) -tenantID $(tenantID) -ClientID $(ClientID) -certFile $(connectionCert.secureFilePath) -CertPwd $(serviceConnectionPrivateKeyPwd) -Environment ${{parameters.Environment}}'
 
           - task: PowerShell@2
             name: stepCheck
@@ -129,9 +129,9 @@ jobs:
               targetType: inline
               script: |
                 if (("$(stepSucceed)" -eq "false")){ 
-                  write-host "Update ServicePrincipal Obj failed"
+                  write-host "Update Application Cert failed"
                 }else{
-                  write-host "Update ServicePrincipal Obj succeeded."
+                  write-host "Update Application Cert succeeded."
                 }
 
           - task: PowerShell@2
@@ -146,7 +146,7 @@ jobs:
                 git fetch origin $(Build.SourceBranchName):tmp
                 git rebase tmp
                 git add -A
-                git commit -m "Updated SP Cert - ${{parameters.AppName}} ${{parameters.AppID}}"
+                git commit -m "Updated App Cert - ${{parameters.AppName}} ${{parameters.AppID}}"
                 git push origin HEAD:$(Build.SourceBranchName)
           #- checkout: self
             #clean: true
