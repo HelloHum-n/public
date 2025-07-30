@@ -15,7 +15,7 @@ parameters:
     - IST
     - PRD
   - name: Usage
-    default: 'verify'
+    default: 'encrypt'
     type: string
     values:
     - verify
