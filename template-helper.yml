@@ -35,11 +35,19 @@ parameters:
 
 
 variables:
-- name: Environment
-  value: IST
+  - name: stepSucceed
+    value: false
+  - name: AppStagingFolderPath
+    value: "./EntraID/Applications-ADO/${{parameters.Environment}}/Staging/"   
+  - name: templateFolderPath
+    value: "./EntraID/Applications-ADO/${{parameters.Environment}}/Staging/Templates"   
+  - group: ${{parameters.Environment}}-Variables
+  - group: ${{parameters.Environment}}-Secrets
+  - name: tenantIDvar
+    value: $[variables.tenantID]
 
 pool:
-  vmImage: 'windows-2019'
+  vmImage: 'windows-latest'
 
 jobs:
 - job: writeSecretandCommit
@@ -51,7 +59,7 @@ jobs:
   - checkout: self
     persistCredentials: true
   - task: PowerShell@2
-    name: writeFile
+    name: createTemplates
     inputs:
       targetType: 'inline'
       script: |
