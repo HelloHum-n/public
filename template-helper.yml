@@ -11,11 +11,27 @@ parameters:
     - DEV
     - IST
     - PRD
+
   - name: AppName
     displayName: Application Name
     default: ''
+
   - name: AppID
-    default: 'defaultparaValue'
+    displayName: Application ID (Mandatory for update)
+    default: 'null'
+
+  - name: AppType
+    displayName: Application Type
+    default: 'SAML'
+    type: string
+    values:
+    - SAML
+    - OIDC
+
+  - name: EntityID
+    displayName: Application entity ID or Identifier URI (identifierUris)
+    default: 'https://'
+    type: string
 
 
 variables:
