@@ -2,6 +2,20 @@ trigger: none
 
 name: Write-File
 
+parameters:
+  - name: Environment
+    displayName: Environment
+    default: 'IST'
+    type: string
+    values:
+    - DEV
+    - IST
+    - PRD
+  - name: AppName
+    default: 'defaultparaValue'
+  - name: AppID
+    default: 'defaultparaValue'
+
 
 variables:
 - name: Environment
