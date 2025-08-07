@@ -35,7 +35,7 @@
         }
     },
     "requestSignatureVerification": {
-        "isSignedRequestRequired": true,
+        "isSignedRequestRequired": false,
         "allowedWeakAlgorithms": null
     }
   }
