@@ -38,9 +38,13 @@ variables:
   - name: stepSucceed
     value: false
   - name: AppStagingFolderPath
-    value: "./EntraID/Applications-ADO/${{parameters.Environment}}/Staging/"   
+    value: "./EntraID/Applications-ADO/${{parameters.Environment}}/Staging/"
   - name: templateFolderPath
-    value: "./EntraID/Applications-ADO/${{parameters.Environment}}/Staging/Templates"   
+    value: "./EntraID/Applications-ADO/${{parameters.Environment}}/Staging/Templates"
+  - name: SAMLappTemplateName
+    value: "SAML_App_Template.json"
+  - name: OIDCapptemplateName
+    value: "OIDC_App_Template.json"    
   - group: ${{parameters.Environment}}-Variables
   - group: ${{parameters.Environment}}-Secrets
   - name: tenantIDvar
