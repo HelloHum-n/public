@@ -1,19 +1,45 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
+trigger: none
 
-trigger:
-- main
+name: Write-File
+
+
+variables:
+- name: Environment
+  value: IST
 
 pool:
-  vmImage: ubuntu-latest
+  vmImage: 'windows-2019'
 
-steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+jobs:
+- job: writeSecretandCommit
+  displayName: writing secret to local repo
+  pool:
+    vmImage: 'windows-latest'
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+  steps:
+  - checkout: self
+    persistCredentials: true
+  - task: PowerShell@2
+    name: writeFile
+    inputs:
+      targetType: 'inline'
+      script: |
+        ls
+        $fileName = "Entra\EntraID\Applications-ADO\IST\Apps-States\output.txt"
+        Write-Host "##vso[task.setvariable variable=fileName;]$fileName"
+        Write-Host "Writing filename $fileName"
+        "testing 123456" | Out-File -FilePath $fileName -Force
+        ls
+  - script: echo Task 2 filename - $(fileName)
+    name: echoOutput
+  - script: |
+     git config --global user.email "entraidProject@azuredevops.com"
+     git config --global user.name "serivce account"
+     cd $(Build.SourcesDirectory)\$(System.TeamProject)
+     git add -A
+     git commit -m "new"
+     git push origin HEAD:$(Build.SourceBranchName)
+    name: gitCommit
+  - checkout: self
+    clean: true
+#git branch --all
