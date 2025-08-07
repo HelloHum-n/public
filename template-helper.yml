@@ -12,7 +12,8 @@ parameters:
     - IST
     - PRD
   - name: AppName
-    default: 'defaultparaValue'
+    displayName: Application Name
+    default: ''
   - name: AppID
     default: 'defaultparaValue'
 
