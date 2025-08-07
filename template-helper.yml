@@ -67,12 +67,15 @@ jobs:
     inputs:
       targetType: 'inline'
       script: |
-        ls
-        $fileName = "Entra\EntraID\Applications-ADO\IST\Apps-States\output.txt"
-        Write-Host "##vso[task.setvariable variable=fileName;]$fileName"
-        Write-Host "Writing filename $fileName"
-        "testing 123456" | Out-File -FilePath $fileName -Force
-        ls
+        if ( "${{parameters.AppType}}" -eq "SAML" ){
+          $templatefileObj = Get-content -Path $(templateFolderPath)/$(SAMLappTemplateName) -RAW | ConvertFrom-Json
+          $templatefileObj| ConvertTo-Json -Depth 20  
+        }else{
+          $templatefileObj = Get-content -Path $(templateFolderPath)/$(OIDCappTemplateName) -RAW | ConvertFrom-Json
+          $templatefileObj| ConvertTo-Json -Depth 20  
+
+        }
+
   - script: echo Task 2 filename - $(fileName)
     name: echoOutput
   - script: |
