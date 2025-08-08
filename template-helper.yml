@@ -63,7 +63,7 @@ pool:
 
 jobs:
 - job: writeSecretandCommit
-  displayName: writing secret to local repo
+  displayName: Generate staging templates
   pool:
     vmImage: 'windows-latest'
 
