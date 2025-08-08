@@ -76,7 +76,10 @@ jobs:
       targetType: 'inline'
       script: |
         if ( "${{parameters.AppType}}" -eq "SAML" ){
-          ls
+          Get-ChildItem "$(AppStagingFolderPath)"
+          Write-host "-______________-"
+          Get-ChildItem "$(templateFolderPath)"
+
           $templateFileObj = Get-content -Path "$(templateFolderPath)/$(SAMLappTemplateName)" -RAW | ConvertFrom-Json
           
           #go through paramers one by one
