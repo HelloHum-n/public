@@ -16,10 +16,6 @@ parameters:
     displayName: Application Name
     default: ''
 
-  - name: AppID
-    displayName: Application ID (Mandatory for update)
-    default: 'null'
-
   - name: AppType
     displayName: Application Type
     default: 'SAML'
@@ -33,6 +29,18 @@ parameters:
     default: 'https://'
     type: string
 
+  - name: SPflowVerification
+    displayName: Require SAML2 SP initiated flow (requestSignatureVerification)
+    default: 'false'
+    type: string
+    values:
+    - true
+    - false
+
+  - name: Description
+    displayName: Application Description
+    default: 'Default'
+    type: string
 
 variables:
   - name: stepSucceed
@@ -68,13 +76,28 @@ jobs:
       targetType: 'inline'
       script: |
         if ( "${{parameters.AppType}}" -eq "SAML" ){
-          $templatefileObj = Get-content -Path $(templateFolderPath)/$(SAMLappTemplateName) -RAW | ConvertFrom-Json
-          $templatefileObj| ConvertTo-Json -Depth 20  
+          $templateFileObj = Get-content -Path $(templateFolderPath)/$(SAMLappTemplateName) -RAW | ConvertFrom-Json
+          $templateFileObj| ConvertTo-Json -Depth 20
+          #go through paramers one by one
+          #AppName
+          $templateFileObj.displayName = "${{parameters.AppName}}"
+          #EntityID
+          if ("${{parameters.EntityID}}" -ne "https://"){
+            $templateFileObj.identifierUris = "${{parameters.EntityID}}"
+          }else{
+            throw "Please provide the EntityID/IdentifierURIs for the application"
+          }
+          #SPflowVerification
+          $templateFileObj.requestSignatureVerification = "${{parameters.SPflowVerification}}"
+          #Description
+          if ("${{parameters.Description}}" -ne "default"){
+            $templateFileObj.Description = "${{parameters.Description}}"
+          }
         }else{
           $templatefileObj = Get-content -Path $(templateFolderPath)/$(OIDCappTemplateName) -RAW | ConvertFrom-Json
           $templatefileObj| ConvertTo-Json -Depth 20  
-
         }
+
 
   - script: echo Task 2 filename - $(fileName)
     name: echoOutput
