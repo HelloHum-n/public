@@ -8,8 +8,8 @@ parameters:
     default: 'IST'
     type: string
     values:
-    - DEV
     - IST
+    - DEV
     - PRD
 
   - name: AppName
