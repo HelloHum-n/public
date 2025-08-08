@@ -46,9 +46,9 @@ variables:
   - name: stepSucceed
     value: false
   - name: AppStagingFolderPath
-    value: "./EntraID/Applications-ADO/${{parameters.Environment}}/Staging/"
+    value: "./Entra/EntraID/Applications-ADO/${{parameters.Environment}}/Staging/"
   - name: templateFolderPath
-    value: "./EntraID/Applications-ADO/${{parameters.Environment}}/Staging/Templates"
+    value: "./Entra/EntraID/Applications-ADO/${{parameters.Environment}}/Staging/Templates"
   - name: SAMLappTemplateName
     value: "SAML_App_Template.json"
   - name: OIDCappTemplateName
