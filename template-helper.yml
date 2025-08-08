@@ -92,7 +92,7 @@ jobs:
             throw "Please provide the EntityID/IdentifierURIs for the application"
           }
           #SPflowVerification
-          $templateFileObj.requestSignatureVerification = "${{parameters.SPflowVerification}}"
+          $templateFileObj.requestSignatureVerification.isSignedRequestRequired = "${{parameters.SPflowVerification}}"
           #Description
           if ("${{parameters.Description}}" -ne "default"){
             $templateFileObj.Description = "${{parameters.Description}}"
