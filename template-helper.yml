@@ -76,8 +76,8 @@ jobs:
       targetType: 'inline'
       script: |
         if ( "${{parameters.AppType}}" -eq "SAML" ){
-          $templateFileObj = Get-content -Path $(templateFolderPath)/$(SAMLappTemplateName) -RAW | ConvertFrom-Json
-          $templateFileObj| ConvertTo-Json -Depth 20
+          $templateFileObj = Get-content -Path $(templateFolderPath)/$(SAMLappTemplateName) -RAW | ConvertFrom-Json -Depth 20
+          
           #go through paramers one by one
           #AppName
           $templateFileObj.displayName = "${{parameters.AppName}}"
@@ -93,10 +93,27 @@ jobs:
           if ("${{parameters.Description}}" -ne "default"){
             $templateFileObj.Description = "${{parameters.Description}}"
           }
+          $AppStagingOutputFile = $templateFileObj | ConvertTo-Json -Depth 20
         }else{
           $templatefileObj = Get-content -Path $(templateFolderPath)/$(OIDCappTemplateName) -RAW | ConvertFrom-Json
-          $templatefileObj| ConvertTo-Json -Depth 20  
+          #$templatefileObj| ConvertTo-Json -Depth 20  
         }
+
+        #App Staging File
+        $AppStagingFilePath = "$(AppStagingFolderPath)/${{parameters.AppName}}_App.json"
+        $AppStagingOutputFile | Out-File -FilePath $AppStagingFilePath -Force
+        $SpStagingFilePath = "$(SpStagingFolderPath)/${{parameters.AppName}}_Sp.json"
+        if ( "${{parameters.AppType}}" -eq "SAML"){
+          $newObj = New-Object PSObject
+          $newObj | Add-Member -MemberType NoteProperty -Name "preferredSingleSignOnMode"  -Value "saml"
+        }else{
+          $newObj = New-Object PSObject
+          $newObj | Add-Member -MemberType NoteProperty -Name "preferredSingleSignOnMode"  -Value "oidc"
+        }
+        # SP Staging File
+        $SpStagingOutputFile = $newObj | ConvertTo-Json -Depth 20
+        $SpStagingFilePath = "$(AppStagingFolderPath)/${{parameters.AppName}}_Sp.json"
+        $SpStagingOutputFile | Out-File -FilePath $SpStagingFilePath -Force
 
 
   - script: echo Task 2 filename - $(fileName)
