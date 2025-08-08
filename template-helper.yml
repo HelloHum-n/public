@@ -108,7 +108,7 @@ jobs:
         $AppStagingOutput | Out-File -FilePath $AppStagingFilePath -Force
 
         # SP Staging File
-        $SpStagingFilePath = "$(SpStagingFolderPath)/${{parameters.AppName}}_Sp.json"
+        $SpStagingFilePath = "$(AppStagingFolderPath)/${{parameters.AppName}}_Sp.json"
         if ( "${{parameters.AppType}}" -eq "SAML"){
           $newObj = New-Object PSObject
           $newObj | Add-Member -MemberType NoteProperty -Name "preferredSingleSignOnMode"  -Value "saml"
