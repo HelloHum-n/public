@@ -43,7 +43,7 @@ parameters:
     type: string
 
   - name: nameidentifierFormat
-    displayName: Format for the nameidentifier in the claims
+    displayName: Claims - Format for the nameidentifier in the claims
     default: 'email'
     type: string
     values:
@@ -52,12 +52,12 @@ parameters:
     - unspecified
 
   - name: nameidentifierAttribute
-    displayName: User Attribute for the nameidentifier in the claims
+    displayName: Claims - User Attribute for the nameidentifier in the claims
     default: 'userprincipalname'
     type: string
 
   - name: commonUsedClaim
-    displayName: Add these commonly used claims - ScotiaID, xyz, etc
+    displayName: Claims - Add these commonly used claims - ScotiaID, xyz, etc
     default: 'false'
     type: string
     values:
@@ -65,22 +65,22 @@ parameters:
     - false
 
   - name: directClaim1
-    displayName: (Optional) Additional Name of the Claim (1)
+    displayName: Claims - (Optional) Additional Name of the Claim (1)
     default: 'default'
     type: string
 
   - name: directClaimAttribute1
-    displayName: (Optional) Additional Attribute of the Claim (1)
+    displayName: Claims - (Optional) Additional Attribute of the Claim (1)
     default: 'default'
     type: string
 
   - name: directClaim2
-    displayName: (Optional) Additional Name of the Claim (2)
+    displayName: Claims - (Optional) Additional Name of the Claim (2)
     default: 'default'
     type: string
 
   - name: directClaimAttribute2
-    displayName: (Optional) Additional Attribute of the Claim (2)
+    displayName: Claims - (Optional) Additional Attribute of the Claim (2)
     default: 'default'
     type: string
 
