@@ -53,7 +53,7 @@ parameters:
 
   - name: nameidentifierAttribute
     displayName: User Attribute for the nameidentifier in the claims
-    default: 'default'
+    default: 'userprincipalname'
     type: string
 
 
