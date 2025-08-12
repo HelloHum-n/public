@@ -43,7 +43,7 @@ parameters:
     type: string
 
   - name: nameidentifierFormat
-    displayName: Format for the nameidentifier in the token
+    displayName: Format for the nameidentifier in the claims
     default: 'email'
     type: string
     values:
@@ -52,7 +52,7 @@ parameters:
     - unspecified
 
   - name: nameidentifierAttribute
-    displayName: User Attribute for the nameidentifier in the token
+    displayName: User Attribute for the nameidentifier in the claims
     default: 'default'
     type: string
 
