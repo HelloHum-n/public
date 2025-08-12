@@ -57,22 +57,22 @@ parameters:
     type: string
 
   - name: directClaimEmail
-    displayName: Claims - email Claim Name
+    displayName: Claims 1. - email Claim Name
     default: 'email'
     type: string
 
   - name: directClaimEmailAttribute
-    displayName: Claims - email Claim Attribute
+    displayName: Claims 1. - email Claim Attribute
     default: 'userprincipalname'
     type: string
 
   - name: SSOID
-    displayName: Claims - SSOID Claim Name
+    displayName: Claims 2. - SSOID Claim Name
     default: 'SSOID'
     type: string
 
   - name: SSOIDAttribute
-    displayName: Claims - SSOID Claim Attribute
+    displayName: Claims 2. - SSOID Claim Attribute
     default: 'employeeID'
     type: string
 
