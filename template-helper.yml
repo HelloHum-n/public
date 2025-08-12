@@ -42,6 +42,21 @@ parameters:
     default: 'Default'
     type: string
 
+  - name: nameidentifierFormat
+    displayName: Format for the nameidentifier in the token
+    default: 'email'
+    type: string
+    values:
+    - email
+    - persistent
+    - unspecified
+
+  - name: nameidentifierAttribute
+    displayName: User Attribute for the nameidentifier in the token
+    default: 'default'
+    type: string
+
+
 variables:
   - name: stepSucceed
     value: false
