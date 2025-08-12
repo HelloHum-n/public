@@ -44,10 +44,10 @@ parameters:
 
   - name: nameidentifierFormat
     displayName: Claims - Format for the nameidentifier in the claims
-    default: 'email'
+    default: 'emailAddress'
     type: string
     values:
-    - email
+    - emailAddress
     - transient
     - unspecified
 
