@@ -48,7 +48,7 @@ parameters:
     type: string
     values:
     - email
-    - persistent
+    - transient
     - unspecified
 
   - name: nameidentifierAttribute
