@@ -57,12 +57,22 @@ parameters:
     type: string
 
   - name: directClaim1
-    displayName: (Optional) Additional Name of the Claim 1
+    displayName: (Optional) Additional Name of the Claim (1)
     default: 'default'
     type: string
 
   - name: directClaimAttribute1
-    displayName: (Optional) Additional Attribute of the Claim 1
+    displayName: (Optional) Additional Attribute of the Claim (1)
+    default: 'default'
+    type: string
+
+  - name: directClaim2
+    displayName: (Optional) Additional Name of the Claim (2)
+    default: 'default'
+    type: string
+
+  - name: directClaimAttribute2
+    displayName: (Optional) Additional Attribute of the Claim (2)
     default: 'default'
     type: string
 
