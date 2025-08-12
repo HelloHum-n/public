@@ -56,6 +56,14 @@ parameters:
     default: 'userprincipalname'
     type: string
 
+  - name: commonUsedClaim
+    displayName: Add these commonly used claims - ScotiaID, xyz, etc
+    default: 'false'
+    type: string
+    values:
+    - true
+    - false
+
   - name: directClaim1
     displayName: (Optional) Additional Name of the Claim (1)
     default: 'default'
