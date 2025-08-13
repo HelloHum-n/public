@@ -136,9 +136,10 @@ if ($i -eq $maxRetry){
 $SPobj | Format-List id, DisplayName, AppId, notes
 Write-host "Service Principal updated successfully" -ForegroundColor Green  
 $OutPutJson = $SPobj | ConvertTo-Json -Depth 20
-#$fileName = "$Environment\Apps-States\ServicePrincipal-"+$($SPobj.displayName)+"-"+$($SPobj.Id)+".json"
 $OutPutJson | Out-File -FilePath $JsonFile -Force
-Write-host "Service Principal detail output to - $JsonFile" -ForegroundColor Green
+$newfilePath = "$Environment\Apps-States\ServicePrincipal-"+$($SPobj.displayName)+"-"+$($SPobj.Id)+".json"
+Rename-Item -Path $JsonFile -NewName $newfilePath
+Write-host "Service Principal detail output to - $newfilePath" -ForegroundColor Green
 
 Disconnect-mggraph
 Write-host "Disconnected from MS Graph" -ForegroundColor Green
