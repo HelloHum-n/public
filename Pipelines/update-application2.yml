@@ -78,6 +78,7 @@ jobs:
                 if (-not (Test-Path -Path '$(appJsonFile)')){
                   $appStateFile = $false
                   throw "State File - $(appJsonFile) not Found"
+                  # To do: make a boolean to run a step for using a powershell script to check if application exists on Entra ID matching both app and ID
                 }else{
                   Write-Host "App State File with App Name: ${{parameters.AppName}} found: $(appJsonFile)"
                 }
