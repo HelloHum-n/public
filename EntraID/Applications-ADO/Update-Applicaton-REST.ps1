@@ -156,9 +156,10 @@ if ($i -eq $maxRetry){
 $AppObj | Format-List id, DisplayName, AppId, notes
 Write-host "Application updated successfully" -ForegroundColor Green  
 $OutPutJson = $AppObj | ConvertTo-Json -Depth 20
-#$fileName = "$Environment\Apps-States\Application_"+$($AppObj.displayName)+"_"+$($AppObj.Id)+".json"
 $OutPutJson | Out-File -FilePath $JsonFile -Force
-Write-host "Application detail output to - $JsonFile" -ForegroundColor Green
+$newfilePath = "$Environment\Apps-States\Application_"+$($AppObj.displayName)+"_"+$($AppObj.Id)+".json"
+Rename-Item -Path $JsonFile -NewName $newfilePath
+Write-host "Application detail output to - $newfilePath" -ForegroundColor Green
 
 Disconnect-mggraph
 Write-host "Disconnected from MS Graph" -ForegroundColor Green
