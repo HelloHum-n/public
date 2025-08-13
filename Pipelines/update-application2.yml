@@ -20,9 +20,9 @@ variables:
   - name: stepSucceed
     value: false
   - name: AppStatesFolderPath
-    value: "./EntraID/Applications-ADO/${{parameters.Environment}}/Apps-States/"
+    value: "./EntraID/Applications-ADO/${{parameters.Environment}}/Apps-States"
   - name: AppStagingFolderPath
-    value: "./EntraID/Applications-ADO/${{parameters.Environment}}/Staging/"   
+    value: "./EntraID/Applications-ADO/${{parameters.Environment}}/Staging"   
   - group: ${{parameters.Environment}}-Variables
   - group: ${{parameters.Environment}}-Secrets
   - name: tenantIDvar
@@ -77,7 +77,7 @@ jobs:
                 }
                 if (-not (Test-Path -Path '$(appJsonFile)')){
                   $appStateFile = $false
-                  Write-Host "State File - $(appJsonFile) not Found"
+                  throw "State File - $(appJsonFile) not Found"
                 }else{
                   Write-Host "App State File with App Name: ${{parameters.AppName}} found: $(appJsonFile)"
                 }
