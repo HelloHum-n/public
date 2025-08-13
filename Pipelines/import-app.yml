@@ -41,14 +41,14 @@ jobs:
             name: Get_App_Object
             inputs:
               targetType: 'filePath'
-              filePath: './EntraID/Applications-ADO/Get-Application-REST.ps1'
+              filePath: './EntraID/Applications-ADO/Import-Application-REST.ps1'
               arguments: '-ApplicationID "${{parameters.AppID}}" -tenantID $(tenantID) -ClientID $(ClientID) -certFile $(connectionCert.secureFilePath) -CertPwd $(serviceConnectionPrivateKeyPwd) -Environment ${{parameters.Environment}}'
 
           - task: PowerShell@2
             name: Get_SP_Object
             inputs:
               targetType: 'filePath'
-              filePath: './EntraID/Applications-ADO/Get-ServicePrincipal-REST.ps1'
+              filePath: './EntraID/Applications-ADO/Import-ServicePrincipal-REST.ps1'
               arguments: '-ApplicationID "${{parameters.AppID}}" -tenantID $(tenantID) -ClientID $(ClientID) -certFile $(connectionCert.secureFilePath) -CertPwd $(serviceConnectionPrivateKeyPwd) -Environment ${{parameters.Environment}}'
 
           - task: PowerShell@2
