@@ -1,0 +1,164 @@
+trigger: none
+
+# Need both Name and ID
+parameters:
+  - name: AppName
+    default: 'defaultparaAppName'
+  - name: AppID
+    default: 'defaultparaAppID'
+  - name: csvFileName
+    default: 'defaultCSV'
+  - name: Environment
+    default: 'IST'
+    type: string
+    values:
+    - DEV
+    - IST
+    - PRD
+
+variables:
+  - name: stepSucceed
+    value: false
+  - name: AppStatesFolderPath
+    value: "./EntraID/Applications-ADO/${{parameters.Environment}}/Apps-States/"
+  - name: AppStagingFolderPath
+    value: "./EntraID/Applications-ADO/${{parameters.Environment}}/Staging/"   
+  - group: ${{parameters.Environment}}-Variables
+  - group: ${{parameters.Environment}}-Secrets
+  - name: tenantIDvar
+    value: $[variables.tenantID]
+    
+pool:
+  vmImage: 'windows-latest'
+
+jobs:
+- deployment: ${{ replace(parameters.csvFileName,'.','_')}}__UPDATE_APP_OBJ__${{ replace(parameters.AppName,'-','_') }}_${{ replace(parameters.AppID,'-','_') }}
+  environment: ${{parameters.Environment}}
+  strategy:
+    runOnce:
+      deploy:
+        steps:
+          - checkout: self
+            persistCredentials: true
+          - task: PowerShell@2
+            name: constructVariables
+            inputs:
+              targetType: inline
+              script: |
+                $tenantID = "$(tenantIDvar)"
+                #Write-Host "tenant ID is $tenantID"
+                Write-Host "tenantID: $(tenantID)"
+                 # -----Updating app by locating application with App ID---- 
+                if ( "${{parameters.AppID}}" -ne "defaultparaAppID" ){
+                  Write-Host 'Searching for App-State files using Application ID: ${{parameters.AppID}}'
+                  $appFileNamePattern = "*"+"${{parameters.AppID}}"+"_Application.json"
+                  # Put some logic to catch file not found
+                  $appFile = Get-ChildItem -Path $(AppStatesFolderPath) -Name $appFileNamePattern
+                  #write-host "---AppFile:--- $appFile "
+                  #$appNameAry = $appFile -split "\\"
+                  #$appName = $appNameAry[($appNameAry.count)-1]
+                  $appName = $appFile -replace "_${{parameters.AppID}}_Application.json"
+
+                  # Get App Staging File Path
+                  # Json file containing the application details (Hint: Create one in staging folder)
+                  $appStagingFileName = "$appName"+"_App.json"
+                  $appStagingJsonFile = "$(AppStagingFolderPath)"+"/"+"$appStagingFileName"
+                  Write-Host "##vso[task.setvariable variable=appStagingJsonFile]$appStagingJsonFile"
+                  Write-Host "appStagingJsonFile: $appStagingJsonFile"
+
+                  if ($appFile.Count -gt 1){
+                    Write-Host "More than 1 App manifest with App ID: ${{parameters.AppID}} found, please check App-States folder inventory and try again."
+                    Throw "More than 1 App manifest with App ID: ${{parameters.AppID}} found, please check App-States folder inventory and try again."
+                  }elseif ($appFile.Count -eq 0){
+                    Write-Host "No App Manifest with App ID: ${{parameters.AppID}} found, please check App-States folder inventory and try again."
+                    Throw "No App Manifest with App ID: ${{parameters.AppID}} found, please check App-States folder inventory and try again."
+                  }else{
+                    Write-Host "##vso[task.setvariable variable=filesNotFound]false"
+                    Write-Host "##vso[task.setvariable variable=appFileName]$appFile"
+                    Write-Host "App Manifest with App ID: ${{parameters.AppID}} found: $appFile"
+                  }
+                # -----Updating app by locating application with App Name----  
+                }elseif ( "${{parameters.AppName}}" -ne "defaultparaAppName" ){
+                  # Json file containing the application details (Hint: Create one in staging folder)
+                  $appStagingJsonFile  = "$(AppStagingFolderPath)${{parameters.AppName}}_App.json"
+                  Write-Host "##vso[task.setvariable variable=appStagingJsonFile]$appStagingJsonFile"
+                  Write-Host "appStagingJsonFile: $appStagingJsonFile"
+
+                  $appFileNamePattern = "${{parameters.AppName}}"+"*_Application.json"
+                  $appFile = Get-ChildItem -Path $(AppStatesFolderPath) -Name $appFileNamePattern
+                  if ($appFile.Count -gt 1){
+                    Write-Host "More than 1 App manifest with App Name: ${{parameters.AppName}} found, please check App-States folder inventory and try again."
+                    Throw "More than 1 App manifest with App Name: ${{parameters.AppName}} found, please check App-States folder inventory and try again."
+                  }elseif ($appFile.Count -eq 0){
+                    Write-Host "No App Manifest with App Name: ${{parameters.AppName}} found, please check App-States folder inventory and try again."
+                    throw "No App Manifest with App Name: ${{parameters.AppName}} found, please check App-States folder inventory and try again."
+                  }else{
+                    Write-Host "##vso[task.setvariable variable=filesNotFound]false"
+                    Write-Host "##vso[task.setvariable variable=appFileName]$appFile"
+                    Write-Host "App Manifest with App Name: ${{parameters.AppName}} found: $appFile"
+                  }
+                }else{
+                  Write-Host "Error: Please provide a valid App ID or App Name."
+                  Throw "Error: Please provide a valid App ID or App Name."
+                }  
+          - task: PowerShell@2
+            name: verifyFiles
+            inputs:
+              targetType: inline
+              script: |
+                if (-not (Test-Path -Path '$(appStagingJsonFile)')){
+                  Write-Host "##vso[task.setvariable variable=filesNotFound]true"
+                  $noFile = $true
+                  Write-Host "Staging File- $(appStagingJsonFile) not Found"
+                }
+
+          - task: DownloadSecureFile@1
+            name: connectionCert
+            displayName: 'Download Service Connection certificate'
+            inputs:
+              secureFile: '${{parameters.Environment}}-Service-Connection.pfx'
+
+          - task: PowerShell@2
+            name: Update_Application_obj
+            inputs:
+              targetType: 'filePath'
+              filePath: './EntraID/Applications-ADO/Update-Applicaton-REST.ps1'
+              arguments: '-JsonFile "$(AppStatesFolderPath)$(appFileName)" -newJsonFile "$(appStagingJsonFile)" -tenantID $(tenantID) -ClientID $(ClientID) -certFile $(connectionCert.secureFilePath) -CertPwd $(serviceConnectionPrivateKeyPwd) -Environment ${{parameters.Environment}}'
+
+          - task: PowerShell@2
+            name: stepCheck
+            condition: succeeded()
+            inputs:
+              targetType: inline
+              script: |
+                Write-Host "##vso[task.setvariable variable=stepSucceed]true"
+
+
+          - task: PowerShell@2
+            name: Post_Deployment_CleanUP
+            condition: always()
+            inputs:
+              targetType: inline
+              script: |
+                if (("$(stepSucceed)" -eq "false")){ 
+                  write-host "Update Application Obj failed"
+                }else{
+                  write-host "Update Application Obj succeeded."
+                }
+
+          - task: PowerShell@2
+            name: gitCommit
+            #condition: eq(variables.skipGit, 'false')
+            condition: eq(variables.stepSucceed, 'true')
+            inputs:  
+              targetType: inline
+              script: |
+                git config --global user.email "entraidProject@azuredevops.com"
+                git config --global user.name "serivce account"
+                git fetch origin $(Build.SourceBranchName):tmp
+                git rebase tmp
+                git add -A
+                git commit -m "Updated app obj - ${{parameters.AppName}}"
+                git push origin HEAD:$(Build.SourceBranchName)
+          #- checkout: self
+            #clean: true
