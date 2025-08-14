@@ -69,12 +69,14 @@ jobs:
             inputs:
               targetType: inline
               script: |
+                # Check if Staging file exists
                 if (-not (Test-Path -Path '$(appStagingJsonFile)')){
                   $stagingFile = $false
                   throw "Staging File - $(appStagingJsonFile) not Found"
                 }else{
                   Write-Host "App Staging File with App Name: ${{parameters.AppName}} found: $(appStagingJsonFile)"
                 }
+                # Check if app states file exists (according naming syntax with app name and ID)
                 if (-not (Test-Path -Path '$(appJsonFile)')){
                   $appStateFile = $false
                   throw "State File - $(appJsonFile) not Found"
