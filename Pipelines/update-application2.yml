@@ -101,7 +101,7 @@ jobs:
             inputs:
               targetType: 'filePath'
               filePath: './EntraID/Applications-ADO/Check-Application-REST.ps1'
-              arguments: '- ApplicationID  "${{parameters.AppID}}" - ApplicationName "${{parameters.AppName}}" -tenantID $(tenantID) -ClientID $(ClientID) -certFile $(connectionCert.secureFilePath) -CertPwd $(serviceConnectionPrivateKeyPwd) -Environment ${{parameters.Environment}}'
+              arguments: '-ApplicationID  "${{parameters.AppID}}" -ApplicationName "${{parameters.AppName}}" -tenantID $(tenantID) -ClientID $(ClientID) -certFile $(connectionCert.secureFilePath) -CertPwd $(serviceConnectionPrivateKeyPwd) -Environment ${{parameters.Environment}}'
 
           - task: PowerShell@2
             name: Assess_result_of_App_Checking
