@@ -97,16 +97,16 @@ Disconnect-mggraph
 Write-host "Disconnected from MS Graph" -ForegroundColor Green
 
 if ( ($AppObjFromName.value.count) -gt 1 ){
-    $result = "Multiple apps found with provided App Name" 
+    $result = "Multiple apps found with provided App Name on Entra" 
 }elseif( ($AppObjFromName.value.count) -eq 1 -and ($AppObjFromName.value.AppId) -eq $ApplicationID ){
     # Success !!!!
-    $result = "Application found with matching Name and ID"
+    $result = "Application found with matching Name and ID on Entra"
 }elseif( ($AppObjFromName.value.count) -eq 1 -and ($AppObjFromName.value.AppId) -ne $ApplicationID ){
-    $result = "Application found with matching Name but doesn't match the provided AppId"
+    $result = "Application found with matching Name but doesn't match the provided AppId on Entra"
 }elseif( ($AppObjFromName.value.count) -eq 0 -and $AppObjFromID -like '*{"error"*'){
-    $result = "Both provided Application ID and Appication name not found"
+    $result = "Both provided Application ID and Appication name not found on Entra"
 }else{
-    $result = "Application found with matching ID but doesn't match the provided App Name"
+    $result = "Application found with matching ID but doesn't match the provided App Name on Entra"
 } 
 
 Write-Host $result 
