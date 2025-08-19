@@ -96,16 +96,17 @@ $AppObjFromName = MSGraphRequest -Method GET -URI $URI
 Disconnect-mggraph
 Write-host "Disconnected from MS Graph" -ForegroundColor Green
 
-if ( ($AppObjFromName.value.count) -gt 1 ){
-    $result = "Multiple apps ($($AppObjFromName.value.count)) found with App Name: $ApplicationName" 
+ if ( ($AppObjFromName.value.count) -gt 1 ){
+    $result = "Multiple apps found with provided App Name" 
 }elseif( ($AppObjFromName.value.count) -eq 1 -and ($AppObjFromName.value.AppId) -eq $ApplicationID ){
     $result = "Application found with matching Name and ID"
 }elseif( ($AppObjFromName.value.count) -eq 1 -and ($AppObjFromName.value.AppId) -ne $ApplicationID ){
-    $result = "Application found with matching Name but doesn't match the AppId: $appID"
+    $result = "Application found with matching Name but doesn't match the provided AppId"
 }elseif( ($AppObjFromName.value.count) -eq 0 -and $AppObjFromID -like '*{"error"*'){
-    $result = "Both provided Application ID and Appication name not found"
+    return "Both provided Application ID and Appication name not found"
 }else{
-    $result = "Application found with matching ID but doesn't match the App Name: $appID"
-}
+    $result = "Application found with matching ID but doesn't match the provided App Name"
+} 
+
 Write-Host $result 
 Write-Host "##vso[task.setvariable variable=appCheckResult]$result" 
