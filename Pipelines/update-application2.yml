@@ -118,7 +118,7 @@ jobs:
             inputs:
               targetType: inline
               script: |
-                if (("$(appCheckResult)" -eq "Application found with matching Name and ID")){ 
+                if (("$(appCheckResult)" -eq "Application found with matching Name and ID on Entra")){ 
                   if ( "$(step1Succeed)" -eq "true" ){
                     # Success !!!!
                     write-host "$(appCheckResult)"
@@ -128,16 +128,16 @@ jobs:
                     write-host "Please import the application to Azure DevOps Repo first and try again."
                     throw "Application doesn't exists in Azure DevOps Repo."
                   }
-                }elseif (("$(appCheckResult)" -eq "Multiple apps found with provided App Name")){ 
+                }elseif (("$(appCheckResult)" -eq "Multiple apps found with provided App Name on Entra")){ 
                   write-host "$(appCheckResult)"
                   throw "$(appCheckResult)"
-                }elseif (("$(appCheckResult)" -eq "Application found with matching Name but doesn't match the provided AppId")){
+                }elseif (("$(appCheckResult)" -eq "Application found with matching Name but doesn't match the provided AppId on Entra")){
                   write-host "$(appCheckResult)"
                   throw "$(appCheckResult)"
-                }elseif (("$(appCheckResult)" -eq "Both provided Application ID and Appication name not found")){
+                }elseif (("$(appCheckResult)" -eq "Both provided Application ID and Appication name not found on Entra")){
                   write-host "$(appCheckResult)"
                   throw "$(appCheckResult)"
-                }elseif (("$(appCheckResult)" -eq "Application found with matching ID but doesn't match the provided App Name")){
+                }elseif (("$(appCheckResult)" -eq "Application found with matching ID but doesn't match the provided App Name on Entra")){
                   write-host "$(appCheckResult)"
                   throw "$(appCheckResult)"
                 }
