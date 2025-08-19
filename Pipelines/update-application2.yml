@@ -21,6 +21,8 @@ variables:
     value: false
   - name: step2Succeed
     value: false
+  - name: step3Succeed
+    value: false
   - name: AppStatesFolderPath
     value: "./EntraID/Applications-ADO/${{parameters.Environment}}/Apps-States"
   - name: AppStagingFolderPath
@@ -132,6 +134,13 @@ jobs:
                   write-host "$(appCheckResult)"
                   throw "$(appCheckResult)"
                 }
+          - task: PowerShell@2
+            name: step2Check
+            condition: succeeded()
+            inputs:
+              targetType: inline
+              script: |
+                Write-Host "##vso[task.setvariable variable=step2Succeed]true"
 
           - task: DownloadSecureFile@1
             name: connectionCert
@@ -141,19 +150,19 @@ jobs:
 
           - task: PowerShell@2
             name: Update_Application_obj
-            condition: eq(variables.step1Succeed, 'true')
+            condition: eq(variables.step2Succeed, 'true')
             inputs:
               targetType: 'filePath'
               filePath: './EntraID/Applications-ADO/Update-Applicaton-REST.ps1'
               arguments: '-JsonFile "$(appJsonFile)" -newJsonFile "$(appStagingJsonFile)" -tenantID $(tenantID) -ClientID $(ClientID) -certFile $(connectionCert.secureFilePath) -CertPwd $(serviceConnectionPrivateKeyPwd) -Environment ${{parameters.Environment}}'
 
           - task: PowerShell@2
-            name: step2Check
+            name: step3Check
             condition: succeeded()
             inputs:
               targetType: inline
               script: |
-                Write-Host "##vso[task.setvariable variable=step2Succeed]true"
+                Write-Host "##vso[task.setvariable variable=step3Succeed]true"
 
 
           - task: PowerShell@2
@@ -162,7 +171,7 @@ jobs:
             inputs:
               targetType: inline
               script: |
-                if (("$(step1Succeed)" -eq "false") -or ("$(step2Succeed)" -eq "false")){ 
+                if (("$(step3Succeed)" -eq "false")){ 
                   write-host "Update Application Obj failed"
                 }else{
                   write-host "Update Application Obj succeeded."
@@ -171,7 +180,7 @@ jobs:
           - task: PowerShell@2
             name: gitCommit
             #condition: eq(variables.skipGit, 'false')
-            condition: eq(variables.step2Succeed, 'true')
+            condition: eq(variables.step3Succeed, 'true')
             inputs:  
               targetType: inline
               script: |
