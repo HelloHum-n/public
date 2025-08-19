@@ -156,7 +156,7 @@ jobs:
           - task: PowerShell@2
             name: gitCommit
             #condition: eq(variables.skipGit, 'false')
-            condition: eq(variables.stepSucceed, 'true')
+            condition: eq(variables.step2Succeed, 'true')
             inputs:  
               targetType: inline
               script: |
