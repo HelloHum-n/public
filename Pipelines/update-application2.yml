@@ -84,6 +84,30 @@ jobs:
                 }else{
                   Write-Host "App State File with App Name: ${{parameters.AppName}} found: $(appJsonFile)"
                 }
+
+          - task: PowerShell@2
+            name: Check_Entra_App_Exists
+            condition: always()
+            inputs:
+              targetType: 'filePath'
+              filePath: './EntraID/Applications-ADO/Check-Applicaton-REST.ps1'
+              arguments: '- ApplicationID  "${{parameters.AppID}}" - ApplicationName "${{parameters.AppName}}" -tenantID $(tenantID) -ClientID $(ClientID) -certFile $(connectionCert.secureFilePath) -CertPwd $(serviceConnectionPrivateKeyPwd) -Environment ${{parameters.Environment}}'
+
+          - task: PowerShell@2
+            name: Assess_result_of_App_Checking
+            condition: always()
+            inputs:
+              targetType: inline
+              script: |
+                if (("$(appCheckResult)" -eq "Application found with matching Name and ID")){ 
+                  write-host "$(appCheckResult)"
+                }elseif (("$(appCheckResult)" -eq "Multiple apps found with provided App Name")){ 
+                  throw "$(appCheckResult)"
+                }elseif (("$(appCheckResult)" -eq "Application found with matching Name but doesn't match the provided AppId")){
+                  throw "$(appCheckResult)"
+                }elseif (("$(appCheckResult)" -eq "Both provided Application ID and Appication name not found")){
+                  throw "$(appCheckResult)"
+                }
           - task: DownloadSecureFile@1
             name: connectionCert
             displayName: 'Download Service Connection certificate'
