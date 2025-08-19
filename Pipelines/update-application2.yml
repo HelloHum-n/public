@@ -44,6 +44,13 @@ jobs:
         steps:
           - checkout: self
             persistCredentials: true
+
+          - task: DownloadSecureFile@1
+            name: connectionCert
+            displayName: 'Download Service Connection certificate'
+            inputs:
+              secureFile: '${{parameters.Environment}}-Service-Connection.pfx'
+                         
           - task: PowerShell@2
             name: constructVariables
             inputs:
@@ -142,11 +149,7 @@ jobs:
               script: |
                 Write-Host "##vso[task.setvariable variable=step2Succeed]true"
 
-          - task: DownloadSecureFile@1
-            name: connectionCert
-            displayName: 'Download Service Connection certificate'
-            inputs:
-              secureFile: '${{parameters.Environment}}-Service-Connection.pfx'
+
 
           - task: PowerShell@2
             name: Update_Application_obj
