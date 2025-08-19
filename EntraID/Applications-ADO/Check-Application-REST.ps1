@@ -96,7 +96,7 @@ $AppObjFromName = MSGraphRequest -Method GET -URI $URI
 Disconnect-mggraph
 Write-host "Disconnected from MS Graph" -ForegroundColor Green
 
- if ( ($AppObjFromName.value.count) -gt 1 ){
+if ( ($AppObjFromName.value.count) -gt 1 ){
     $result = "Multiple apps found with provided App Name" 
 }elseif( ($AppObjFromName.value.count) -eq 1 -and ($AppObjFromName.value.AppId) -eq $ApplicationID ){
     $result = "Application found with matching Name and ID"
