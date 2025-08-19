@@ -124,7 +124,7 @@ jobs:
                     write-host "$(appCheckResult)"
                   }else{
                     write-host "$(appCheckResult)"
-                    write-host "Application doesn't exists in Azure DevOps Repo."
+                    write-host "Application doesn't exists in Azure DevOps Repo on Entra."
                     write-host "Please import the application to Azure DevOps Repo first and try again."
                     throw "Application doesn't exists in Azure DevOps Repo."
                   }
