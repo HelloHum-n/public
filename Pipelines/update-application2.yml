@@ -112,10 +112,13 @@ jobs:
                 if (("$(appCheckResult)" -eq "Application found with matching Name and ID")){ 
                   write-host "$(appCheckResult)"
                 }elseif (("$(appCheckResult)" -eq "Multiple apps found with provided App Name")){ 
+                  write-host "$(appCheckResult)"
                   throw "$(appCheckResult)"
                 }elseif (("$(appCheckResult)" -eq "Application found with matching Name but doesn't match the provided AppId")){
+                  write-host "$(appCheckResult)"
                   throw "$(appCheckResult)"
                 }elseif (("$(appCheckResult)" -eq "Both provided Application ID and Appication name not found")){
+                  write-host "$(appCheckResult)"
                   throw "$(appCheckResult)"
                 }
           - task: DownloadSecureFile@1
