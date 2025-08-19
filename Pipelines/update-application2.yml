@@ -110,13 +110,14 @@ jobs:
               targetType: inline
               script: |
                 if (("$(appCheckResult)" -eq "Application found with matching Name and ID")){ 
-                  if ( "$(step1Succeed)" -eq "false" ){
+                  if ( "$(step1Succeed)" -eq "true" ){.
+                    # Success !!!!
+                    write-host "$(appCheckResult)"
+                  }else{
                     write-host "$(appCheckResult)"
                     write-host "Application doesn't exists in Azure DevOps Repo."
                     write-host "Please import the application to Azure DevOps Repo first and try again."
                     throw "Application doesn't exists in Azure DevOps Repo."
-                  }else{
-                    write-host "$(appCheckResult)"
                   }
                 }elseif (("$(appCheckResult)" -eq "Multiple apps found with provided App Name")){ 
                   write-host "$(appCheckResult)"
