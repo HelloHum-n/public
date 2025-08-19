@@ -110,9 +110,11 @@ jobs:
               targetType: inline
               script: |
                 if (("$(appCheckResult)" -eq "Application found with matching Name and ID")){ 
-                  write-host "$(appCheckResult)"
                   if ( "$(step1Succeed)" -eq "false" ){
                     write-host "Please import the application to Azure DevOps Repo first and try again."
+                    throw "Please import the application to Azure DevOps Repo first and try again."
+                  }else{
+                    write-host "$(appCheckResult)"
                   }
                 }elseif (("$(appCheckResult)" -eq "Multiple apps found with provided App Name")){ 
                   write-host "$(appCheckResult)"
