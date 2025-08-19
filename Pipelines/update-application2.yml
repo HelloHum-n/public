@@ -119,7 +119,7 @@ jobs:
               targetType: inline
               script: |
                 if (("$(appCheckResult)" -eq "Application found with matching Name and ID")){ 
-                  if ( "$(step1Succeed)" -eq "true" ){.
+                  if ( "$(step1Succeed)" -eq "true" ){
                     # Success !!!!
                     write-host "$(appCheckResult)"
                   }else{
