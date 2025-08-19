@@ -99,6 +99,7 @@ Write-host "Disconnected from MS Graph" -ForegroundColor Green
 if ( ($AppObjFromName.value.count) -gt 1 ){
     $result = "Multiple apps found with provided App Name" 
 }elseif( ($AppObjFromName.value.count) -eq 1 -and ($AppObjFromName.value.AppId) -eq $ApplicationID ){
+    # Success !!!!
     $result = "Application found with matching Name and ID"
 }elseif( ($AppObjFromName.value.count) -eq 1 -and ($AppObjFromName.value.AppId) -ne $ApplicationID ){
     $result = "Application found with matching Name but doesn't match the provided AppId"
