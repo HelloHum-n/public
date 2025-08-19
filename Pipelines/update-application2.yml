@@ -17,7 +17,9 @@ parameters:
     - PRD
 
 variables:
-  - name: stepSucceed
+  - name: step1Succeed
+    value: false
+  - name: step2Succeed
     value: false
   - name: AppStatesFolderPath
     value: "./EntraID/Applications-ADO/${{parameters.Environment}}/Apps-States"
@@ -86,6 +88,14 @@ jobs:
                 }
 
           - task: PowerShell@2
+            name: step1Check
+            condition: succeeded()
+            inputs:
+              targetType: inline
+              script: |
+                Write-Host "##vso[task.setvariable variable=step1Succeed]true"
+
+          - task: PowerShell@2
             name: Check_Entra_App_Exists
             condition: always()
             inputs:
@@ -116,18 +126,19 @@ jobs:
 
           - task: PowerShell@2
             name: Update_Application_obj
+            condition: eq(variables.step1Succeed, 'true')
             inputs:
               targetType: 'filePath'
               filePath: './EntraID/Applications-ADO/Update-Applicaton-REST.ps1'
               arguments: '-JsonFile "$(appJsonFile)" -newJsonFile "$(appStagingJsonFile)" -tenantID $(tenantID) -ClientID $(ClientID) -certFile $(connectionCert.secureFilePath) -CertPwd $(serviceConnectionPrivateKeyPwd) -Environment ${{parameters.Environment}}'
 
           - task: PowerShell@2
-            name: stepCheck
+            name: step2Check
             condition: succeeded()
             inputs:
               targetType: inline
               script: |
-                Write-Host "##vso[task.setvariable variable=stepSucceed]true"
+                Write-Host "##vso[task.setvariable variable=step2Succeed]true"
 
 
           - task: PowerShell@2
@@ -136,7 +147,7 @@ jobs:
             inputs:
               targetType: inline
               script: |
-                if (("$(stepSucceed)" -eq "false")){ 
+                if (("$(step1Succeed)" -eq "false") -or ("$(step2Succeed)" -eq "false")){ 
                   write-host "Update Application Obj failed"
                 }else{
                   write-host "Update Application Obj succeeded."
