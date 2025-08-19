@@ -127,7 +127,11 @@ jobs:
                 }elseif (("$(appCheckResult)" -eq "Both provided Application ID and Appication name not found")){
                   write-host "$(appCheckResult)"
                   throw "$(appCheckResult)"
+                }elseif (("$(appCheckResult)" -eq "Application found with matching ID but doesn't match the provided App Name")){
+                  write-host "$(appCheckResult)"
+                  throw "$(appCheckResult)"
                 }
+
           - task: DownloadSecureFile@1
             name: connectionCert
             displayName: 'Download Service Connection certificate'
