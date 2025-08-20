@@ -158,6 +158,7 @@ Write-host "Application updated successfully" -ForegroundColor Green
 $OutPutJson = $AppObj | ConvertTo-Json -Depth 20
 $OutPutJson | Out-File -FilePath $JsonFile -Force
 $newfilePath = "$Environment\Apps-States\Application_"+$($AppObj.displayName)+"_"+$($AppObj.Id)+".json"
+# ? change all 3 app states files filename ie App, SP and Claims json, if app name has been changed
 Rename-Item -Path $JsonFile -NewName $newfilePath
 Write-host "Application detail output to - $newfilePath" -ForegroundColor Green
 
