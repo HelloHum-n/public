@@ -160,11 +160,11 @@ $OutPutJson | Out-File -FilePath $JsonFile -Force
 
 # ? change all 3 app states files filename ie App, SP and Claims json, if app name has been changed
 if ( ($existingStateObj.DisplayName) -ne ($AppObj.DisplayName)){
-    $newAppFilePath = "$Environment\Apps-States\"+$($AppObj.displayName)+"_"+$($AppObj.Id)+"_Application.json"
-    $existingSpFilePath = "$Environment\Apps-States\"+$($existingStateObj.displayName)+"_"+$($existingStateObj.Id)+"_ServicePrincipal.json"
-    $newSpFilePath = "$Environment\Apps-States\"+$($AppObj.displayName)+"_"+$($AppObj.Id)+"_ServicePrincipal.json"
-    $existingClaimsFilePath = "$Environment\Apps-States\"+$($existingStateObj.displayName)+"_"+$($existingStateObj.Id)+"_CustomClaims.json"
-    $newClaimsFilePath = "$Environment\Apps-States\"+$($AppObj.displayName)+"_"+$($AppObj.Id)+"_CustomClaims.json"
+    $newAppFilePath = "./EntraID/Applications-ADO/$Environment/Apps-States/"+$($AppObj.displayName)+"_"+$($AppObj.Id)+"_Application.json"
+    $existingSpFilePath = "./EntraID/Applications-ADO/$Environment/Apps-States/"+$($existingStateObj.displayName)+"_"+$($existingStateObj.Id)+"_ServicePrincipal.json"
+    $newSpFilePath = "./EntraID/Applications-ADO/$Environment/Apps-States/"+$($AppObj.displayName)+"_"+$($AppObj.Id)+"_ServicePrincipal.json"
+    $existingClaimsFilePath = "./EntraID/Applications-ADO/$Environment/Apps-States/"+$($existingStateObj.displayName)+"_"+$($existingStateObj.Id)+"_CustomClaims.json"
+    $newClaimsFilePath = "./EntraID/Applications-ADO/$Environment/Apps-States/"+$($AppObj.displayName)+"_"+$($AppObj.Id)+"_CustomClaims.json"
     Write-host "Debug:"
     Write-host "JsonFile: $JsonFile"
     Write-host "newAppFilePath: $newAppFilePath"
