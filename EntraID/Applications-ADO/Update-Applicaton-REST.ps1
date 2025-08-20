@@ -165,6 +165,14 @@ if ( ($existingStateObj.DisplayName) -ne ($AppObj.DisplayName)){
     $newSpFilePath = "$Environment\Apps-States\"+$($AppObj.displayName)+"_"+$($AppObj.Id)+"_ServicePrincipal.json"
     $existingClaimsFilePath = "$Environment\Apps-States\"+$($existingStateObj.displayName)+"_"+$($existingStateObj.Id)+"_CustomClaims.json"
     $newClaimsFilePath = "$Environment\Apps-States\"+$($AppObj.displayName)+"_"+$($AppObj.Id)+"_CustomClaims.json"
+    Write-host "Debug:"
+    Write-host "JsonFile: $JsonFile"
+    Write-host "newAppFilePath: $newAppFilePath"
+    Write-host "existingSpFilePath: $existingSpFilePath"
+    Write-host "newClaimsFilePath: $newClaimsFilePath"
+    Write-host "existingClaimsFilePath: $existingClaimsFilePath"
+    Write-host "newClaimsFilePath: $newClaimsFilePath"
+
     Rename-Item -Path $JsonFile -NewName $newAppFilePath
     Rename-Item -Path $existingSpFilePath -NewName $newSpFilePath
     Rename-Item -Path $existingClaimsFilePath -NewName $newClaimsFilePath
