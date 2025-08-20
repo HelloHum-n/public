@@ -160,11 +160,11 @@ $OutPutJson | Out-File -FilePath $JsonFile -Force
 
 # ? change all 3 app states files filename ie App, SP and Claims json, if app name has been changed
 if ( ($existingStateObj.DisplayName) -ne ($AppObj.DisplayName)){
-    $newAppFilePath = "./EntraID/Applications-ADO/$Environment/Apps-States/"+$($AppObj.displayName)+"_"+$($AppObj.AppId)+"_Application.json"
+    $newAppFileName = $($AppObj.displayName)+"_"+$($AppObj.AppId)+"_Application.json"
     $existingSpFilePath = "./EntraID/Applications-ADO/$Environment/Apps-States/"+$($existingStateObj.displayName)+"_"+$($existingStateObj.AppId)+"_ServicePrincipal.json"
-    $newSpFilePath = "./EntraID/Applications-ADO/$Environment/Apps-States/"+$($AppObj.displayName)+"_"+$($AppObj.AppId)+"_ServicePrincipal.json"
+    $newSpFileName = $($AppObj.displayName)+"_"+$($AppObj.AppId)+"_ServicePrincipal.json"
     $existingClaimsFilePath = "./EntraID/Applications-ADO/$Environment/Apps-States/"+$($existingStateObj.displayName)+"_"+$($existingStateObj.AppId)+"_CustomClaims.json"
-    $newClaimsFilePath = "./EntraID/Applications-ADO/$Environment/Apps-States/"+$($AppObj.displayName)+"_"+$($AppObj.AppId)+"_CustomClaims.json"
+    $newClaimsFileName = $($AppObj.displayName)+"_"+$($AppObj.AppId)+"_CustomClaims.json"
 
     Write-host "Debug:"
     Write-host "ls:"
@@ -176,9 +176,9 @@ if ( ($existingStateObj.DisplayName) -ne ($AppObj.DisplayName)){
     Write-host "existingClaimsFilePath: $existingClaimsFilePath"
     Write-host "newClaimsFilePath: $newClaimsFilePath"
 
-    Rename-Item -Path $JsonFile -NewName $newAppFilePath
-    Rename-Item -Path $existingSpFilePath -NewName $newSpFilePath
-    Rename-Item -Path $existingClaimsFilePath -NewName $newClaimsFilePath
+    Rename-Item -Path $JsonFile -NewName $newAppFileName
+    Rename-Item -Path $existingSpFilePath -NewName $newSpFileName
+    Rename-Item -Path $existingClaimsFilePath -NewName $newClaimsFileName
     Write-host "Application detail output to - $newAppFilePath" -ForegroundColor Green
 }
 Write-host "Application detail output to - $JsonFile" -ForegroundColor Green
