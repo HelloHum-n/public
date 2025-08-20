@@ -22,7 +22,7 @@
 #>
 
 param(
-    # Json file containing the existing Application details
+    # Json file containing the existing Application State file
     [Parameter(mandatory=$true)]
     [string]$JsonFile,
     # Json file containing the new SApplication details (OPTIONAL)
@@ -157,10 +157,19 @@ $AppObj | Format-List id, DisplayName, AppId, notes
 Write-host "Application updated successfully" -ForegroundColor Green  
 $OutPutJson = $AppObj | ConvertTo-Json -Depth 20
 $OutPutJson | Out-File -FilePath $JsonFile -Force
-$newfilePath = "$Environment\Apps-States\Application_"+$($AppObj.displayName)+"_"+$($AppObj.Id)+".json"
+
 # ? change all 3 app states files filename ie App, SP and Claims json, if app name has been changed
-Rename-Item -Path $JsonFile -NewName $newfilePath
-Write-host "Application detail output to - $newfilePath" -ForegroundColor Green
+if ( ($existingStateObj.DisplayName) -ne ($AppObj.DisplayName)){
+    $newAppFilePath = "$Environment\Apps-States\"+$($AppObj.displayName)+"_"+$($AppObj.Id)+"_Application.json"
+    $existingSpFilePath = "$Environment\Apps-States\"+$($existingStateObj.displayName)+"_"+$($existingStateObj.Id)+"_ServicePrincipal.json"
+    $newSpFilePath = "$Environment\Apps-States\"+$($AppObj.displayName)+"_"+$($AppObj.Id)+"_ServicePrincipal.json"
+    $existingClaimsFilePath = "$Environment\Apps-States\"+$($existingStateObj.displayName)+"_"+$($existingStateObj.Id)+"_CustomClaims.json"
+    $newClaimsFilePath = "$Environment\Apps-States\"+$($AppObj.displayName)+"_"+$($AppObj.Id)+"_CustomClaims.json"
+    Rename-Item -Path $JsonFile -NewName $newAppFilePath
+    Rename-Item -Path $existingSpFilePath -NewName $newSpFilePath
+    Rename-Item -Path $existingClaimsFilePath -NewName $newClaimsFilePath
+}
+Write-host "Application detail output to - $newAppFilePath" -ForegroundColor Green
 
 Disconnect-mggraph
 Write-host "Disconnected from MS Graph" -ForegroundColor Green
