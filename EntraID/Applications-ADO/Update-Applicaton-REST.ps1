@@ -168,8 +168,9 @@ if ( ($existingStateObj.DisplayName) -ne ($AppObj.DisplayName)){
     Rename-Item -Path $JsonFile -NewName $newAppFilePath
     Rename-Item -Path $existingSpFilePath -NewName $newSpFilePath
     Rename-Item -Path $existingClaimsFilePath -NewName $newClaimsFilePath
+    Write-host "Application detail output to - $newAppFilePath" -ForegroundColor Green
 }
-Write-host "Application detail output to - $newAppFilePath" -ForegroundColor Green
+Write-host "Application detail output to - $JsonFile" -ForegroundColor Green
 
 Disconnect-mggraph
 Write-host "Disconnected from MS Graph" -ForegroundColor Green
