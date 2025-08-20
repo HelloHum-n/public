@@ -14,6 +14,8 @@ parameters:
     - PRD
 
 variables:
+  - name: step0succeed
+    value: false
   - name: step1succeed
     value: false
   - name: step2succeed
@@ -21,7 +23,7 @@ variables:
   - name: step3succeed
     value: false
 # - name: skipGit
-  - name: filesNotFound
+  - name: preReqFilesNotFound
     value: false
   - group: ${{parameters.Environment}}-Variables
   - group: ${{parameters.Environment}}-Secrets
@@ -79,17 +81,17 @@ jobs:
               targetType: inline
               script: |
                 if (-not (Test-Path -Path '$(appStagingJsonFile)')){
-                  Write-Host "##vso[task.setvariable variable=filesNotFound]true"
+                  Write-Host "##vso[task.setvariable variable=preReqFilesNotFound]true"
                   $noFile = $true
                   Write-Host "Staging File- $(appStagingJsonFile) not Found"
                 }
                 if (-not (Test-Path -Path '$(SpStagingJsonFile)')){
-                  Write-Host "##vso[task.setvariable variable=filesNotFound]true"
+                  Write-Host "##vso[task.setvariable variable=preReqFilesNotFound]true"
                   $noFile = $true
                   Write-Host "Staging File- $(SpStagingJsonFile) not Found"
                 }
                 if (-not (Test-Path -Path '$(customClaimsJson)')){
-                  Write-Host "##vso[task.setvariable variable=filesNotFound]true"
+                  Write-Host "##vso[task.setvariable variable=preReqFilesNotFound]true"
                   $noFile = $true
                   Write-Host "Staging File- $(customClaimsJson) not Found"
                 }
@@ -104,7 +106,40 @@ jobs:
               secureFile: '${{parameters.Environment}}-Service-Connection.pfx'
 
           - task: PowerShell@2
+            name: Step0_Check_Entra_App_Exists
+            condition: always()
+            inputs:
+              targetType: 'filePath'
+              filePath: './EntraID/Applications-ADO/Check-Application-REST.ps1'
+              arguments:  ' -ApplicationName "${{parameters.AppName}}" -tenantID $(tenantID) -ClientID $(ClientID) -certFile $(connectionCert.secureFilePath) -CertPwd $(serviceConnectionPrivateKeyPwd) -Environment ${{parameters.Environment}}'
+
+          - task: PowerShell@2
+            name: Assess_result_of_App_Checking
+            condition: always()
+            inputs:
+              targetType: inline
+              script: |
+                if (("$(appCheckResult)" -eq "Multiple apps found with provided App Name on Entra")){ 
+                  write-host "$(appCheckResult)"
+                  throw "$(appCheckResult)"
+                }elseif (("$(appCheckResult)" -eq "Application found with matching Name but doesn't match the provided AppId on Entra")){
+                  write-host "Application found with matching Name on Entra"
+                  throw "Application found with matching Name on Entra"
+                }elseif (("$(appCheckResult)" -eq "Both provided Application ID and Appication name not found on Entra")){
+                  # Success !!!!
+                  write-host "Provided Appication name not found on Entra"
+                }
+          - task: PowerShell@2
+            name: step0Check
+            condition: succeeded()
+            inputs:
+              targetType: inline
+              script: |
+                Write-Host "##vso[task.setvariable variable=step0Succeed]true"
+
+          - task: PowerShell@2
             name: Step1_New_Application_obj
+            condition: eq(variables.step0Succeed, 'true')
             inputs:
               targetType: 'filePath'
               filePath: './EntraID/Applications-ADO/New-Application-REST.ps1'
@@ -117,7 +152,7 @@ jobs:
               script: |
                 Write-Host "newAppJsonFilePath: $(newAppJsonFilePath)"
                 if (Test-Path -Path '$(newAppJsonFilePath)'){Write-Host "$(newAppJsonFilePath) exists"}else{throw "file not found"}
-                
+   
           - task: PowerShell@2
             name: step1check
             condition: succeeded()
