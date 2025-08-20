@@ -165,21 +165,21 @@ if ( ($existingStateObj.DisplayName) -ne ($AppObj.DisplayName)){
     $newSpFileName = $($AppObj.displayName)+"_"+$($AppObj.AppId)+"_ServicePrincipal.json"
     $existingClaimsFilePath = "./EntraID/Applications-ADO/$Environment/Apps-States/"+$($existingStateObj.displayName)+"_"+$($existingStateObj.AppId)+"_CustomClaims.json"
     $newClaimsFileName = $($AppObj.displayName)+"_"+$($AppObj.AppId)+"_CustomClaims.json"
-
+    <#
     Write-host "Debug:"
     Write-host "ls:"
     ls
-    Write-host "JsonFile: $JsonFile"
-    Write-host "newAppFilePath: $newAppFilePath"
+    Write-host "JsonFile(existing app state json): $JsonFile"
+    Write-host "newAppFileName: $newAppFileName"
     Write-host "existingSpFilePath: $existingSpFilePath"
-    Write-host "newClaimsFilePath: $newClaimsFilePath"
+    Write-host "newSpFileName: $newSpFileName"
     Write-host "existingClaimsFilePath: $existingClaimsFilePath"
-    Write-host "newClaimsFilePath: $newClaimsFilePath"
-
+    Write-host "newClaimsFileName: $newClaimsFileName"
+    #>
     Rename-Item -Path $JsonFile -NewName $newAppFileName
     Rename-Item -Path $existingSpFilePath -NewName $newSpFileName
     Rename-Item -Path $existingClaimsFilePath -NewName $newClaimsFileName
-    Write-host "Application detail output to - $newAppFilePath" -ForegroundColor Green
+    Write-host "Application detail output to - ./EntraID/Applications-ADO/$Environment/Apps-States/$newAppFileName" -ForegroundColor Green
 }
 Write-host "Application detail output to - $JsonFile" -ForegroundColor Green
 
