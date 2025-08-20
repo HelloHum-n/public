@@ -24,7 +24,7 @@
 param(
     # Application ID of the Application to be retrieved
     [Parameter(mandatory=$true)]
-    [string]$ApplicationID,
+    [string]$ApplicationID = "00000000-0000-0000-0000-000000000000",
     # Application Name of the Application to be retrieved
     [Parameter(mandatory=$true)]
     [string]$ApplicationName,
