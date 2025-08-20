@@ -180,8 +180,8 @@ if ( ($existingStateObj.DisplayName) -ne ($AppObj.DisplayName)){
     Rename-Item -Path $existingSpFilePath -NewName $newSpFileName
     Rename-Item -Path $existingClaimsFilePath -NewName $newClaimsFileName
     Write-host "Application detail output to - ./EntraID/Applications-ADO/$Environment/Apps-States/$newAppFileName" -ForegroundColor Green
+}else{
+    Write-host "Application detail output to - $JsonFile" -ForegroundColor Green
 }
-Write-host "Application detail output to - $JsonFile" -ForegroundColor Green
-
 Disconnect-mggraph
 Write-host "Disconnected from MS Graph" -ForegroundColor Green
