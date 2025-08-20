@@ -1,3 +1,4 @@
 {
-       "description":  "My Modified SAML App 12345"
+       "description":  "My Modified SAML App 12345",
+       "DisplayName": "Test-OIDC-App-123000"
 }
