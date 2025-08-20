@@ -120,14 +120,14 @@ jobs:
               targetType: inline
               script: |
                 if (("$(appCheckResult)" -eq "Multiple apps found with provided App Name on Entra")){ 
-                  write-host "$(appCheckResult)"
-                  throw "$(appCheckResult)"
+                  write-host "Multiple apps found with provided App Name on Entra, please check and try again."
+                  throw "Multiple apps found with provided App Name on Entra, please check and try again."
                 }elseif (("$(appCheckResult)" -eq "Application found with matching Name but doesn't match the provided AppId on Entra")){
-                  write-host "Application found with matching Name on Entra"
-                  throw "Application found with matching Name on Entra"
+                  write-host "Application found with matching Name on Entra, please check and try again."
+                  throw "Application found with matching Name on Entra, please check and try again."
                 }elseif (("$(appCheckResult)" -eq "Both provided Application ID and Appication name not found on Entra")){
                   # Success !!!!
-                  write-host "Provided Appication name not found on Entra"
+                  write-host "Provided Appication name not found on Entra, proceed to create application."
                 }
           - task: PowerShell@2
             name: step0Check
