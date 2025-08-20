@@ -109,6 +109,7 @@ jobs:
             condition: always()
             inputs:
               targetType: 'filePath'
+              errorActionPreference: silentlyContinue
               filePath: './EntraID/Applications-ADO/Check-Application-REST.ps1'
               arguments: '-ApplicationID  "${{parameters.AppID}}" -ApplicationName "${{parameters.AppName}}" -tenantID $(tenantID) -ClientID $(ClientID) -certFile $(connectionCert.secureFilePath) -CertPwd $(serviceConnectionPrivateKeyPwd) -Environment ${{parameters.Environment}}'
 
