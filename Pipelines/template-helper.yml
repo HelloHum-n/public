@@ -130,10 +130,10 @@ jobs:
     inputs:
       targetType: 'inline'
       script: |
+        Get-ChildItem "$(AppStagingFolderPath)"
+        Write-host "-______________-"
+        Get-ChildItem "$(templateFolderPath)"
         if ( "${{parameters.AppType}}" -eq "SAML" ){
-          Get-ChildItem "$(AppStagingFolderPath)"
-          Write-host "-______________-"
-          Get-ChildItem "$(templateFolderPath)"
           $templateFileObj = Get-content -Path "$(templateFolderPath)/$(SAMLappTemplateName)" -RAW | ConvertFrom-Json
 
           ################################################
@@ -155,6 +155,12 @@ jobs:
             $templateFileObj.Description = "${{parameters.Description}}"
           }
           $AppStagingOutput = $templateFileObj | ConvertTo-Json -Depth 20 
+
+          ################################################
+          # SAML Claims                                  #
+          ################################################
+
+
 
         }else{
           $templatefileObj = Get-content -Path "$(templateFolderPath)/$(OIDCappTemplateName)" -RAW | ConvertFrom-Json
