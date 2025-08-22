@@ -30,7 +30,7 @@ parameters:
     type: string
 
   - name: SPflowVerification
-    displayName: (Mandatory for SAML) Require SAML2 SP initiated flow (requestSignatureVerification)
+    displayName: (Mandatory for SAML) Require SAML2 SP initiated flow verification cert(requestSignatureVerification)
     default: 'false'
     type: string
     values:
