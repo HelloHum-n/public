@@ -43,7 +43,7 @@ parameters:
     type: string
 
   - name: nameidentifierFormat
-    displayName: Claims - Format for the nameidentifier in the claims
+    displayName: Claims - (Mandatory) Format for the nameidentifier in the claims
     default: 'emailAddress'
     type: string
     values:
@@ -52,49 +52,30 @@ parameters:
     - unspecified
 
   - name: nameidentifierAttribute
-    displayName: Claims - User Attribute for the nameidentifier in the claims
+    displayName: Claims - (Mandatory) User Attribute for the nameidentifier in the claims
     default: 'userprincipalname'
     type: string
 
   - name: directClaimEmail
-    displayName: Claims 1. - email Claim Name
+    displayName: Claims - (Mandatory) email Claim Name
     default: 'email'
     type: string
 
   - name: directClaimEmailAttribute
-    displayName: Claims 1. - email Claim Attribute
+    displayName: Claims - (Mandatory) email Claim Attribute
     default: 'userprincipalname'
     type: string
 
   - name: SSOID
-    displayName: Claims 2. - SSOID Claim Name
-    default: 'SSOID'
+    displayName: Claims - (Mandatory) SSOID Claim Name
+    default: 'bnsScotiaID'
     type: string
 
   - name: SSOIDAttribute
-    displayName: Claims 2. - SSOID Claim Attribute
-    default: 'employeeID'
+    displayName: Claims - (Mandatory) SSOID Claim Attribute
+    default: 'employeenumber'
     type: string
 
-  - name: directClaim1
-    displayName: Claims - (Optional) Additional Name of the Claim (1)
-    default: 'default'
-    type: string
-
-  - name: directClaimAttribute1
-    displayName: Claims - (Optional) Additional Attribute of the Claim (1)
-    default: 'default'
-    type: string
-
-  - name: directClaim2
-    displayName: Claims - (Optional) Additional Name of the Claim (2)
-    default: 'default'
-    type: string
-
-  - name: directClaimAttribute2
-    displayName: Claims - (Optional) Additional Attribute of the Claim (2)
-    default: 'default'
-    type: string
 
   - name: groupclaimName
     displayName: Claims - (Optional) Provide the name of the group claim
