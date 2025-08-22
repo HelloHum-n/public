@@ -25,7 +25,7 @@ parameters:
     - OIDC
 
   - name: EntityID
-    displayName: Application entity ID or Identifier URI (identifierUris)
+    displayName: Application entity ID or Identifier URI (EntityID/identifierUris)
     default: ''
     type: string
 
