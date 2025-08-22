@@ -23,17 +23,6 @@
     "identifierUris": [
         "Default"
     ],
-    "web": {
-        "redirectUris": [
-            "Default"
-        ],
-        "homePageUrl": "Default",
-        "logoutUrl": null,
-        "implicitGrantSettings": {
-            "enableIdTokenIssuance": false,
-            "enableAccessTokenIssuance": false
-        }
-    },
     "requestSignatureVerification": {
         "isSignedRequestRequired": false,
         "allowedWeakAlgorithms": null
