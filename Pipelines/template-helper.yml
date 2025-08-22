@@ -97,17 +97,6 @@ parameters:
     - High
     - Critical
 
-  - name: myStringlist # Define a parameter named 'myStringlist'
-    type: stringList # The parameter type is stringList
-    displayName: Regions
-    values: # Allowed values for 'myStringlist'
-      - WUS
-      - CUS
-      - EUS
-    default: # Default values
-      - WUS
-      - CUS
-        
 variables:
   - name: stepSucceed
     value: false
