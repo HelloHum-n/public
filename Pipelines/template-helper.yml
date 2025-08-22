@@ -26,11 +26,11 @@ parameters:
 
   - name: EntityID
     displayName: Application entity ID or Identifier URI (identifierUris)
-    default: 'https://'
+    default: ''
     type: string
 
   - name: SPflowVerification
-    displayName: Require SAML2 SP initiated flow (requestSignatureVerification)
+    displayName: (Mandatory for SAML) Require SAML2 SP initiated flow (requestSignatureVerification)
     default: 'false'
     type: string
     values:
@@ -134,10 +134,12 @@ jobs:
           Get-ChildItem "$(AppStagingFolderPath)"
           Write-host "-______________-"
           Get-ChildItem "$(templateFolderPath)"
-
           $templateFileObj = Get-content -Path "$(templateFolderPath)/$(SAMLappTemplateName)" -RAW | ConvertFrom-Json
+
+          ################################################
+          # Go through paramers one by one               #
+          ################################################
           
-          #go through paramers one by one
           #AppName
           $templateFileObj.displayName = "${{parameters.AppName}}"
           #EntityID
@@ -153,10 +155,15 @@ jobs:
             $templateFileObj.Description = "${{parameters.Description}}"
           }
           $AppStagingOutput = $templateFileObj | ConvertTo-Json -Depth 20
+
+
         }else{
-          $templatefileObj = Get-content -Path $(templateFolderPath)/$(OIDCappTemplateName) -RAW | ConvertFrom-Json
+          $templatefileObj = Get-content -Path "$(templateFolderPath)/$(OIDCappTemplateName)" -RAW | ConvertFrom-Json
           #$templatefileObj| ConvertTo-Json -Depth 20  
         }
+
+        
+
 
         #App Staging File
         $AppStagingFilePath = "$(AppStagingFolderPath)/${{parameters.AppName}}_App.json"
