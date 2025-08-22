@@ -106,6 +106,14 @@ parameters:
     default: 'default'
     type: string
 
+  - name: assuranceLevel
+    displayName: Mandatory 
+    default: 'false'
+    type: string
+    values:
+    - true
+    - false
+
 variables:
   - name: stepSucceed
     value: false
