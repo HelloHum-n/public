@@ -29,6 +29,16 @@ parameters:
     default: ''
     type: string
 
+  - name: assuranceLevel
+    displayName: (Mandatory) Assurance Level of the application
+    default: 'Medium'
+    type: string
+    values:
+    - Low
+    - Medium
+    - High
+    - Critical
+    
   - name: SPflowVerification
     displayName: (Mandatory for SAML) Require SAML2 SP initiated flow verification cert
     default: 'false'
@@ -73,7 +83,7 @@ parameters:
 
   - name: SSOIDAttribute
     displayName: Claims - (Mandatory) SSOID Claim Attribute
-    default: 'employeenumber'
+    default: 'extension_73f338a4697b4577bd8334ffb89ccdb4_employeenumber'
     type: string
 
 
@@ -86,16 +96,6 @@ parameters:
     displayName: Claims - (Optional) Provide the regex pattern of the group claim
     default: 'default'
     type: string
-
-  - name: assuranceLevel
-    displayName: (Mandatory) Assurance Level of the application
-    default: 'Medium'
-    type: string
-    values:
-    - Low
-    - Medium
-    - High
-    - Critical
 
 variables:
   - name: stepSucceed
