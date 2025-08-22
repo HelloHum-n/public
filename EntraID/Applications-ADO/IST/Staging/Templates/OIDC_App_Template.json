@@ -1,0 +1,41 @@
+{
+    "displayName": "Default",
+    "description": "Default",
+    "signInAudience": "AzureADMyOrg",
+    "api": {
+        "acceptMappedClaims": true,
+        "requestedAccessTokenVersion": 2
+    },
+    "info": {
+        "marketingUrl": "Default",
+        "privacyStatementUrl": "Default",
+        "supportUrl": "Default",
+        "termsOfServiceUrl": "Default"
+    },
+    "servicePrincipalLockConfiguration": {
+        "isEnabled": false,
+        "allProperties": false,
+        "credentialsWithUsageVerify": false,
+        "credentialsWithUsageSign": false,
+        "identifierUris": false,
+        "tokenEncryptionKeyId": false
+    },
+    "identifierUris": [
+        "Default"
+    ],
+    "web": {
+        "redirectUris": [
+            "Default"
+        ],
+        "homePageUrl": "Default",
+        "logoutUrl": null,
+        "implicitGrantSettings": {
+            "enableIdTokenIssuance": false,
+            "enableAccessTokenIssuance": false
+        }
+    },
+    "requestSignatureVerification": {
+        "isSignedRequestRequired": false,
+        "allowedWeakAlgorithms": null
+    }
+  }
