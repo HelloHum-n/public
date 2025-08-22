@@ -107,12 +107,14 @@ parameters:
     type: string
 
   - name: assuranceLevel
-    displayName: Mandatory 
-    default: 'false'
+    displayName: (Mandatory) Assurance Level of the application
+    default: 'Medium'
     type: string
     values:
-    - true
-    - false
+    - Low
+    - Medium
+    - High
+    - Critical
 
 variables:
   - name: stepSucceed
