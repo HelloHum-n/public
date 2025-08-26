@@ -40,7 +40,7 @@ jobs:
       inputs:
         targetType: inline
         script: |
-          $certBytes = [System.Convert]::FromBase64String("$(abc-private)")
+          $certBytes = [System.Convert]::FromBase64String("$(abc-com-pfx)")
           # Create an X509Certificate2 object from the byte array
           # If the certificate requires a password (e.g., a PFX/PKCS12 file), provide it as a SecureString
           $password = ""
