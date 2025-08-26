@@ -53,7 +53,7 @@ jobs:
           $rawCertData = $pfxCert.GetRawCertData()
           $base64String = [System.Convert]::ToBase64String($rawCertData) 
           "$base64String"  | Out-file -force whatif.txt
-          "$(abc-private)" | Out-file -force whatif2.txt
+          "$(abc-com-pfx)" | Out-file -force whatif2.txt
     - task: PowerShell@2
       name: gitCommit
       inputs:  
