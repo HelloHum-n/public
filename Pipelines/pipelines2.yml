@@ -52,8 +52,10 @@ jobs:
 
           $rawCertData = $pfxCert.GetRawCertData()
           $base64String = [System.Convert]::ToBase64String($rawCertData) 
-          "$base64String"  | Out-file -force whatif.txt // after the whole conversion
-          "$(abc-com-pfx)" | Out-file -force whatif2.txt //vanilla version directy from AKV
+          // after the whole conversion
+          "$base64String"  | Out-file -force whatif.txt 
+          //vanilla version directy from AKV
+          "$(abc-com-pfx)" | Out-file -force whatif2.txt 
     - task: PowerShell@2
       name: gitCommit
       inputs:  
