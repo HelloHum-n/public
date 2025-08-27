@@ -32,7 +32,7 @@ jobs:
       inputs:
         targetType: 'filePath'
         filePath: './EntraID/Applications-ADO/grantpermissions.ps1'
-        arguments: '-AppName ${{parameters.AppName}} -tenantID $(tenantID) -ClientID $(ClientID) -certFile ${{parameters.Environment}}-Service-Connection.pfx -CertPwd $(serviceConnectionPrivateKeyPwd) -Environment ${{parameters.Environment}}'
+        arguments: '-AppName ${{parameters.AppName}} -tenantID $(tenantID) -ClientID $(ClientID) -certFile IST-Service-Connection.pfx -CertPwd $(serviceConnectionPrivateKeyPwd) -Environment ${{parameters.Environment}}'
 
 
 
