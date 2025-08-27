@@ -31,8 +31,8 @@ jobs:
       name: Grant_permissions
       inputs:
         targetType: 'filePath'
-        filePath: './EntraID/Applications-ADO/PowerShell_Script.ps1'
-        arguments: '-tenantID $(tenantID) -ClientID $(ClientID) -certFile ${{parameters.Environment}}-Service-Connection.pfx -CertPwd $(serviceConnectionPrivateKeyPwd) -Environment ${{parameters.Environment}}'
+        filePath: './EntraID/Applications-ADO/grantpermissions.ps1'
+        arguments: '-AppName ${{parameters.AppName}} -tenantID $(tenantID) -ClientID $(ClientID) -certFile ${{parameters.Environment}}-Service-Connection.pfx -CertPwd $(serviceConnectionPrivateKeyPwd) -Environment ${{parameters.Environment}}'
 
 
 
