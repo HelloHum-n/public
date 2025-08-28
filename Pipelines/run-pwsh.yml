@@ -22,17 +22,23 @@ pool:
   vmImage: 'windows-latest'
 
 jobs:
+
 - job: 
   #condition: eq(1,2)
   pool:
     vmImage: 'windows-latest'
   steps:
+    - task: DownloadSecureFile@1
+      name: connectionCert
+      displayName: 'Download Service Connection certificate'
+      inputs:
+        secureFile: '${{parameters.Environment}}-Service-Connection.pfx'  
     - task: PowerShell@2
       name: Grant_permissions
       inputs:
         targetType: 'filePath'
         filePath: './EntraID/Applications-ADO/grantpermissions.ps1'
-        arguments: '-AppName ${{parameters.AppName}} -tenantID $(tenantID) -ClientID $(ClientID) -certFile IST-Service-Connection.pfx -CertPwd $(new-cert-secret) -Environment ${{parameters.Environment}}'
+        arguments: '-AppName ${{parameters.AppName}} -tenantID $(tenantID) -ClientID $(ClientID) -certFile $(IST-Service-Connection.pfx) -CertPwd $(new-cert-secret) -Environment ${{parameters.Environment}}'
 
 
 
