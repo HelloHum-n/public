@@ -48,7 +48,7 @@ Write-Host "app objectid is $AppObjectId"
 #Get Service Principal by App ID
 $spResponse = Invoke-MgGraphRequest -Method GET -Uri "https://graph.microsoft.com/v1.0/servicePrincipals?$filter=appId eq '$ApplicationID'" -Headers @{ "Content-Type" = "application/json" }
 $ServicePrincipalObjId = $spResponse.value[0].id
-Write-Host "SP" objectid is $ServicePrincipalObjId"
+Write-Host "SP objectid is $ServicePrincipalObjId"
 
 # Add OpenID permission
 Write-Host "Adding OpenID permission to application..." -ForegroundColor Green
