@@ -35,11 +35,7 @@ $connectionCert = New-Object System.Security.Cryptography.X509Certificates.X509C
 Write-Host "Connecting to MS Graph..." -ForegroundColor Green
 Connect-MgGraph -TenantId $TenantId -ClientId $ClientId -Certificate $connectionCert
  
-#Get Service Principal by App ID
-#$spResponse = Invoke-MgGraphRequest -Method GET -Uri "https://graph.microsoft.com/v1.0/servicePrincipals?$filter=appId eq '$ApplicationID'" -Headers @{ "Content-Type" = "application/json" }
- 
-#$ServicePrincipalId = $spResponse.value[0].id
-#Write-Host $ServicePrincipalId
+
  
 # Get app object id and App id using app display name
 $appResponse = Invoke-MgGraphRequest -Method GET -Uri "https://graph.microsoft.com/v1.0/applications?$filter=displayName eq '$AppName'" -Headers @{ "Content-Type" = "application/json" }
@@ -49,7 +45,12 @@ $AppObjectId   = $appResponse.value[0].id
 Write-Host "App id is $ApplicationID"
 Write-Host "app objectid is $AppObjectId"
  
+#Get Service Principal by App ID
+$spResponse = Invoke-MgGraphRequest -Method GET -Uri "https://graph.microsoft.com/v1.0/servicePrincipals?$filter=appId eq '$ApplicationID'" -Headers @{ "Content-Type" = "application/json" }
  
+$ServicePrincipalId = $spResponse.value[0].id
+Write-Host $ServicePrincipalObjId
+
 # Add OpenID permission
 Write-Host "Adding OpenID permission to application..." -ForegroundColor Green
 $permissionBody = @{
@@ -76,7 +77,7 @@ Write-Host "Granting admin consent using oauth2PermissionGrants..." -ForegroundC
 $expiryTime = (Get-Date).AddYears(1).ToString("yyyy-MM-ddTHH:mm:ssZ")
  
 $consentBody = @{
-    clientId = $ApplicationID
+    clientId = $ServicePrincipalObjId
     consentType = "AllPrincipals"
     principalId = $null
     resourceId = $graphSPId
