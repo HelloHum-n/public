@@ -38,8 +38,8 @@ Connect-MgGraph -TenantId $TenantId -ClientId $ClientId -Certificate $connection
 #Get Service Principal by App ID
 #$spResponse = Invoke-MgGraphRequest -Method GET -Uri "https://graph.microsoft.com/v1.0/servicePrincipals?$filter=appId eq '$ApplicationID'" -Headers @{ "Content-Type" = "application/json" }
  
-$ServicePrincipalId = $spResponse.value[0].id
-Write-Host $ServicePrincipalId
+#$ServicePrincipalId = $spResponse.value[0].id
+#Write-Host $ServicePrincipalId
  
 # Get app object id and App id using app display name
 $appResponse = Invoke-MgGraphRequest -Method GET -Uri "https://graph.microsoft.com/v1.0/applications?$filter=displayName eq '$AppName'" -Headers @{ "Content-Type" = "application/json" }
@@ -76,7 +76,7 @@ Write-Host "Granting admin consent using oauth2PermissionGrants..." -ForegroundC
 $expiryTime = (Get-Date).AddYears(1).ToString("yyyy-MM-ddTHH:mm:ssZ")
  
 $consentBody = @{
-    clientId = $ServicePrincipalId
+    clientId = $$ApplicationID
     consentType = "AllPrincipals"
     principalId = $null
     resourceId = $graphSPId
