@@ -82,8 +82,8 @@ $consentBody = @{
     resourceId = $graphSPId
     scope = "openid"
 } | ConvertTo-Json
- 
- 
+Write-Host "Body is:"
+Write-Host "$consentBody"
 Invoke-MgGraphRequest -Method POST -Uri "https://graph.microsoft.com/v1.0/oauth2PermissionGrants" -Body $consentBody -Headers @{ "Content-Type" = "application/json" }
  
 Disconnect-MgGraph
