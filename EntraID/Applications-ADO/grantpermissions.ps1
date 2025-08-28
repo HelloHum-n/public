@@ -76,7 +76,7 @@ Write-Host "Granting admin consent using oauth2PermissionGrants..." -ForegroundC
 $expiryTime = (Get-Date).AddYears(1).ToString("yyyy-MM-ddTHH:mm:ssZ")
  
 $consentBody = @{
-    clientId = $$ApplicationID
+    clientId = $ApplicationID
     consentType = "AllPrincipals"
     principalId = $null
     resourceId = $graphSPId
