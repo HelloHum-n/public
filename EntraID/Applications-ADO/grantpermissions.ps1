@@ -38,7 +38,7 @@ Connect-MgGraph -TenantId $TenantId -ClientId $ClientId -Certificate $connection
 
  
 # Get app object id and App id using app display name
-$appResponse = Invoke-MgGraphRequest -Method GET -Uri "https://graph.microsoft.com/v1.0/applications?$filter=displayName eq '$AppName'" -Headers @{ "Content-Type" = "application/json" }
+$appResponse = Invoke-MgGraphRequest -Method GET -Uri "https://graph.microsoft.com/v1.0/applications?`$filter=displayName eq `'$AppName`'" -Headers @{ "Content-Type" = "application/json" }
  
 $ApplicationID = $appResponse.value[0].appId
 $AppObjectId   = $appResponse.value[0].id
@@ -46,7 +46,7 @@ Write-Host "App id is $ApplicationID"
 Write-Host "app objectid is $AppObjectId"
  
 #Get Service Principal by App ID
-$spResponse = Invoke-MgGraphRequest -Method GET -Uri "https://graph.microsoft.com/v1.0/servicePrincipals?$filter=appId eq '$ApplicationID'" -Headers @{ "Content-Type" = "application/json" }
+$spResponse = Invoke-MgGraphRequest -Method GET -Uri "https://graph.microsoft.com/v1.0/servicePrincipals?`$filter=appId eq `'$ApplicationID`'" -Headers @{ "Content-Type" = "application/json" }
 $ServicePrincipalObjId = $spResponse.value[0].id
 Write-Host "SP objectid is $ServicePrincipalObjId"
 
