@@ -65,7 +65,8 @@ $permissionBody = @{
         }
     )
 } | ConvertTo-Json -Depth 10
- 
+Write-Host "Body is:"
+Write-Host "$permissionBody "
 $uri = "https://graph.microsoft.com/v1.0/applications/$AppObjectId"
 Write-Host "Patching through this URI $uri"
 Invoke-MgGraphRequest -Method PATCH -Uri $uri -Body $permissionBody -Headers @{ "Content-Type" = "application/json" }
