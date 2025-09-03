@@ -5,23 +5,6 @@
     "groupFilter": null,
     "claims": [
         {
-            "@odata.type": "#microsoft.graph.samlNameIdClaim",
-            "serviceProviderNameQualifier": null,
-            "nameIdFormat": "emailAddress",
-            "configurations": [
-                {
-                    "condition": null,
-                    "attribute": {
-                        "@odata.type": "#microsoft.graph.sourcedAttribute",
-                        "id": "userprincipalname",
-                        "source": "user",
-                        "isExtensionAttribute": false
-                    },
-                    "transformations": []
-                }
-            ]
-        },
-        {
             "@odata.type": "#microsoft.graph.customClaim",
             "name": "bnsScotiaID",
             "namespace": null,
@@ -120,6 +103,44 @@
                             }
                         }
                     ]
+                }
+            ]
+        },
+        {
+            "@odata.type": "#microsoft.graph.samlNameIdClaim",
+            "serviceProviderNameQualifier": null,
+            "nameIdFormat": "unspecified",
+            "configurations": [
+                {
+                    "condition": null,
+                    "attribute": {
+                        "@odata.type": "#microsoft.graph.sourcedAttribute",
+                        "id": "userprincipalname",
+                        "source": "user",
+                        "isExtensionAttribute": false
+                    },
+                    "transformations": []
+                }
+            ]
+        },
+        {
+            "@odata.type": "#microsoft.graph.customClaim",
+            "name": "email",
+            "namespace": null,
+            "tokenFormat": [
+                "saml"
+            ],
+            "samlAttributeNameFormat": null,
+            "configurations": [
+                {
+                    "condition": null,
+                    "attribute": {
+                        "@odata.type": "#microsoft.graph.sourcedAttribute",
+                        "id": "userprincipalname",
+                        "source": "user",
+                        "isExtensionAttribute": false
+                    },
+                    "transformations": []
                 }
             ]
         }
