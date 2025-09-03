@@ -260,8 +260,8 @@ jobs:
 
         # Claim Staging File
         $claimStagingOutput = $templateFileClaimObj | ConvertTo-Json -Depth 30 
-        $claimStagingOutput = "$(AppStagingFolderPath)/${{parameters.AppName}}_customClaims.json"
-        $claimStagingOutput | Out-File -FilePath $AppStagingFilePath -Force
+        $claimStagingFilePath = "$(AppStagingFolderPath)/${{parameters.AppName}}_customClaims.json"
+        $claimStagingOutput | Out-File -FilePath $claimStagingFilePath -Force
 
   - script: echo Task 2 filename - $(fileName)
     name: echoOutput
