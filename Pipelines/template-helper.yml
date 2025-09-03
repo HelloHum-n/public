@@ -126,7 +126,7 @@ pool:
   vmImage: 'windows-latest'
 
 jobs:
-- job: ${{parameters.AppName}}_Create_Template
+- job: ${{ replace(parameters.AppName,'-','_') }}_Create_Template
   displayName: Generate staging templates
   pool:
     vmImage: 'windows-latest'
