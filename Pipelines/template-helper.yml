@@ -97,6 +97,11 @@ parameters:
     default: 'default'
     type: string
 
+  - name: groupclaimRegexReplace
+    displayName: Claims - (Optional) Provide the regex replacement pattern of the group claim
+    default: 'default'
+    type: string
+
 variables:
   - name: stepSucceed
     value: false
