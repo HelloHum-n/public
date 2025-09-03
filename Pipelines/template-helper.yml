@@ -210,9 +210,7 @@ jobs:
             $groupClaim = $templateFileClaimObj.claims | Where-Object { $_.'name' -eq "defaultGroupClaimName" }
             $groupClaim.name = "${{parameters.groupclaimName}}"
             $groupClaim.configurations.transformations.regex = "${{parameters.groupClaimRegex}}"
-            $groupClaim.configurations.transformations.replacement = ""${{parameters.groupclaimRegexReplace}}"
-
-            #$templateFileAppObj.groupMembershipClaims = "ApplicationGroup"
+            $groupClaim.configurations.transformations.replacement = "${{parameters.groupclaimRegexReplace}}"
 
           }
 
