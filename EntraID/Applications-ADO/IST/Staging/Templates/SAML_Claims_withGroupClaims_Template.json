@@ -125,7 +125,7 @@
         },
         {
             "@odata.type": "#microsoft.graph.customClaim",
-            "name": "verified.me",
+            "name": " newGroupClaimName",
             "namespace": null,
             "tokenFormat": [
                 "saml"
