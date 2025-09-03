@@ -118,7 +118,6 @@ variables:
   - name: SAMLClaimNoGroupTemplateName
     value: "SAML_Claims_noGroupClaims_Template.json"    
   - group: ${{parameters.Environment}}-Variables
-  - group: ${{parameters.Environment}}-Secrets
   - name: tenantIDvar
     value: $[variables.tenantID]
 
