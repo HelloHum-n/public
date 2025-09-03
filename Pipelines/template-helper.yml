@@ -168,6 +168,7 @@ jobs:
           }
           
           # SAML Claims
+
           # no Group Claim
           if ("${{parameters.groupClaimName}}" -eq "default"){
             $templateFileClaimObj = Get-content -Path "$(templateFolderPath)/$(SAMLClaimNoGroupTemplateName)" -RAW | ConvertFrom-Json
@@ -183,7 +184,13 @@ jobs:
             $emailClaim.name = "${{parameters.directClaimEmail}}"
             #userprincipalname / mail
             $emailClaim.configurations.attribute.id = "${{parameters.directClaimEmailAttribute}}"
- 
+
+            #App manifest template
+            $templateFileAppObj.groupMembershipClaims = $null
+            $emptyObjArray = New-Object -TypeName System.Collections.ArrayList
+            $templateFileAppObj.optionalClaims.saml2Token =  $emptyObjArray 
+
+
           # With Group Claim
           }else{
             $templateFileClaimObj = Get-content -Path "$(templateFolderPath)/$(SAMLClaimWithGroupTemplateName)" -RAW | ConvertFrom-Json
@@ -206,7 +213,8 @@ jobs:
             $groupClaim.configurations.transformations.regex = "${{parameters.groupClaimRegex}}"
             $groupClaim.configurations.transformations.replacement = ""${{parameters.groupclaimRegexReplace}}"
 
- 
+            #$templateFileAppObj.groupMembershipClaims = "ApplicationGroup"
+
           }
 
           ################################################
@@ -217,8 +225,9 @@ jobs:
           #$templatefileObj| ConvertTo-Json -Depth 20  
         }
 
-        
-
+        ################################################
+        # Files Output                                 #
+        ################################################       
 
         #App Staging File
         $AppStagingOutput = $templateFileAppObj | ConvertTo-Json -Depth 20 
