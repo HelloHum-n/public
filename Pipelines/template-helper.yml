@@ -114,9 +114,9 @@ variables:
   - name: OIDCappTemplateName
     value: "OIDC_App_Template.json"
   - name: SAMLClaimWithGroupTemplateName
-    value: "SAML_App_Template.json"
+    value: "SAML_Claims_withGroupClaims_Template.json"
   - name: SAMLClaimNoGroupTemplateName
-    value: "SAML_App_Template.json"    
+    value: "SAML_Claims_noGroupClaims_Template.json"    
   - group: ${{parameters.Environment}}-Variables
   - group: ${{parameters.Environment}}-Secrets
   - name: tenantIDvar
@@ -170,10 +170,43 @@ jobs:
           # SAML Claims
           # no Group Claim
           if ("${{parameters.groupClaimName}}" -eq "default"){
-            $templateFileClaimObj = Get-content -Path "$(templateFolderPath)/$(SAMLappTemplateName)" -RAW | ConvertFrom-Json
+            $templateFileClaimObj = Get-content -Path "$(templateFolderPath)/$(SAMLClaimNoGroupTemplateName)" -RAW | ConvertFrom-Json
+
+            # NameIdentifier
+            $nameid = $templateFileClaimObj.claims | Where-Object { $_.'@odata.type' -eq "#microsoft.graph.samlNameIdClaim" } 
+            #unspecified / emailAddress
+            $nameid.nameIdFormat = "${{parameters.nameidentifierFormat}}"
+            $nameid.configurations.attribute.id = "${{parameters.nameidentifierAttribute}}"
+
+            #email
+            $emailClaim = $templateFileClaimObj.claims | Where-Object { $_.name -eq "email" } 
+            $emailClaim.name = "${{parameters.directClaimEmail}}"
+            #userprincipalname / mail
+            $emailClaim.configurations.attribute.id = "${{parameters.directClaimEmailAttribute}}"
+ 
           # With Group Claim
           }else{
+            $templateFileClaimObj = Get-content -Path "$(templateFolderPath)/$(SAMLClaimWithGroupTemplateName)" -RAW | ConvertFrom-Json
 
+            # NameIdentifier
+            $nameid = $templateFileClaimObj.claims | Where-Object { $_.'@odata.type' -eq "#microsoft.graph.samlNameIdClaim" } 
+            #unspecified / emailAddress
+            $nameid.nameIdFormat = "${{parameters.nameidentifierFormat}}"
+            $nameid.configurations.attribute.id = "${{parameters.nameidentifierAttribute}}"
+
+            #email
+            $emailClaim = $templateFileClaimObj.claims | Where-Object { $_.name -eq "email" } 
+            $emailClaim.name = "${{parameters.directClaimEmail}}"
+            #userprincipalname / mail
+            $emailClaim.configurations.attribute.id = "${{parameters.directClaimEmailAttribute}}"
+
+            #Group
+            $groupClaim = $templateFileClaimObj.claims | Where-Object { $_.'name' -eq "defaultGroupClaimName" }
+            $groupClaim.name = "${{parameters.groupclaimName}}"
+            $groupClaim.configurations.transformations.regex = "${{parameters.groupClaimRegex}}"
+            $groupClaim.configurations.transformations.replacement = ""${{parameters.groupclaimRegexReplace}}"
+
+ 
           }
 
           ################################################
@@ -204,6 +237,10 @@ jobs:
         $SpStagingFilePath = "$(AppStagingFolderPath)/${{parameters.AppName}}_Sp.json"
         $SpStagingOutput | Out-File -FilePath $SpStagingFilePath -Force
 
+        # Claim Staging File
+        $claimStagingOutput = $templateFileClaimObj | ConvertTo-Json -Depth 30 
+        $claimStagingOutput = "$(AppStagingFolderPath)/${{parameters.AppName}}_customClaims.json"
+        $claimStagingOutput | Out-File -FilePath $AppStagingFilePath -Force
 
   - script: echo Task 2 filename - $(fileName)
     name: echoOutput
