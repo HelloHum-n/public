@@ -12,6 +12,21 @@
         "supportUrl": "Default",
         "termsOfServiceUrl": "Default"
     },
+    "groupMembershipClaims": "ApplicationGroup",
+    "optionalClaims": {
+    "accessToken": [],
+    "idToken": [],
+    "saml2Token": [
+        {
+            "additionalProperties": [
+                "cloud_displayname"
+            ],
+            "essential": false,
+            "name": "groups",
+            "source": null
+        }
+    ]
+	}
     "servicePrincipalLockConfiguration": {
         "isEnabled": false,
         "allProperties": false,
