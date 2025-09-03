@@ -235,14 +235,29 @@ jobs:
         $AppStagingOutput | Out-File -FilePath $AppStagingFilePath -Force
 
         # SP Staging File
-        if ( "${{parameters.AppType}}" -eq "SAML"){
-          $newObj = New-Object PSObject
-          $newObj | Add-Member -MemberType NoteProperty -Name "preferredSingleSignOnMode"  -Value "saml"
-        }else{
-          $newObj = New-Object PSObject
-          $newObj | Add-Member -MemberType NoteProperty -Name "preferredSingleSignOnMode"  -Value "oidc"
+        $SPTemplatebody = @"
+        {
+            "preferredSingleSignOnMode" : "SAML",
+            "customSecurityAttributes":
+            {
+                "Application":
+                {
+                    "@odata.type":"#Microsoft.DirectoryServices.CustomSecurityAttributeValue",
+                    "AssuranceLevel":"DefaultAttributeValue"
+                }
+            }
         }
-        $SpStagingOutput = $newObj | ConvertTo-Json -Depth 20
+        "@
+
+        $SPTemplateObj = $SPTemplatebody | ConvertFrom-Json 
+        if ( "${{parameters.AppType}}" -eq "SAML"){
+          $SPTemplateObj.preferredSingleSignOnMode = "saml"
+        }else{
+          $SPTemplateObj.preferredSingleSignOnMode = "oidc"
+        }
+        $SPTemplateObj.customSecurityAttributes.Application.AssuranceLevel = "${{parameters.assuranceLevel}}"
+
+        $SpStagingOutput = $SPTemplateObj | ConvertTo-Json -Depth 20
         $SpStagingFilePath = "$(AppStagingFolderPath)/${{parameters.AppName}}_Sp.json"
         $SpStagingOutput | Out-File -FilePath $SpStagingFilePath -Force
 
