@@ -38,7 +38,15 @@ parameters:
     - Medium
     - High
     - Critical
-    
+
+  - name: requireBankIssuedDevices
+    displayName: (Mandatory) Requre Bank Issued Devices
+    default: 'False'
+    type: string
+    values:
+    - True
+    - False
+
   - name: SPflowVerification
     displayName: (Mandatory for SAML) Require SAML2 SP initiated flow verification cert
     default: 'false'
@@ -240,7 +248,8 @@ jobs:
                 "Application":
                 {
                     "@odata.type":"#Microsoft.DirectoryServices.CustomSecurityAttributeValue",
-                    "AssuranceLevel":"DefaultAttributeValue"
+                    "AssuranceLevel":"DefaultAttributeValue",
+                    "RequireBankIssuedDevices":"DefaultAttributeValue"
                 }
             }
         }
@@ -253,6 +262,7 @@ jobs:
           $SPTemplateObj.preferredSingleSignOnMode = "oidc"
         }
         $SPTemplateObj.customSecurityAttributes.Application.AssuranceLevel = "${{parameters.assuranceLevel}}"
+        $SPTemplateObj.customSecurityAttributes.Application.RequireBankIssuedDevices = "${{parameters.requireBankIssuedDevices}}"
 
         $SpStagingOutput = $SPTemplateObj | ConvertTo-Json -Depth 20
         $SpStagingFilePath = "$(AppStagingFolderPath)/${{parameters.AppName}}_Sp.json"
