@@ -254,7 +254,7 @@ jobs:
         # SP Staging File
         $SPTemplatebody = @"
         {
-            "preferredSingleSignOnMode" : "SAML",
+            "preferredSingleSignOnMode" : "Value",
             "customSecurityAttributes":
             {
                 "Application":
