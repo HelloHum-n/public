@@ -186,13 +186,19 @@ jobs:
             $nameid.nameIdFormat = "${{parameters.nameidentifierFormat}}"
             $nameid.configurations.attribute.id = "${{parameters.nameidentifierAttribute}}"
 
-            #email
+            # Scotia ID
+            $emailClaim = $templateFileClaimObj.claims | Where-Object { $_.name -eq "bnsScotiaID" } 
+            $emailClaim.name = "${{parameters.SSOID}}"
+            #userprincipalname / mail
+            $emailClaim.configurations.attribute.id = "${{parameters.SSOIDAttribute}}"
+
+            # email
             $emailClaim = $templateFileClaimObj.claims | Where-Object { $_.name -eq "email" } 
             $emailClaim.name = "${{parameters.directClaimEmail}}"
             #userprincipalname / mail
             $emailClaim.configurations.attribute.id = "${{parameters.directClaimEmailAttribute}}"
 
-            #App manifest template
+            # App manifest template
             $templateFileAppObj.groupMembershipClaims = $null
             $emptyObjArray = New-Object -TypeName System.Collections.ArrayList
             $templateFileAppObj.optionalClaims.saml2Token =  $emptyObjArray 
@@ -208,13 +214,19 @@ jobs:
             $nameid.nameIdFormat = "${{parameters.nameidentifierFormat}}"
             $nameid.configurations.attribute.id = "${{parameters.nameidentifierAttribute}}"
 
-            #email
+            # Scotia ID
+            $emailClaim = $templateFileClaimObj.claims | Where-Object { $_.name -eq "bnsScotiaID" } 
+            $emailClaim.name = "${{parameters.SSOID}}"
+            #userprincipalname / mail
+            $emailClaim.configurations.attribute.id = "${{parameters.SSOIDAttribute}}"
+
+            # email
             $emailClaim = $templateFileClaimObj.claims | Where-Object { $_.name -eq "email" } 
             $emailClaim.name = "${{parameters.directClaimEmail}}"
             #userprincipalname / mail
             $emailClaim.configurations.attribute.id = "${{parameters.directClaimEmailAttribute}}"
 
-            #Group
+            # Group
             $groupClaim = $templateFileClaimObj.claims | Where-Object { $_.'name' -eq "defaultGroupClaimName" }
             $groupClaim.name = "${{parameters.groupclaimName}}"
             $groupClaim.configurations.transformations.regex = "${{parameters.groupClaimRegex}}"
