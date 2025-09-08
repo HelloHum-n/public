@@ -47,14 +47,6 @@ parameters:
     - True
     - False
 
-  - name: SPflowVerification
-    displayName: (Mandatory for SAML) Require SAML2 SP initiated flow verification cert
-    default: 'false'
-    type: string
-    values:
-    - true
-    - false
-
   - name: Description
     displayName: (Optional) Application Description
     default: 'Default'
@@ -165,9 +157,6 @@ jobs:
           #EntityID
           $arrayEntity = @('${{parameters.EntityID}}')
           $templateFileAppObj.identifierUris = $arrayEntity
-
-          #SPflowVerification
-          $templateFileAppObj.requestSignatureVerification.isSignedRequestRequired = "${{parameters.SPflowVerification}}"
 
           #Description
           if ("${{parameters.Description}}" -ne "default"){
