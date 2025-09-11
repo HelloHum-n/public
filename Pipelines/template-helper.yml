@@ -106,7 +106,7 @@ variables:
   - name: stepSucceed
     value: false
   - name: AppStagingFolderPath
-    value: "./Entra/EntraID/Applications-ADO/${{parameters.Environment}}/Staging/"
+    value: "./Entra/EntraID/Applications-ADO/${{parameters.Environment}}/Staging"
   - name: templateFolderPath
     value: "./Entra/EntraID/Applications-ADO/${{parameters.Environment}}/Staging/Templates"
   - name: SAMLappTemplateName
