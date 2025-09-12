@@ -16,8 +16,12 @@ parameters:
     - PRD
 
 variables:
-  - name: filesNotFound
-    value: true
+  - name: step1Succeed
+    value: false
+  - name: step2Succeed
+    value: false
+  - name: step3Succeed
+    value: false
   - name: AppStatesFolderPath
     value: "./EntraID/Applications-ADO/${{parameters.Environment}}/Apps-States/"
   - group: ${{parameters.Environment}}-Variables
@@ -37,100 +41,170 @@ jobs:
             inputs:
               targetType:  inline
               script: |
-                if ( "${{parameters.AppID}}" -ne "defaultparaAppID" ){
-                  Write-Host 'Searching for App-State files using Application ID: ${{parameters.AppID}}'
-                  $appFileNamePattern = "*"+"${{parameters.AppID}}"+"_Application.json"
-                  $appFile = Get-ChildItem -Path $(AppStatesFolderPath) -Name $appFileNamePattern
-                  if ($appFile.Count -gt 1){
-                    Write-Host "More than 1 App manifest with App ID: ${{parameters.AppID}} found, please check App-States folder inventory and try again."
-                    Throw "More than 1 App manifest with App ID: ${{parameters.AppID}} found, please check App-States folder inventory and try again."
-                  }elseif ($appFile.Count -eq 0){
-                    Write-Host "No App Manifest with App ID: ${{parameters.AppID}} found, please check App-States folder inventory and try again."
-                    Throw "No App Manifest with App ID: ${{parameters.AppID}} found, please check App-States folder inventory and try again."
-                  }else{
-                    Write-Host "##vso[task.setvariable variable=filesNotFound]false"
-                    Write-Host "##vso[task.setvariable variable=appFileName]$appFile"
-                    Write-Host "App Manifest with App ID: ${{parameters.AppID}} found: $appFile"
-                  }
-                }elseif ( "${{parameters.AppName}}" -ne "defaultparaAppName" ){
-                  $appFileNamePattern = "${{parameters.AppName}}"+"*_Application.json"
-                  $appFile = Get-ChildItem -Path $(AppStatesFolderPath) -Name $appFileNamePattern
-                  if ($appFile.Count -gt 1){
-                    Write-Host "More than 1 App manifest with App Name: ${{parameters.AppName}} found, please check App-States folder inventory and try again."
-                    Throw "More than 1 App manifest with App Name: ${{parameters.AppName}} found, please check App-States folder inventory and try again."
-                  }elseif ($appFile.Count -eq 0){
-                    Write-Host "No App Manifest with App Name: ${{parameters.AppName}} found, please check App-States folder inventory and try again."
-                    throw "No App Manifest with App Name: ${{parameters.AppName}} found, please check App-States folder inventory and try again."
-                  }else{
-                    Write-Host "##vso[task.setvariable variable=filesNotFound]false"
-                    Write-Host "##vso[task.setvariable variable=appFileName]$appFile"
-                    Write-Host "App Manifest with App Name: ${{parameters.AppName}} found: $appFile"
-                  }
+                $tenantID = "$(tenantIDvar)"
+                #Write-Host "tenant ID is $tenantID"
+                Write-Host "tenantID: $(tenantID)"
+                 # -----Updating app by locating application with App ID---- 
+                 if ( $(AppStatesFolderPath).Substring($(AppStatesFolderPath).length-1) -eq "/" -or $(AppStatesFolderPath).Substring($(AppStatesFolderPath).length-1) -eq "\"){
+                      $(AppStatesFolderPath) = $(AppStatesFolderPath).Substring(0,$(AppStatesFolderPath).length-1)
+                  } 
+
+                if ( "${{parameters.AppID}}" -ne "defaultparaAppID" -and "${{parameters.AppName}}" -ne "defaultparaAppName" ){
+                  # Proceed
+                  $appFileName = "${{parameters.AppName}}_${{parameters.AppID}}_Application.json"
+                  $spFileName = "${{parameters.AppName}}_${{parameters.AppID}}_ServicePrincipal.json"
+                  $claimsFileName = "${{parameters.AppName}}_${{parameters.AppID}}_CustomClaims.json"
+                  $appJsonFile = "$(AppStatesFolderPath)"+"/"+"$appFileName"
+                  $spJsonFile = "$(AppStatesFolderPath)"+"/"+"$spFileName"
+                  $claimJsonFile = "$(AppStatesFolderPath)"+"/"+"$claimsFileName" 
+                  Write-Host "##vso[task.setvariable variable=appJsonFile]$appJsonFile"
+                  Write-Host "appJsonFile: $appJsonFile"
+                  Write-Host "##vso[task.setvariable variable=spJsonFile]$spJsonFile"
+                  Write-Host "spJsonFile: $spJsonFile"
+                  Write-Host "##vso[task.setvariable variable=claimJsonFile]$claimJsonFile"
+                  Write-Host "claimJsonFile: $claimJsonFile"
                 }else{
-                  Write-Host "Error: Please provide a valid App ID or App Name."
-                  Throw "Error: Please provide a valid App ID or App Name."
-                }  
+                  #abort
+                  Throw "Please provide both Application Name and ID"
+                }
 
           - task: DownloadSecureFile@1
             name: connectionCert
             displayName: 'Download Service Connection certificate'
             inputs:
               secureFile: '${{parameters.Environment}}-Service-Connection.pfx'
+
+          - task: PowerShell@2
+            name: verifyFiles
+            inputs:
+              targetType: inline
+              script: |
+                # Check if app states file exists (according naming syntax with app name and ID)
+                if (-not (Test-Path -Path '$(appJsonFile)')){
+                  $appStateFile = $false
+                  throw "State File - $(appJsonFile) not Found"
+                }else{
+                  Write-Host "App State File with App Name: ${{parameters.AppName}} found: $(appJsonFile)"
+                }   
+                if (-not (Test-Path -Path '$(spJsonFile)')){
+                  $appStateFile = $false
+                  throw "State File - $(spJsonFile) not Found"
+                }else{
+                  Write-Host "App State File with App Name: ${{parameters.AppName}} found: $(spJsonFile)"
+                }   
+                if (-not (Test-Path -Path '$(claimJsonFile)')){
+                  $appStateFile = $false
+                  throw "State File - $(claimJsonFile) not Found"
+                }else{
+                  Write-Host "App State File with App Name: ${{parameters.AppName}} found: $(claimJsonFile)"
+                }   
+          - task: PowerShell@2
+            name: step1Check
+            condition: succeeded()
+            inputs:
+              targetType: inline
+              script: |
+                Write-Host "##vso[task.setvariable variable=step1Succeed]true"
+
+          - task: PowerShell@2
+            name: Check_Entra_App_Exists
+            condition: always()
+            inputs:
+              targetType: 'filePath'
+              errorActionPreference: silentlyContinue
+              filePath: './EntraID/Applications-ADO/Check-Application-REST.ps1'
+              arguments: '-ApplicationID  "${{parameters.AppID}}" -ApplicationName "${{parameters.AppName}}" -tenantID $(tenantID) -ClientID $(ClientID) -certFile $(connectionCert.secureFilePath) -CertPwd $(serviceConnectionPrivateKeyPwd) -Environment ${{parameters.Environment}}'
+
+          - task: PowerShell@2
+            name: Assess_result_of_App_Checking
+            condition: always()
+            inputs:
+              targetType: inline
+              script: |
+                if (("$(appCheckResult)" -eq "Application found with matching Name and ID on Entra")){ 
+                  if ( "$(step1Succeed)" -eq "true" ){
+                    # Success !!!!
+                    write-host "$(appCheckResult)"
+                  }else{
+                    write-host "$(appCheckResult)"
+                    write-host "Application doesn't exists in Azure DevOps Repo."
+                    write-host "Please import the application to Azure DevOps Repo first and try again."
+                    throw "Application doesn't exists in Azure DevOps Repo."
+                  }
+                }elseif (("$(appCheckResult)" -eq "Multiple apps found with provided App Name on Entra")){ 
+                  write-host "$(appCheckResult)"
+                  throw "$(appCheckResult)"
+                }elseif (("$(appCheckResult)" -eq "Application found with matching Name but doesn't match the provided AppId on Entra")){
+                  write-host "$(appCheckResult)"
+                  throw "$(appCheckResult)"
+                }elseif (("$(appCheckResult)" -eq "Both provided Application ID and Appication name not found on Entra")){
+                  write-host "$(appCheckResult)"
+                  throw "$(appCheckResult)"
+                }elseif (("$(appCheckResult)" -eq "Application found with matching ID but doesn't match the provided App Name on Entra")){
+                  write-host "$(appCheckResult)"
+                  throw "$(appCheckResult)"
+                }
+          - task: PowerShell@2
+            name: step2Check
+            condition: succeeded()
+            inputs:
+              targetType: inline
+              script: |
+                Write-Host "##vso[task.setvariable variable=step2Succeed]true"
+
           - task: PowerShell@2
             name: delete_App_Object
+            condition: eq(variables.step2Succeed, 'true')
             inputs:
               targetType: 'filePath'
               filePath: './EntraID/Applications-ADO/Remove-Application-REST.ps1'
               arguments: '-appJsonFile "$(AppStatesFolderPath)$(appFileName)" -tenantID $(tenantID) -ClientID $(ClientID) -certFile $(connectionCert.secureFilePath) -CertPwd $(serviceConnectionPrivateKeyPwd) -Environment ${{parameters.Environment}}'
 
           - task: PowerShell@2
+            name: step3Check
+            condition: succeeded()
+            inputs:
+              targetType: inline
+              script: |
+                Write-Host "##vso[task.setvariable variable=step3Succeed]true"
+
+          - task: PowerShell@2
             name: deleteFiles
             inputs:
               targetType:  inline
               script: |
-                if ( "${{parameters.AppID}}" -ne "defaultparaAppID" ){
-                  Write-Host 'Searching for App-State SP file using Application ID: ${{parameters.AppID}}'
-                  $SpFileNamePattern = "*"+"${{parameters.AppID}}"+"_ServicePrincipal.json"
-                  $SpFile = Get-ChildItem -Path $(AppStatesFolderPath) -Name $SpFileNamePattern 
-                  if (Test-Path $(AppStatesFolderPath)$SpFile){
-                    Write-Host "Deleting File: $(AppStatesFolderPath)$SpFile"
-                    Remove-Item $(AppStatesFolderPath)$SpFile
-                  }
-                  Write-Host 'Searching for App-State claims file using Application ID: ${{parameters.AppID}}'
-                  $claimsFileNamePattern = "*"+"${{parameters.AppID}}"+"_CustomClaims.json"
-                  $claimsFile = Get-ChildItem -Path $(AppStatesFolderPath) -Name $claimsFileNamePattern 
-                  if (Test-Path $(AppStatesFolderPath)$claimsFile){
-                    Write-Host "Deleting File: $(AppStatesFolderPath)$claimsFile"
-                    Remove-Item $(AppStatesFolderPath)$claimsFile
-                  }
-                }elseif ( "${{parameters.AppName}}" -ne "defaultparaAppName" ){
-                  Write-Host 'Searching for App-State SP file using Application Name: ${{parameters.AppName}}'
-                  $SpFileNamePattern = "${{parameters.AppName}}"+"*_ServicePrincipal.json"
-                  $SpFile = Get-ChildItem -Path $(AppStatesFolderPath) -Name $SpFileNamePattern 
-                  if (Test-Path $(AppStatesFolderPath)$SpFile){
-                    Write-Host "Deleting File: $(AppStatesFolderPath)$SpFile"
-                    Remove-Item $(AppStatesFolderPath)$SpFile
-                  }
-                  Write-Host 'Searching for App-State claims file using Application Name: ${{parameters.AppName}}'
-                  $claimsFileNamePattern = "${{parameters.AppName}}"+"*_CustomClaims.json"
-                  $claimsFile = Get-ChildItem -Path $(AppStatesFolderPath) -Name $claimsFileNamePattern 
-                  if (Test-Path $(AppStatesFolderPath)$claimsFile){
-                    Write-Host "Deleting File: $(AppStatesFolderPath)$claimsFile"
-                    Remove-Item $(AppStatesFolderPath)$claimsFile
-                  }
-                }
+                write-host "Removing $appJsonFile"
+                Remove-Item $appJsonFile
+                write-host "Removing $spJsonFile"
+                Remove-Item $spJsonFile
+                write-host "Removing $claimJsonFile"
+                Remove-Item $claimJsonFile
+                
 
           - task: PowerShell@2
-            condition: eq(variables.filesNotFound, 'false')
+            condition: eq(variables.step3Succeed, 'true')
             name: gitCommit
             inputs:  
               targetType: inline
               script: |
-                $tmpBranch = [guid]::NewGuid().ToString()
-                git config --global user.email "entraidProject@azuredevops.com"
-                git config --global user.name "serivce account"
-                git fetch origin $(Build.SourceBranchName):$tmpBranch
-                git rebase $tmpBranch
+                git config --list
+                Write-host 'git add -A'
+                git status
                 git add -A
-                git commit -m "Deleted app ${{parameters.AppName}} ${{parameters.AppID}}"
+                git status
+                write-host 'git commit -m "Deleted Files ${{parameters.AppName}} ${{parameters.AppID}}"'
+                git commit -m "Deleted Files $({parameters.AppName}} •${{parameters.AppID}}"
+                $i = 20
+                do (
+                $i--
+                Write-Host "Counter at $i"
+                $waitTime = Get-Random -Minimum 5 -Maximum 15
+                Start-Sleep -s $waitTime
+                $LASTEXITCODE=0
+                write-host 'git pull --rebase origin $(Build.SourceBranchName)'
+                git pull --rebase origin-$(Build.SourceBranchName)
+                write-host "LASTEXITCODE = $LASTEXITCODE" 
+                Write-host 'git push origin HEAD:$(Build.SourceBranchName)'
                 git push origin HEAD:$(Build.SourceBranchName)
+                write-host "LASTEXITCODE = $LASTEXITCODE"
+                }while($LASTEXITCODE -and $i -gt 0)
