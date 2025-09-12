@@ -26,6 +26,8 @@ variables:
     value: "./EntraID/Applications-ADO/${{parameters.Environment}}/Apps-States/"
   - group: ${{parameters.Environment}}-Variables
   - group: ${{parameters.Environment}}-Secrets
+  - name: tenantIDvar
+    value: $[variables.tenantID]
 
 jobs:
 - deployment: ${{parameters.csvFileName}}__DELETE_APP__${{ replace(parameters.AppName,'-','_') }}_${{ replace(parameters.AppID,'-','_') }}
@@ -41,8 +43,6 @@ jobs:
             inputs:
               targetType:  inline
               script: |
-                $tenantID = "$(tenantIDvar)"
-                #Write-Host "tenant ID is $tenantID"
                 Write-Host "tenantID: $(tenantID)"
                  # -----Updating app by locating application with App ID---- 
                  $tempAppStatesFolderPath = "$(AppStatesFolderPath)"
