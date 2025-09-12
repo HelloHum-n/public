@@ -175,12 +175,12 @@ jobs:
             inputs:
               targetType:  inline
               script: |
-                write-host "Removing $appJsonFile"
-                Remove-Item $appJsonFile
-                write-host "Removing $spJsonFile"
-                Remove-Item $spJsonFile
-                write-host "Removing $claimJsonFile"
-                Remove-Item $claimJsonFile
+                write-host "Removing $(appJsonFile)"
+                Remove-Item $(appJsonFile)
+                write-host "Removing $(spJsonFile)"
+                Remove-Item $(spJsonFile)
+                write-host "Removing $(claimJsonFile)"
+                Remove-Item $(claimJsonFile)
                 
 
           - task: PowerShell@2
