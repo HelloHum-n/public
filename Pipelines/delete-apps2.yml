@@ -47,7 +47,8 @@ jobs:
                  # -----Updating app by locating application with App ID---- 
                  $tempAppStatesFolderPath = "$(AppStatesFolderPath)"
                  if ( $tempAppStatesFolderPath.Substring($tempAppStatesFolderPath.length-1) -eq "/" -or $tempAppStatesFolderPath.Substring($tempAppStatesFolderPath.length-1) -eq "\"){
-                      $(AppStatesFolderPath) = $tempAppStatesFolderPath.Substring(0,$tempAppStatesFolderPath.length-1)
+                      $tempAppStatesFolderPath = $tempAppStatesFolderPath.Substring(0,$tempAppStatesFolderPath.length-1)
+                      Write-Host "##vso[task.setvariable variable=AppStatesFolderPath]$tempAppStatesFolderPath"
                   } 
 
                 if ( "${{parameters.AppID}}" -ne "defaultparaAppID" -and "${{parameters.AppName}}" -ne "defaultparaAppName" ){
