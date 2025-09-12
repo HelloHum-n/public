@@ -46,7 +46,8 @@ jobs:
                 Write-Host "tenantID: $(tenantID)"
                  # -----Updating app by locating application with App ID---- 
                  if ( $(AppStatesFolderPath).Substring($(AppStatesFolderPath).length-1) -eq "/" -or $(AppStatesFolderPath).Substring($(AppStatesFolderPath).length-1) -eq "\"){
-                      $(AppStatesFolderPath) = $(AppStatesFolderPath).Substring(0,$(AppStatesFolderPath).length-1)
+                      $tempAppStatesFolderPath = "$(AppStatesFolderPath)"
+                      $(AppStatesFolderPath) = $tempAppStatesFolderPath.Substring(0,$(AppStatesFolderPath).length-1)
                   } 
 
                 if ( "${{parameters.AppID}}" -ne "defaultparaAppID" -and "${{parameters.AppName}}" -ne "defaultparaAppName" ){
