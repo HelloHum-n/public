@@ -56,9 +56,7 @@ jobs:
             inputs:
               targetType: inline
               script: |
-                $tenantID = "$(tenantIDvar)"
-                #Write-Host "tenant ID is $tenantID"
-                Write-Host "tenantID: $(tenantID)"
+                Write-Host "tenant ID is "$(tenantIDvar)"
                  # -----Updating app by locating application with App ID---- 
                 if ( "${{parameters.AppID}}" -ne "defaultparaAppID" -and "${{parameters.AppName}}" -ne "defaultparaAppName" ){
                   # Proceed
@@ -111,7 +109,7 @@ jobs:
               targetType: 'filePath'
               errorActionPreference: silentlyContinue
               filePath: './EntraID/Applications-ADO/Check-Application-REST.ps1'
-              arguments: '-ApplicationID  "${{parameters.AppID}}" -ApplicationName "${{parameters.AppName}}" -tenantID $(tenantID) -ClientID $(ClientID) -certFile $(connectionCert.secureFilePath) -CertPwd $(serviceConnectionPrivateKeyPwd) -Environment ${{parameters.Environment}}'
+              arguments: '-ApplicationID  "${{parameters.AppID}}" -ApplicationName "${{parameters.AppName}}" -tenantID "$(tenantID)" -ClientID $(ClientID) -certFile $(connectionCert.secureFilePath) -CertPwd $(serviceConnectionPrivateKeyPwd) -Environment ${{parameters.Environment}}'
 
           - task: PowerShell@2
             name: Assess_result_of_App_Checking
@@ -158,7 +156,7 @@ jobs:
             inputs:
               targetType: 'filePath'
               filePath: './EntraID/Applications-ADO/Update-Applicaton-REST.ps1'
-              arguments: '-JsonFile "$(appJsonFile)" -newJsonFile "$(appStagingJsonFile)" -tenantID $(tenantID) -ClientID $(ClientID) -certFile $(connectionCert.secureFilePath) -CertPwd $(serviceConnectionPrivateKeyPwd) -Environment ${{parameters.Environment}}'
+              arguments: '-JsonFile "$(appJsonFile)" -newJsonFile "$(appStagingJsonFile)" -tenantID "$(tenantID)" -ClientID $(ClientID) -certFile $(connectionCert.secureFilePath) -CertPwd $(serviceConnectionPrivateKeyPwd) -Environment ${{parameters.Environment}}'
 
           - task: PowerShell@2
             name: step3Check
