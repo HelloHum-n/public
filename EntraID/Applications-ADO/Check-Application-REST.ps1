@@ -92,6 +92,8 @@ if ( $ApplicationID -ne "00000000-0000-0000-0000-000000000000"){
     $URI = "https://graph.microsoft.com/beta/applications(appId=`'{$ApplicationID}`')"
     #$URI = "https://graph.microsoft.com/v1.0/applications?`$filter=appId+eq+`'$ApplicationID`'"
     $AppObjFromID = MSGraphRequest -Method GET -URI $URI
+}else{
+    $AppObjFromID = $null
 }
 $URI = "https://graph.microsoft.com/v1.0/applications?`$filter=displayName+eq+`'$ApplicationName`'"
 $AppObjFromName = MSGraphRequest -Method GET -URI $URI
