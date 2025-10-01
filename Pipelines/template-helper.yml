@@ -116,7 +116,11 @@ variables:
   - name: SAMLClaimWithGroupTemplateName
     value: "SAML_Claims_withGroupClaims_Template.json"
   - name: SAMLClaimNoGroupTemplateName
-    value: "SAML_Claims_noGroupClaims_Template.json"    
+    value: "SAML_Claims_noGroupClaims_Template.json"
+  - name: OIDCClaimWithGroupTemplateName
+    value: "OIDC_Claims_withGroupClaims_Template.json"
+  - name: OIDCClaimNoGroupTemplateName
+    value: "OIDC_Claims_noGroupClaims_Template.json"
   - group: ${{parameters.Environment}}-Variables
   - name: tenantIDvar
     value: $[variables.tenantID]
@@ -163,7 +167,7 @@ jobs:
             $templateFileAppObj.Description = "${{parameters.Description}}"
           }
           
-          # SAML Claims
+          ### SAML Claims ###
 
           # no Group Claim
           if ("${{parameters.groupClaimName}}" -eq "default"){
@@ -215,7 +219,7 @@ jobs:
             #userprincipalname / mail
             $emailClaim.configurations.attribute.id = "${{parameters.directClaimEmailAttribute}}"
 
-            # Group
+            # Group Claim
             $groupClaim = $templateFileClaimObj.claims | Where-Object { $_.'name' -eq "defaultGroupClaimName" }
             $groupClaim.name = "${{parameters.groupclaimName}}"
             $groupClaim.configurations.transformations.regex = "${{parameters.groupClaimRegex}}"
@@ -229,6 +233,78 @@ jobs:
         }else{
           $templateFileAppObj = Get-content -Path "$(templateFolderPath)/$(OIDCappTemplateName)" -RAW | ConvertFrom-Json
           #$templatefileObj| ConvertTo-Json -Depth 20  
+
+          #AppName
+          $templateFileAppObj.displayName = "${{parameters.AppName}}"
+
+          #EntityID
+          $arrayEntity = @('${{parameters.EntityID}}')
+          $templateFileAppObj.identifierUris = $arrayEntity
+
+          #Description
+          if ("${{parameters.Description}}" -ne "default"){
+            $templateFileAppObj.Description = "${{parameters.Description}}"
+
+         ### OIDC Claims ###
+
+          # no Group Claim
+          if ("${{parameters.groupClaimName}}" -eq "default"){
+            $templateFileClaimObj = Get-content -Path "$(templateFolderPath)/$(OIDCClaimNoGroupTemplateName)" -RAW | ConvertFrom-Json
+
+            # NameIdentifier
+            $nameid = $templateFileClaimObj.claims | Where-Object { $_.'@odata.type' -eq "#microsoft.graph.samlNameIdClaim" } 
+            #unspecified / emailAddress
+            $nameid.nameIdFormat = "${{parameters.nameidentifierFormat}}"
+            $nameid.configurations.attribute.id = "${{parameters.nameidentifierAttribute}}"
+
+            # Scotia ID
+            $emailClaim = $templateFileClaimObj.claims | Where-Object { $_.name -eq "bnsScotiaID" } 
+            $emailClaim.name = "${{parameters.SSOID}}"
+            #userprincipalname / mail
+            $emailClaim.configurations.attribute.id = "${{parameters.SSOIDAttribute}}"
+
+            # email
+            $emailClaim = $templateFileClaimObj.claims | Where-Object { $_.name -eq "email" } 
+            $emailClaim.name = "${{parameters.directClaimEmail}}"
+            #userprincipalname / mail
+            $emailClaim.configurations.attribute.id = "${{parameters.directClaimEmailAttribute}}"
+
+            # App manifest template
+            $templateFileAppObj.groupMembershipClaims = $null
+            $emptyObjArray = New-Object -TypeName System.Collections.ArrayList
+            $templateFileAppObj.optionalClaims.saml2Token =  $emptyObjArray 
+
+
+          # With Group Claim
+          }else{
+            $templateFileClaimObj = Get-content -Path "$(templateFolderPath)/$(OIDCClaimWithGroupTemplateName)" -RAW | ConvertFrom-Json
+
+            # NameIdentifier
+            $nameid = $templateFileClaimObj.claims | Where-Object { $_.'@odata.type' -eq "#microsoft.graph.samlNameIdClaim" } 
+            #unspecified / emailAddress
+            $nameid.nameIdFormat = "${{parameters.nameidentifierFormat}}"
+            $nameid.configurations.attribute.id = "${{parameters.nameidentifierAttribute}}"
+
+            # Scotia ID
+            $emailClaim = $templateFileClaimObj.claims | Where-Object { $_.name -eq "bnsScotiaID" } 
+            $emailClaim.name = "${{parameters.SSOID}}"
+            #userprincipalname / mail
+            $emailClaim.configurations.attribute.id = "${{parameters.SSOIDAttribute}}"
+
+            # email
+            $emailClaim = $templateFileClaimObj.claims | Where-Object { $_.name -eq "email" } 
+            $emailClaim.name = "${{parameters.directClaimEmail}}"
+            #userprincipalname / mail
+            $emailClaim.configurations.attribute.id = "${{parameters.directClaimEmailAttribute}}"
+
+            # Group Claim
+            $groupClaim = $templateFileClaimObj.claims | Where-Object { $_.'name' -eq "defaultGroupClaimName" }
+            $groupClaim.name = "${{parameters.groupclaimName}}"
+            $groupClaim.configurations.transformations.regex = "${{parameters.groupClaimRegex}}"
+            $groupClaim.configurations.transformations.replacement = "${{parameters.groupclaimRegexReplace}}"
+
+          }
+
         }
 
         ################################################
