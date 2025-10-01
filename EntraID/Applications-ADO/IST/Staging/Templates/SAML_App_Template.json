@@ -6,12 +6,6 @@
         "acceptMappedClaims": true,
         "requestedAccessTokenVersion": 2
     },
-    "info": {
-        "marketingUrl": "Default",
-        "privacyStatementUrl": "Default",
-        "supportUrl": "Default",
-        "termsOfServiceUrl": "Default"
-    },
     "groupMembershipClaims": "ApplicationGroup",
     "optionalClaims": {
         "accessToken": [],
