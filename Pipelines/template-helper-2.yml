@@ -70,33 +70,13 @@ parameters:
     displayName: Claim - (Mandatory) User Attribute for the nameidentifier in the claims
     default: 'mail'
     type: string
- 
-  - name: directClaimEmail
-    displayName: Claim Name mail - (Optional, put NA if not needed)
-    default: 'email'
-    type: string
- 
-  - name: directClaimEmailAttribute
-    displayName: Claim Value mail
-    default: 'mail'
-    type: string
- 
-  - name: SSOID
-    displayName: Claim Name ID - (Optional, put NA if not needed)
-    default: 'bnsScotiaID or SSOID'
-    type: string
- 
-  - name: SSOIDAttribute
-    displayName: Claim Value ID
-    default: 'extension_73f338a4697b4577bd8334ffb89ccdb4_employeeNumber'
-    type: string
 
   - name: optionalclaim1
     displayName: Claim Name 1 - (Optional, put NA if not needed)
     default: 'FirstName'
     type: string
  
-  - name: optionalAttribute1
+  - name: optionalclaimAttribute1
     displayName: Claim Value 1
     default: 'givenname'
     type: string
@@ -106,9 +86,29 @@ parameters:
     default: 'LastName'
     type: string
  
-  - name: optionalAttribute2
+  - name: optionalclaimAttribute2
     displayName: Claim Value 2
     default: 'surname'
+    type: string
+
+  - name: optionalclaim3
+    displayName: Claim Name 3 - (Optional, put NA if not needed)
+    default: 'email'
+    type: string
+ 
+  - name: optionalclaimAttribute3
+    displayName: Claim Value 3
+    default: 'mail'
+    type: string
+ 
+  - name: optionalclaim4
+    displayName: Claim Name 4 - (Optional, put NA if not needed)
+    default: 'bnsScotiaID or SSOID'
+    type: string
+ 
+  - name: optionalclaimAttribute4
+    displayName: Claim Value 4
+    default: 'extension_73f338a4697b4577bd8334ffb89ccdb4_employeeNumber'
     type: string
 
   - name: groupclaimName
@@ -201,17 +201,6 @@ jobs:
             $nameid.nameIdFormat = "${{parameters.nameidentifierFormat}}"
             $nameid.configurations.attribute.id = "${{parameters.nameidentifierAttribute}}"
  
-            # Scotia ID
-            $emailClaim = $templateFileClaimObj.claims | Where-Object { $_.name -eq "bnsScotiaID" }
-            $emailClaim.name = "${{parameters.SSOID}}"
-            #userprincipalname / mail
-            $emailClaim.configurations.attribute.id = "${{parameters.SSOIDAttribute}}"
- 
-            # email
-            $emailClaim = $templateFileClaimObj.claims | Where-Object { $_.name -eq "email" }
-            $emailClaim.name = "${{parameters.directClaimEmail}}"
-            #userprincipalname / mail
-            $emailClaim.configurations.attribute.id = "${{parameters.directClaimEmailAttribute}}"
  
             # App manifest template
             $templateFileAppObj.groupMembershipClaims = $null
@@ -228,18 +217,8 @@ jobs:
             #unspecified / emailAddress
             $nameid.nameIdFormat = "${{parameters.nameidentifierFormat}}"
             $nameid.configurations.attribute.id = "${{parameters.nameidentifierAttribute}}"
- 
-            # Scotia ID
-            $emailClaim = $templateFileClaimObj.claims | Where-Object { $_.name -eq "bnsScotiaID" }
-            $emailClaim.name = "${{parameters.SSOID}}"
-            #userprincipalname / mail
-            $emailClaim.configurations.attribute.id = "${{parameters.SSOIDAttribute}}"
- 
-            # email
-            $emailClaim = $templateFileClaimObj.claims | Where-Object { $_.name -eq "email" }
-            $emailClaim.name = "${{parameters.directClaimEmail}}"
-            #userprincipalname / mail
-            $emailClaim.configurations.attribute.id = "${{parameters.directClaimEmailAttribute}}"
+
+
  
             # Group
             $groupClaim = $templateFileClaimObj.claims | Where-Object { $_.'name' -eq "defaultGroupClaimName" }
