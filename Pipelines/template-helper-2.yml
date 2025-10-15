@@ -72,7 +72,7 @@ parameters:
     type: string
  
   - name: directClaimEmail
-    displayName: Claim Name
+    displayName: Claim Name - (Optional, put NA if not needed)
     default: 'email'
     type: string
  
