@@ -27,7 +27,7 @@ parameters:
  
   - name: EntityID
     displayName: Application entity ID or Identifier URI (EntityID/identifierUris)
-    default: ''
+    default: ' '
     type: string
  
   - name: ACSredirecturi
