@@ -92,12 +92,12 @@ parameters:
     type: string
 
   - name: optionalclaim1
-    displayName: Claim Name 2 - (Optional, put NA if not needed)
+    displayName: Claim Name 1 - (Optional, put NA if not needed)
     default: 'FirstName'
     type: string
  
   - name: optionalAttribute1
-    displayName: Claim Value 2
+    displayName: Claim Value 1
     default: 'givenname'
     type: string
 
