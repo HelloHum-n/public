@@ -14,7 +14,8 @@ parameters:
  
   - name: AppName
     displayName: Application Name
-    default: ''
+    type: string
+    default: $(empty)
  
   - name: AppType
     displayName: Application Type
