@@ -77,20 +77,40 @@ parameters:
     type: string
  
   - name: directClaimEmailAttribute
-    displayName: Claim Value
+    displayName: Claim Value mail
     default: 'mail'
     type: string
  
   - name: SSOID
-    displayName: Claim Name
+    displayName: Claim Name ID - (Optional, put NA if not needed)
     default: 'bnsScotiaID or SSOID'
     type: string
  
   - name: SSOIDAttribute
-    displayName: Claim Value
+    displayName: Claim Value ID
     default: 'extension_73f338a4697b4577bd8334ffb89ccdb4_employeeNumber'
     type: string
+
+  - name: optionalclaim1
+    displayName: Claim Name 2 - (Optional, put NA if not needed)
+    default: 'FirstName'
+    type: string
  
+  - name: optionalAttribute1
+    displayName: Claim Value 2
+    default: 'givenname'
+    type: string
+
+  - name: optionalclaim2
+    displayName: Claim Name 2 - (Optional, put NA if not needed)
+    default: 'LastName'
+    type: string
+ 
+  - name: optionalAttribute2
+    displayName: Claim Value 2
+    default: 'surname'
+    type: string
+
   - name: groupclaimName
     displayName: Claim Name (can be custom)
     default: 'default'
