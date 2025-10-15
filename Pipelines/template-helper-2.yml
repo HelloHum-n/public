@@ -1,0 +1,310 @@
+trigger: none
+ 
+name: Write-File
+ 
+parameters:
+  - name: Environment
+    displayName: Environment
+    default: 'IST'
+    type: string
+    values:
+    - IST
+    - UAT
+    - PRD
+ 
+  - name: AppName
+    displayName: Application Name
+    default: ''
+ 
+  - name: AppType
+    displayName: Application Type
+    default: 'SAML'
+    type: string
+    values:
+    - SAML
+    - OIDC
+ 
+  - name: EntityID
+    displayName: Application entity ID or Identifier URI (EntityID/identifierUris)
+    default: ''
+    type: string
+ 
+  - name: ACSredirecturi
+    displayName: ACS URL or Redirect URI
+    default: ''
+    type: string
+ 
+  - name: assuranceLevel
+    displayName: (Mandatory) Assurance Level of the application
+    default: 'Medium'
+    type: string
+    values:
+    - Low
+    - Medium
+    - High
+    - Critical
+ 
+  - name: requireBankIssuedDevices
+    displayName: (Mandatory) Requre Bank Issued Devices
+    default: 'False'
+    type: string
+    values:
+    - True
+    - False
+ 
+  - name: Description
+    displayName: (Optional) Application Description
+    default: 'Default'
+    type: string
+ 
+  - name: nameidentifierFormat
+    displayName: Claim Name (SAML2 only)- Unique User Identifier (Name ID)
+    default: 'emailAddress'
+    type: string
+    values:
+    - emailAddress
+    - transient
+    - unspecified
+ 
+  - name: nameidentifierAttribute
+    displayName: Claim - (Mandatory) User Attribute for the nameidentifier in the claims
+    default: 'mail'
+    type: string
+ 
+  - name: directClaimEmail
+    displayName: Claim Name
+    default: 'email'
+    type: string
+ 
+  - name: directClaimEmailAttribute
+    displayName: Claim Value
+    default: 'mail'
+    type: string
+ 
+  - name: SSOID
+    displayName: Claim Name
+    default: 'bnsScotiaID or SSOID'
+    type: string
+ 
+  - name: SSOIDAttribute
+    displayName: Claim Value
+    default: 'extension_73f338a4697b4577bd8334ffb89ccdb4_employeeNumber'
+    type: string
+ 
+  - name: groupclaimName
+    displayName: Claim Name (can be custom)
+    default: 'default'
+    type: string
+ 
+  - name: groupClaimRegex
+    displayName: Claim Value - regex pattern
+    default: 'default'
+    type: string
+ 
+  - name: groupclaimRegexReplace
+    displayName: Claim Value - regex replacement pattern
+    default: 'default'
+    type: string
+ 
+variables:
+  - name: stepSucceed
+    value: false
+  - name: AppStagingFolderPath
+    value: "./${{parameters.Environment}}/Staging"
+  - name: templateFolderPath
+    value: "./Templates"
+  - name: SAMLappTemplateName
+    value: "SAML/SAML_App_Template.json"
+  - name: OIDCappTemplateName
+    value: "OIDC/OIDC_App_Template.json"
+  - name: SAMLClaimWithGroupTemplateName
+    value: "SAML/SAML_Claims_withGroupClaims_Template.json"
+  - name: SAMLClaimNoGroupTemplateName
+    value: "SAML/SAML_Claims_noGroupClaims_Template.json"    
+  - group: ${{parameters.Environment}}-Variables
+  - name: tenantIDvar
+    value: $[variables.tenantID]
+ 
+pool:
+  name: CB-CB-02-pool
+ 
+jobs:
+- job: ${{ replace(parameters.AppName,'-','_') }}_Create_Template
+  displayName: Generate staging templates
+ 
+  steps:
+  - checkout: self
+    persistCredentials: true
+  - task: PowerShell@2
+    name: createTemplates
+    inputs:
+      targetType: 'inline'
+      script: |
+        Get-ChildItem "$(AppStagingFolderPath)"
+        Write-host "-______________-"
+        Get-ChildItem "$(templateFolderPath)"
+          ################################################
+          # SAML Apps.                                   #
+          ################################################
+        if ( "${{parameters.AppType}}" -eq "SAML" ){
+          $templateFileAppObj = Get-content -Path "$(templateFolderPath)/$(SAMLappTemplateName)" -RAW | ConvertFrom-Json
+ 
+          ################################################
+          # Go through paramers one by one               #
+          ################################################
+          
+          #AppName
+          $templateFileAppObj.displayName = "${{parameters.AppName}}"
+ 
+          #EntityID
+          $arrayEntity = @('${{parameters.EntityID}}')
+          $templateFileAppObj.identifierUris = $arrayEntity
+ 
+          #ACSredirectUris
+          $arrayACSredirecturi = @('${{parameters.ACSredirecturi}}')
+          $templateFileAppObj.web.redirectUris = $arrayACSredirecturi
+ 
+          #Description
+          if ("${{parameters.Description}}" -ne "default"){
+            $templateFileAppObj.Description = "${{parameters.Description}}"
+          }
+          
+          # SAML Claims
+ 
+          # no Group Claim
+          if ("${{parameters.groupClaimName}}" -eq "default"){
+            $templateFileClaimObj = Get-content -Path "$(templateFolderPath)/$(SAMLClaimNoGroupTemplateName)" -RAW | ConvertFrom-Json
+ 
+            # NameIdentifier
+            $nameid = $templateFileClaimObj.claims | Where-Object { $_.'@odata.type' -eq "#microsoft.graph.samlNameIdClaim" }
+            #unspecified / emailAddress
+            $nameid.nameIdFormat = "${{parameters.nameidentifierFormat}}"
+            $nameid.configurations.attribute.id = "${{parameters.nameidentifierAttribute}}"
+ 
+            # Scotia ID
+            $emailClaim = $templateFileClaimObj.claims | Where-Object { $_.name -eq "bnsScotiaID" }
+            $emailClaim.name = "${{parameters.SSOID}}"
+            #userprincipalname / mail
+            $emailClaim.configurations.attribute.id = "${{parameters.SSOIDAttribute}}"
+ 
+            # email
+            $emailClaim = $templateFileClaimObj.claims | Where-Object { $_.name -eq "email" }
+            $emailClaim.name = "${{parameters.directClaimEmail}}"
+            #userprincipalname / mail
+            $emailClaim.configurations.attribute.id = "${{parameters.directClaimEmailAttribute}}"
+ 
+            # App manifest template
+            $templateFileAppObj.groupMembershipClaims = $null
+            $emptyObjArray = New-Object -TypeName System.Collections.ArrayList
+            $templateFileAppObj.optionalClaims.saml2Token =  $emptyObjArray
+ 
+ 
+          # With Group Claim
+          }else{
+            $templateFileClaimObj = Get-content -Path "$(templateFolderPath)/$(SAMLClaimWithGroupTemplateName)" -RAW | ConvertFrom-Json
+ 
+            # NameIdentifier
+            $nameid = $templateFileClaimObj.claims | Where-Object { $_.'@odata.type' -eq "#microsoft.graph.samlNameIdClaim" }
+            #unspecified / emailAddress
+            $nameid.nameIdFormat = "${{parameters.nameidentifierFormat}}"
+            $nameid.configurations.attribute.id = "${{parameters.nameidentifierAttribute}}"
+ 
+            # Scotia ID
+            $emailClaim = $templateFileClaimObj.claims | Where-Object { $_.name -eq "bnsScotiaID" }
+            $emailClaim.name = "${{parameters.SSOID}}"
+            #userprincipalname / mail
+            $emailClaim.configurations.attribute.id = "${{parameters.SSOIDAttribute}}"
+ 
+            # email
+            $emailClaim = $templateFileClaimObj.claims | Where-Object { $_.name -eq "email" }
+            $emailClaim.name = "${{parameters.directClaimEmail}}"
+            #userprincipalname / mail
+            $emailClaim.configurations.attribute.id = "${{parameters.directClaimEmailAttribute}}"
+ 
+            # Group
+            $groupClaim = $templateFileClaimObj.claims | Where-Object { $_.'name' -eq "defaultGroupClaimName" }
+            $groupClaim.name = "${{parameters.groupclaimName}}"
+            $groupClaim.configurations.transformations.regex = "${{parameters.groupClaimRegex}}"
+            $groupClaim.configurations.transformations.replacement = "${{parameters.groupclaimRegexReplace}}"
+ 
+          }
+ 
+          ################################################
+          # OIDC Apps.                                   #
+          ################################################
+        }else{
+          $templateFileAppObj = Get-content -Path "$(templateFolderPath)/$(OIDCappTemplateName)" -RAW | ConvertFrom-Json
+          #$templatefileObj| ConvertTo-Json -Depth 20  
+        }
+ 
+        ################################################
+        # Files Output                                 #
+        ################################################       
+ 
+        #App Staging File
+        $AppStagingOutput = $templateFileAppObj | ConvertTo-Json -Depth 20
+        $AppStagingFilePath = "$(AppStagingFolderPath)/${{parameters.AppName}}_App.json"
+        $AppStagingOutput | Out-File -FilePath $AppStagingFilePath -Force
+ 
+        # SP Staging File
+        $SPTemplatebody = @"
+        {
+            "preferredSingleSignOnMode" : "Value",
+            "customSecurityAttributes":
+            {
+                "Application":
+                {
+                    "@odata.type":"#Microsoft.DirectoryServices.CustomSecurityAttributeValue",
+                    "AssuranceLevel":"DefaultAttributeValue",
+                    "RequireBankIssuedDevices":"DefaultAttributeValue"
+                }
+            }
+        }
+        "@
+ 
+        $SPTemplateObj = $SPTemplatebody | ConvertFrom-Json
+        if ( "${{parameters.AppType}}" -eq "SAML"){
+          $SPTemplateObj.preferredSingleSignOnMode = "saml"
+        }else{
+          $SPTemplateObj.preferredSingleSignOnMode = "oidc"
+        }
+        $SPTemplateObj.customSecurityAttributes.Application.AssuranceLevel = "${{parameters.assuranceLevel}}"
+        $SPTemplateObj.customSecurityAttributes.Application.RequireBankIssuedDevices = "${{parameters.requireBankIssuedDevices}}"
+ 
+        $SpStagingOutput = $SPTemplateObj | ConvertTo-Json -Depth 20
+        $SpStagingFilePath = "$(AppStagingFolderPath)/${{parameters.AppName}}_Sp.json"
+        $SpStagingOutput | Out-File -FilePath $SpStagingFilePath -Force
+ 
+        # Claim Staging File
+        $claimStagingOutput = $templateFileClaimObj | ConvertTo-Json -Depth 30
+        $claimStagingFilePath = "$(AppStagingFolderPath)/${{parameters.AppName}}_customClaims.json"
+        $claimStagingOutput | Out-File -FilePath $claimStagingFilePath -Force
+ 
+  - script: echo Task 2 filename - $(fileName)
+    name: echoOutput
+  - task: PowerShell@2
+    name: gitCommit
+    inputs:  
+      targetType: inline
+      script: |
+        git config --list
+        Write-host 'git add -A'
+        git status
+        git add -A
+        git status
+        git commit -m "Template file created"
+        $retryLimit = 20
+        $i = 0
+        do {
+            $i++
+            Write-Host "Git commit attempt: $i"
+            $waitTime = Get-Random -Minimum 5 -Maximum 15
+            Start-Sleep -s $waitTime
+            $LASTEXITCODE=0
+            Write-host 'git pull --rebase origin $(Build.SourceBranchName)'
+            git pull --rebase origin $(Build.SourceBranchName)
+            Write-host "LASTEXITCODE = $LASTEXITCODE"
+            Write-host 'git push origin HEAD:$(Build.SourceBranchName)'
+            git push origin HEAD:$(Build.SourceBranchName)
+            Write-host "LASTEXITCODE =  $LASTEXITCODE"
+          }while($LASTEXITCODE -and $i -le $retryLimit)
