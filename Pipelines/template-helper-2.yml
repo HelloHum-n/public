@@ -15,7 +15,7 @@ parameters:
   - name: AppName
     displayName: Application Name
     type: string
-    default: $(empty)
+    default: " "
  
   - name: AppType
     displayName: Application Type
@@ -145,8 +145,6 @@ variables:
   - group: ${{parameters.Environment}}-Variables
   - name: tenantIDvar
     value: $[variables.tenantID]
-  - name: empty
-    value: ""
 
 pool:
   vmImage: 'windows-latest'
