@@ -126,7 +126,7 @@ variables:
     value: $[variables.tenantID]
  
 pool:
-  name: CB-CB-02-pool
+  vmImage: 'windows-latest'
  
 jobs:
 - job: ${{ replace(parameters.AppName,'-','_') }}_Create_Template
