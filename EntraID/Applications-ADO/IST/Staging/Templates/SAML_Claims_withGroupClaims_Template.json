@@ -6,7 +6,7 @@
     "claims": [
         {
             "@odata.type": "#microsoft.graph.customClaim",
-            "name": "bnsScotiaID",
+            "name": "referenceClaim",
             "namespace": null,
             "tokenFormat": [
                 "saml"
@@ -17,92 +17,11 @@
                     "condition": null,
                     "attribute": {
                         "@odata.type": "#microsoft.graph.sourcedAttribute",
-                        "id": "employeeid",
+                        "id": "referenceClaim",
                         "source": "user",
                         "isExtensionAttribute": false
                     },
                     "transformations": []
-                }
-            ]
-        },
-        {
-            "@odata.type": "#microsoft.graph.customClaim",
-            "name": "FirstName",
-            "namespace": null,
-            "tokenFormat": [
-                "saml"
-            ],
-            "samlAttributeNameFormat": null,
-            "configurations": [
-                {
-                    "condition": null,
-                    "attribute": {
-                        "@odata.type": "#microsoft.graph.sourcedAttribute",
-                        "id": "givenname",
-                        "source": "user",
-                        "isExtensionAttribute": false
-                    },
-                    "transformations": []
-                }
-            ]
-        },
-        {
-            "@odata.type": "#microsoft.graph.customClaim",
-            "name": "LastName",
-            "namespace": null,
-            "tokenFormat": [
-                "saml"
-            ],
-            "samlAttributeNameFormat": null,
-            "configurations": [
-                {
-                    "condition": null,
-                    "attribute": {
-                        "@odata.type": "#microsoft.graph.sourcedAttribute",
-                        "id": "surname",
-                        "source": "user",
-                        "isExtensionAttribute": false
-                    },
-                    "transformations": []
-                }
-            ]
-        },
-        {
-            "@odata.type": "#microsoft.graph.customClaim",
-            "name": "FullName",
-            "namespace": null,
-            "tokenFormat": [
-                "saml"
-            ],
-            "samlAttributeNameFormat": null,
-            "configurations": [
-                {
-                    "condition": null,
-                    "attribute": null,
-                    "transformations": [
-                        {
-                            "@odata.type": "#microsoft.graph.joinTransformation",
-                            "separator": " ,",
-                            "input": {
-                                "treatAsMultiValue": false,
-                                "attribute": {
-                                    "@odata.type": "#microsoft.graph.sourcedAttribute",
-                                    "id": "givenname",
-                                    "source": "user",
-                                    "isExtensionAttribute": false
-                                }
-                            },
-                            "input2": {
-                                "treatAsMultiValue": false,
-                                "attribute": {
-                                    "@odata.type": "#microsoft.graph.sourcedAttribute",
-                                    "id": "surname",
-                                    "source": "user",
-                                    "isExtensionAttribute": false
-                                }
-                            }
-                        }
-                    ]
                 }
             ]
         },
@@ -152,27 +71,6 @@
                             "additionalAttributes": []
                         }
                     ]
-                }
-            ]
-        },
-        {
-            "@odata.type": "#microsoft.graph.customClaim",
-            "name": "email",
-            "namespace": null,
-            "tokenFormat": [
-                "saml"
-            ],
-            "samlAttributeNameFormat": null,
-            "configurations": [
-                {
-                    "condition": null,
-                    "attribute": {
-                        "@odata.type": "#microsoft.graph.sourcedAttribute",
-                        "id": "userprincipalname",
-                        "source": "user",
-                        "isExtensionAttribute": false
-                    },
-                    "transformations": []
                 }
             ]
         }
