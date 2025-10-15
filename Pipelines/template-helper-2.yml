@@ -112,7 +112,7 @@ parameters:
     type: string
 
   - name: groupclaimName
-    displayName: Claim Name Group - (can be custom)
+    displayName: Claim Name Group - (Optional, leave it as default if not needed)
     default: 'default'
     type: string
  
