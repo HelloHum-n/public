@@ -112,17 +112,17 @@ parameters:
     type: string
 
   - name: groupclaimName
-    displayName: Claim Name (can be custom)
+    displayName: Claim Name Group - (can be custom)
     default: 'default'
     type: string
  
   - name: groupClaimRegex
-    displayName: Claim Value - regex pattern
+    displayName: Claim Value Group - regex pattern
     default: 'default'
     type: string
  
   - name: groupclaimRegexReplace
-    displayName: Claim Value - regex replacement pattern
+    displayName: Claim Value Group - regex replacement pattern
     default: 'default'
     type: string
  
