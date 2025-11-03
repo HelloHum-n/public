@@ -14,8 +14,7 @@ parameters:
  
   - name: AppName
     displayName: Application Name
-    type: string
-    default: ""
+    default: ''
  
   - name: AppType
     displayName: Application Type
@@ -27,13 +26,13 @@ parameters:
  
   - name: EntityID
     displayName: Application entity ID or Identifier URI (EntityID/identifierUris)
-    default: ' '
+    default: ''
     type: string
  
   - name: ACSredirecturi
-    displayName: ACS URL or Redirect URI
-    default: ''
+    displayName: ACS URLs or Redirect URIs
     type: string
+    default: ''
  
   - name: assuranceLevel
     displayName: (Mandatory) Assurance Level of the application
@@ -46,7 +45,15 @@ parameters:
     - Critical
  
   - name: requireBankIssuedDevices
-    displayName: (Mandatory) Requre Bank Issued Devices
+    displayName: (Mandatory) Require Bank Issued Devices
+    default: 'False'
+    type: string
+    values:
+    - True
+    - False
+ 
+  - name: requireVerificationCert
+    displayName: Require verification certificates
     default: 'False'
     type: string
     values:
@@ -71,59 +78,39 @@ parameters:
     displayName: Claim - (Mandatory) User Attribute for the nameidentifier in the claims
     default: 'mail'
     type: string
-
-  - name: optionalclaim1
-    displayName: Claim Name 1 - (Optional, put NA if not needed)
-    default: 'FirstName'
-    type: string
  
-  - name: optionalclaimAttribute1
-    displayName: Claim Value 1
-    default: 'givenname'
-    type: string
-
-  - name: optionalclaim2
-    displayName: Claim Name 2 - (Optional, put NA if not needed)
-    default: 'LastName'
-    type: string
- 
-  - name: optionalclaimAttribute2
-    displayName: Claim Value 2
-    default: 'surname'
-    type: string
-
-  - name: optionalclaim3
-    displayName: Claim Name 3 - (Optional, put NA if not needed)
+  - name: directClaimEmail
+    displayName: Claim Name
     default: 'email'
     type: string
  
-  - name: optionalclaimAttribute3
-    displayName: Claim Value 3
+  - name: directClaimEmailAttribute
+    displayName: Claim Value
     default: 'mail'
     type: string
  
-  - name: optionalclaim4
-    displayName: Claim Name 4 - (Optional, put NA if not needed)
+  - name: SSOID
+    displayName: Claim Name
     default: 'bnsScotiaID or SSOID'
     type: string
  
-  - name: optionalclaimAttribute4
-    displayName: Claim Value 4
+  - name: SSOIDAttribute
+    displayName: Claim Value
     default: 'extension_73f338a4697b4577bd8334ffb89ccdb4_employeeNumber'
     type: string
-
+ 
   - name: groupclaimName
-    displayName: Claim Name Group - (Optional, leave it as default if not needed)
+    displayName: Claim Name (can be custom)
     default: 'default'
     type: string
  
   - name: groupClaimRegex
-    displayName: Claim Value Group - regex pattern
+    displayName: Claim Value - regex pattern
     default: 'default'
     type: string
  
   - name: groupclaimRegexReplace
-    displayName: Claim Value Group - regex replacement pattern
+    displayName: Claim Value - regex replacement pattern
     default: 'default'
     type: string
  
@@ -145,7 +132,7 @@ variables:
   - group: ${{parameters.Environment}}-Variables
   - name: tenantIDvar
     value: $[variables.tenantID]
-
+ 
 pool:
   vmImage: 'windows-latest'
  
@@ -182,14 +169,24 @@ jobs:
           $templateFileAppObj.identifierUris = $arrayEntity
  
           #ACSredirectUris
-          $arrayACSredirecturi = @('${{parameters.ACSredirecturi}}')
+          $arrayACSredirecturi = @()
+          $acsUris = '${{parameters.ACSredirecturi}}'.Split(',')
+          foreach ($uri in $acsUris) {
+              $trimmedUri = $uri.Trim()
+              if ($trimmedUri -ne '') {
+                  $arrayACSredirecturi += $trimmedUri
+              }
+          }
           $templateFileAppObj.web.redirectUris = $arrayACSredirecturi
  
           #Description
           if ("${{parameters.Description}}" -ne "default"){
             $templateFileAppObj.Description = "${{parameters.Description}}"
           }
-          
+          # Require verification cert
+          if ("${{parameters.requireVerificationCert}}" -ne "False"){
+            $templateFileAppObj.requestSignatureVerification.isSignedRequestRequired = "${{parameters.requireVerificationCert}}"
+          }
           # SAML Claims
  
           # no Group Claim
@@ -202,6 +199,17 @@ jobs:
             $nameid.nameIdFormat = "${{parameters.nameidentifierFormat}}"
             $nameid.configurations.attribute.id = "${{parameters.nameidentifierAttribute}}"
  
+            # Scotia ID
+            $emailClaim = $templateFileClaimObj.claims | Where-Object { $_.name -eq "bnsScotiaID" }
+            $emailClaim.name = "${{parameters.SSOID}}"
+            #userprincipalname / mail
+            $emailClaim.configurations.attribute.id = "${{parameters.SSOIDAttribute}}"
+ 
+            # email
+            $emailClaim = $templateFileClaimObj.claims | Where-Object { $_.name -eq "email" }
+            $emailClaim.name = "${{parameters.directClaimEmail}}"
+            #userprincipalname / mail
+            $emailClaim.configurations.attribute.id = "${{parameters.directClaimEmailAttribute}}"
  
             # App manifest template
             $templateFileAppObj.groupMembershipClaims = $null
@@ -218,8 +226,18 @@ jobs:
             #unspecified / emailAddress
             $nameid.nameIdFormat = "${{parameters.nameidentifierFormat}}"
             $nameid.configurations.attribute.id = "${{parameters.nameidentifierAttribute}}"
-
-
+ 
+            # Scotia ID
+            $emailClaim = $templateFileClaimObj.claims | Where-Object { $_.name -eq "bnsScotiaID" }
+            $emailClaim.name = "${{parameters.SSOID}}"
+            #userprincipalname / mail
+            $emailClaim.configurations.attribute.id = "${{parameters.SSOIDAttribute}}"
+ 
+            # email
+            $emailClaim = $templateFileClaimObj.claims | Where-Object { $_.name -eq "email" }
+            $emailClaim.name = "${{parameters.directClaimEmail}}"
+            #userprincipalname / mail
+            $emailClaim.configurations.attribute.id = "${{parameters.directClaimEmailAttribute}}"
  
             # Group
             $groupClaim = $templateFileClaimObj.claims | Where-Object { $_.'name' -eq "defaultGroupClaimName" }
