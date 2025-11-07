@@ -30,7 +30,7 @@ parameters:
     type: string
  
   - name: ACSredirecturi
-    displayName: ACS URLs or Redirect URIs (sperated by commas)
+    displayName: ACS URLs or Redirect URIs (sperated by comma)
     type: string
     default: ''
  
