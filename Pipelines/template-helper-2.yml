@@ -109,12 +109,12 @@ parameters:
     type: string
   
   - name: groupclaimName
-    displayName: (Optional) Claim Name (Can be customized. Put null if no group claim is needed.)
+    displayName: (Optional) Group Claim Name - (Can be customized. Put null if no group claim is needed.)
     default: 'default'
     type: string
  
   - name: groupClaimRegex
-    displayName: (Optional) Claim Value - regex pattern (Leave it as default, if Regex isn't needed)
+    displayName: (Optional) Claim Value - regex match pattern (Leave it as default, if Regex isn't needed)
     default: 'default'
     type: string
  
