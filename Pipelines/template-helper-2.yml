@@ -114,12 +114,12 @@ parameters:
     type: string
  
   - name: groupClaimRegex
-    displayName: (Optional) Claim Value - regex match pattern (Leave it as default, if Regex isn't needed)
+    displayName: (Optional) Claim Value - Group regex match pattern (Leave it as default, if Regex isn't needed)
     default: 'default'
     type: string
  
   - name: groupclaimRegexReplace
-    displayName: (Optional) Claim Value - regex replacement pattern (Leave it as default, if Regex isn't needed)
+    displayName: (Optional) Claim Value - Group regex replacement pattern (Leave it as default, if Regex isn't needed)
     default: 'default'
     type: string
  
