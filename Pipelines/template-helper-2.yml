@@ -79,7 +79,7 @@ parameters:
     type: string
  
   - name: SSOID
-    displayName: (Optional) Claim Name (eg. bnsScotiaID or SSOID'. Leave it as Default if not needed)
+    displayName: (Optional) Claim Name - ScotiaID (eg. bnsScotiaID or SSOID'. Leave it as Default if not needed)
     default: 'Default'
     type: string
  
