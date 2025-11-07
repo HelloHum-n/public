@@ -31,5 +31,29 @@
     "requestSignatureVerification": {
         "isSignedRequestRequired": false,
         "allowedWeakAlgorithms": null
-    }
+    },
+    "optionalClaims": {
+		"accessToken": [
+			{
+				"additionalProperties": [
+					"cloud_displayname"
+				],
+				"essential": false,
+				"name": "groups",
+				"source": null
+			}
+		],
+		"idToken": [
+			{
+				"additionalProperties": [
+					"cloud_displayname"
+				],
+				"essential": false,
+				"name": "groups",
+				"source": null
+			}
+		],
+		"saml2Token": []
+	},
+    "groupMembershipClaims": "ApplicationGroup"
   }
