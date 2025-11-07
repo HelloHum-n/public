@@ -100,17 +100,17 @@ parameters:
     type: string
  
   - name: groupclaimName
-    displayName: Claim Name (can be custom)
+    displayName: Claim Name (Can be customized. Put null if no group claim is needed.)
     default: 'default'
     type: string
  
   - name: groupClaimRegex
-    displayName: Claim Value - regex pattern
+    displayName: Claim Value - regex pattern (Leave it as default, if Regex isn't needed)
     default: 'default'
     type: string
  
   - name: groupclaimRegexReplace
-    displayName: Claim Value - regex replacement pattern
+    displayName: Claim Value - regex replacement pattern (Leave it as default, if Regex isn't needed)
     default: 'default'
     type: string
  
@@ -225,35 +225,57 @@ jobs:
           }
 
           # Group Claim
-          if ( "${{parameters.groupclaimName}}" -eq "default"){
+          if ( "${{parameters.groupclaimName}}" -eq "null"){  # no group claims
             #Removing Group Claim block (only if group claim isn't need)
             $templateFileClaimObj.claims = $templateFileClaimObj.claims | Select-Object * | Where { $_.name -ne "defaultGroupClaimName" }
 
             # App manifest template modify
             $templateFileAppObj.groupMembershipClaims = $null
             $emptyObjArray = New-Object -TypeName System.Collections.ArrayList
+            #Removing the saml2Token block
             $templateFileAppObj.optionalClaims.saml2Token =  $emptyObjArray
-          }else{
-            $groupClaim = $templateFileClaimObj.claims | Where-Object { $_.'name' -eq "defaultGroupClaimName" }
-            $groupClaim.name = "${{parameters.groupclaimName}}"
-            $groupClaim.configurations.transformations.regex = "${{parameters.groupClaimRegex}}"
-            $groupClaim.configurations.transformations.replacement = "${{parameters.groupclaimRegexReplace}}"
+          
+          }else{   #With Group claims
 
-            # App manifest template  modify
-            $groupClaim = $templateFileClaimObj.claims | Where-Object { $_.'name' -eq "defaultGroupClaimName" }
-            $groupClaim.name = "${{parameters.groupclaimName}}"
-            $groupClaim.configurations.transformations.regex = "${{parameters.groupClaimRegex}}"
-            $groupClaim.configurations.transformations.replacement = "${{parameters.groupclaimRegexReplace}}"
+            # Option 1 - default group claim name + no RegEx
+            if ( "${{parameters.groupclaimName}}" -eq "default" -and "${{parameters.groupClaimRegex}}" -eq "default"){
+              #Removing Group Claim block (only if group claim isn't need)
+              $templateFileClaimObj.claims = $templateFileClaimObj.claims | Select-Object * | Where { $_.name -ne "defaultGroupClaimName" }
+
+             # Option 2 - default group claim name + With Regex match and replace
+            }elseif( "${{parameters.groupclaimName}}" -eq "default" -and "${{parameters.groupClaimRegex}}" -ne "default") {
+              $groupClaim = $templateFileClaimObj.claims | Where-Object { $_.'name' -eq "defaultGroupClaimName" }
+              $groupClaim.name = "http://schemas.microsoft.com/ws/2008/06/identity/claims/groups"
+              $groupClaim.configurations.transformations.regex = "${{parameters.groupClaimRegex}}"
+              $groupClaim.configurations.transformations.replacement = "${{parameters.groupclaimRegexReplace}}"
+              
+              # Option 3 - custom Group claim Name + no Regex
+            }elseif( "${{parameters.groupclaimName}}" -ne "default" -and "${{parameters.groupClaimRegex}}" -eq "default") {
+              $groupClaim = $templateFileClaimObj.claims | Where-Object { $_.'name' -eq "defaultGroupClaimName" }
+              $groupClaim.name = "${{parameters.groupclaimName}}"
+              $emptyObjArray = New-Object -TypeName System.Collections.ArrayList
+              # Removing the Transformations blcok
+              $groupClaim.configurations | % { $_.transformations = $emptyObjArray } 
+
+              # Option 4 - custom Group claim Name + With Regex match and replace
+            }else{
+              $groupClaim = $templateFileClaimObj.claims | Where-Object { $_.'name' -eq "defaultGroupClaimName" }
+              $groupClaim.name = "${{parameters.groupclaimName}}"
+              $groupClaim.configurations.transformations.regex = "${{parameters.groupClaimRegex}}"
+              $groupClaim.configurations.transformations.replacement = "${{parameters.groupclaimRegexReplace}}"
+
+            }
+            # App manifest template  modify ** nothing to change **
           }
 
-          #Removing Reference Claims
+          #Removing Reference Claims block
           $templateFileClaimObj.claims = $templateFileClaimObj.claims | Select-Object * | Where { $_.name -ne "referenceClaim" } 
 
 
           ################################################
           # OIDC Apps.                                   #
           ################################################
-        }else{
+        }else{ #OIDC
           
         }
  
