@@ -89,12 +89,12 @@ parameters:
     type: string
 
   - name: claim1
-    displayName: (Optional) Claim Name
+    displayName: (Optional) Claim Name - Claim 1
     default: 'Default'
     type: string
  
   - name: claim1Attribute
-    displayName: Claim Value
+    displayName: Claim Value - Claim 1
     default: 'Default'
     type: string
  
