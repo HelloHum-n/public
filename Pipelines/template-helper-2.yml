@@ -99,12 +99,12 @@ parameters:
     type: string
  
   - name: TransitId
-    displayName: (Optional) Claim Name
+    displayName: (Optional) Claim Name - TransitId
     default: 'Default'
     type: string
  
   - name: TransitIdAttribute
-    displayName: Claim Attribute
+    displayName: Claim Attribute - TransitId
     default: 'Default'
     type: string
   
