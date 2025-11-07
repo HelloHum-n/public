@@ -74,7 +74,7 @@ parameters:
     - unspecified
  
   - name: nameidentifierAttribute
-    displayName: Claim - (Mandatory) User Attribute for the nameidentifier in the claims
+    displayName: (Mandatory) Claim Value -  User Attribute for the nameId
     default: 'mail'
     type: string
  
