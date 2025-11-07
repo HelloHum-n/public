@@ -13,11 +13,11 @@ parameters:
     - PRD
  
   - name: AppName
-    displayName: Application Name
+    displayName: (Mandatory) Application Name
     default: ''
  
   - name: AppType
-    displayName: Application Type
+    displayName: (Mandatory) Application Type
     default: 'SAML'
     type: string
     values:
@@ -25,12 +25,12 @@ parameters:
     - OIDC
  
   - name: EntityID
-    displayName: Application entity ID or Identifier URI (EntityID/identifierUris)
+    displayName: (Mandatory) Application entity ID or Identifier URI (EntityID/identifierUris)
     default: ''
     type: string
  
   - name: ACSredirecturi
-    displayName: ACS URLs or Redirect URIs (sperated by comma)
+    displayName: (Mandatory) ACS URLs or Redirect URIs (sperated by comma)
     type: string
     default: ''
  
@@ -53,7 +53,7 @@ parameters:
     - False
  
   - name: requireVerificationCert
-    displayName: Require verification certificates
+    displayName: (Mandatory) Require verification certificates
     default: 'False'
     type: string
     values:
@@ -66,7 +66,7 @@ parameters:
     type: string
  
   - name: nameIdFormat
-    displayName: Claim Name (SAML2 only)- Unique User Identifier (Name ID)
+    displayName: (Mandatory) Claim Name (SAML2 only)- Unique User Identifier (Name ID)
     default: 'emailAddress'
     type: string
     values:
@@ -79,7 +79,7 @@ parameters:
     type: string
  
   - name: SSOID
-    displayName: Claim Name (eg. bnsScotiaID or SSOID'. Leave it as Default if not needed)
+    displayName: (Optional) Claim Name (eg. bnsScotiaID or SSOID'. Leave it as Default if not needed)
     default: 'Default'
     type: string
  
@@ -89,7 +89,7 @@ parameters:
     type: string
 
   - name: claim1
-    displayName: Claim Name
+    displayName: (Optional) Claim Name
     default: 'Default'
     type: string
  
@@ -99,27 +99,27 @@ parameters:
     type: string
  
   - name: TransitId
-    displayName: Claim Name
+    displayName: (Optional) Claim Name
     default: 'Default'
     type: string
  
   - name: TransitIdAttribute
-    displayName: Claim Value
+    displayName: Claim Attribute
     default: 'Default'
     type: string
   
   - name: groupclaimName
-    displayName: Claim Name (Can be customized. Put null if no group claim is needed.)
+    displayName: (Optional) Claim Name (Can be customized. Put null if no group claim is needed.)
     default: 'default'
     type: string
  
   - name: groupClaimRegex
-    displayName: Claim Value - regex pattern (Leave it as default, if Regex isn't needed)
+    displayName: (Optional) Claim Value - regex pattern (Leave it as default, if Regex isn't needed)
     default: 'default'
     type: string
  
   - name: groupclaimRegexReplace
-    displayName: Claim Value - regex replacement pattern (Leave it as default, if Regex isn't needed)
+    displayName: (Optional) Claim Value - regex replacement pattern (Leave it as default, if Regex isn't needed)
     default: 'default'
     type: string
  
