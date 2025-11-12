@@ -236,7 +236,7 @@ jobs:
             $claim1.name = "${{parameters.claim1}}"
             $claim1.configurations.attribute.id = "${{parameters.claim1Attribute}}"
             #Add Obj to Claims object
-            $templateFileClaimObj.claims += $TransitIDClaim
+            $templateFileClaimObj.claims += $claim1
           }
 
           # Group Claim
