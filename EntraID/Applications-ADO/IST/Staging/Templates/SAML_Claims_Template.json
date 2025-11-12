@@ -44,10 +44,10 @@
         },
         {
             "@odata.type": "#microsoft.graph.customClaim",
-            "name": "defaultGroupClaimName",
+            "name": "testgroup",
             "namespace": null,
             "tokenFormat": [
-                "saml"
+                "jwt"
             ],
             "samlAttributeNameFormat": null,
             "configurations": [
