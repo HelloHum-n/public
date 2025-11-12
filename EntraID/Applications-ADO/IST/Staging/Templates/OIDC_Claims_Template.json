@@ -36,13 +36,24 @@
             "configurations": [
                 {
                     "condition": null,
-                    "attribute": {
-                        "@odata.type": "#microsoft.graph.sourcedAttribute",
-                        "id": "groups",
-                        "source": "user",
-                        "isExtensionAttribute": false
-                    },
-                    "transformations": []
+                    "attribute": null,
+                    "transformations": [
+                        {
+                            "@odata.type": "#microsoft.graph.regexReplaceTransformation",
+                            "regex": "^APP-BDR8-(?<type>fraud|lockbox|proofs|fraud-supervisor|proofs-supervisor)$",
+                            "replacement": "^TEST-BDR8-(?<type>fraud|lockbox|proofs|fraud-supervisor|proofs-supervisor)$",
+                            "input": {
+                                "treatAsMultiValue": true,
+                                "attribute": {
+                                    "@odata.type": "#microsoft.graph.sourcedAttribute",
+                                    "id": "groups",
+                                    "source": "user",
+                                    "isExtensionAttribute": false
+                                }
+                            },
+                            "additionalAttributes": []
+                        }
+                    ]
                 }
             ]
         }
