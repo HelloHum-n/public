@@ -269,8 +269,15 @@ jobs:
               $groupClaim = $templateFileClaimObj.claims | Where-Object { $_.'name' -eq "defaultGroupClaimName" }
               $groupClaim.name = "${{parameters.groupclaimName}}"
               $emptyObjArray = New-Object -TypeName System.Collections.ArrayList
-              # Removing the Transformations blcok
+              # Removing the Transformations block
               $groupClaim.configurations | % { $_.transformations = $emptyObjArray } 
+              # Creating the attribute block
+              $attributeObj = New-Object PSObject
+              $attributeObj  | Add-Member -MemberType NoteProperty -Name "@odata.type"  -Value "#microsoft.graph.sourcedAttribute"
+              $attributeObj  | Add-Member -MemberType NoteProperty -Name "id"  -Value "groups"
+              $attributeObj  | Add-Member -MemberType NoteProperty -Name "source"  -Value "user"   
+              $attributeObj  | Add-Member -MemberType NoteProperty -Name "isExtensionAttribute"  -Value "false"   
+              $groupClaim.configurations | % { $_.attribute = $attributeObj } 
 
               # Option 4 - custom Group claim Name + With Regex match and replace
             }else{
