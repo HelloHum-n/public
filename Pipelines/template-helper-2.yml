@@ -94,7 +94,7 @@ parameters:
     type: string
  
   - name: claim1Attribute
-    displayName: Claim Value - Claim 1
+    displayName: Claim Attribute - Claim 1
     default: 'Default'
     type: string
  
@@ -207,7 +207,9 @@ jobs:
           $NameIDClaim = $templateFileClaimObj.claims | Where-Object { $_."@odata.type" -eq '#microsoft.graph.samlNameIdClaim' }
           $NameIDClaim.nameIdFormat = "${{parameters.nameIdFormat}}"
           $NameIDClaim.configurations.attribute.id = "${{parameters.nameidentifierAttribute}}"
-
+          if ( "${{parameters.nameidentifierAttribute}}" -like "extension_*"){
+            $NameIDClaim.configurations.attribute.isExtensionAttribute = "true"
+          }
           # Get REF claims object
           $ReferenceClaim = $templateFileClaimObj.claims | Where-Object { $_.name -eq "referenceClaim" }
 
@@ -216,6 +218,9 @@ jobs:
             $scotiaIDClaim = $ReferenceClaim | ConvertTo-Json -Depth 10 | ConvertFrom-Json
             $scotiaIDClaim.name = "${{parameters.SSOID}}"
             $scotiaIDClaim.configurations.attribute.id = "${{parameters.SSOIDAttribute}}"
+            if ( "${{parameters.SSOIDAttribute}}" -like "extension_*"){
+              $scotiaIDClaim.configurations.attribute.isExtensionAttribute = "true"
+            }
             #Add Obj to Claims object
             $templateFileClaimObj.claims += $scotiaIDClaim
           }
@@ -225,6 +230,9 @@ jobs:
             $TransitIDClaim = $ReferenceClaim | ConvertTo-Json -Depth 10 | ConvertFrom-Json
             $TransitIDClaim.name = "${{parameters.TransitId}}"
             $TransitIDClaim.configurations.attribute.id = "${{parameters.TransitIdAttribute}}"
+            if ( "${{parameters.TransitIdAttribute}}" -like "extension_*"){
+              $TransitIDClaim.configurations.attribute.isExtensionAttribute = "true"
+            }
             #Add Obj to Claims object
             $templateFileClaimObj.claims += $TransitIDClaim
           }
@@ -235,6 +243,9 @@ jobs:
             $claim1 = $ReferenceClaim | ConvertTo-Json -Depth 10 | ConvertFrom-Json
             $claim1.name = "${{parameters.claim1}}"
             $claim1.configurations.attribute.id = "${{parameters.claim1Attribute}}"
+            if ( "${{parameters.claim1Attribute}}" -like "extension_*"){
+              $claim1.configurations.attribute.isExtensionAttribute = "true"
+            }
             #Add Obj to Claims object
             $templateFileClaimObj.claims += $claim1
           }
