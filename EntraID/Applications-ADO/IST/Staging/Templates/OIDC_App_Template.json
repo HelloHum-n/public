@@ -35,9 +35,7 @@
     "optionalClaims": {
 		"accessToken": [
 			{
-				"additionalProperties": [
-					"cloud_displayname"
-				],
+				"additionalProperties": [],
 				"essential": false,
 				"name": "groups",
 				"source": null
@@ -45,9 +43,7 @@
 		],
 		"idToken": [
 			{
-				"additionalProperties": [
-					"cloud_displayname"
-				],
+				"additionalProperties": [],
 				"essential": false,
 				"name": "groups",
 				"source": null
