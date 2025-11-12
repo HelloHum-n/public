@@ -254,7 +254,7 @@ jobs:
 
             # Option 1 - default group claim name + no RegEx
             if ( "${{parameters.groupclaimName}}" -eq "default" -and "${{parameters.groupClaimRegex}}" -eq "default"){
-              #Removing Group Claim block (only if group claim isn't need)
+              #Removing Group Claim block 
               $templateFileClaimObj.claims = $templateFileClaimObj.claims | Select-Object * | Where { $_.name -ne "defaultGroupClaimName" }
 
              # Option 2 - default group claim name + With Regex match and replace
