@@ -1,7 +1,4 @@
 {
-    "@odata.context": "https://graph.microsoft.com/beta/$metadata#servicePrincipals('51e4b943-2da3-40e5-b39a-30c4bef55558')/claimsPolicy/$entity",
-    "@microsoft.graph.tips": "Use $select to choose only the properties your app needs, as this can lead to performance improvements. For example: GET servicePrincipals('<guid>')/claimsPolicy?$select=audienceOverride,claims",
-    "id": "c50cb0f3-ab3e-4d43-8522-9363aa47337f",
     "includeBasicClaimSet": true,
     "includeApplicationIdInIssuer": false,
     "audienceOverride": null,
@@ -23,27 +20,6 @@
                         "id": "extension_e6ebddfff42e479a9ce42a1132e5cfe3_street",
                         "source": "user",
                         "isExtensionAttribute": true
-                    },
-                    "transformations": []
-                }
-            ]
-        },
-        {
-            "@odata.type": "#microsoft.graph.customClaim",
-            "name": "emailAddress",
-            "namespace": null,
-            "tokenFormat": [
-                "jwt"
-            ],
-            "samlAttributeNameFormat": null,
-            "configurations": [
-                {
-                    "condition": null,
-                    "attribute": {
-                        "@odata.type": "#microsoft.graph.sourcedAttribute",
-                        "id": "mail",
-                        "source": "user",
-                        "isExtensionAttribute": false
                     },
                     "transformations": []
                 }
