@@ -135,7 +135,9 @@ variables:
   - name: OIDCappTemplateName
     value: "OIDC/OIDC_App_Template.json"
   - name: SAMLClaimsTemplateName
-    value: "SAML_Claims_Template.json"  
+    value: "SAML_Claims_Template.json"
+  - name: OIDCClaimsTemplateName
+    value: "OIDC_Claims_Template.json"
   - group: ${{parameters.Environment}}-Variables
   - name: tenantIDvar
     value: $[variables.tenantID]
@@ -162,11 +164,12 @@ jobs:
           # SAML Apps.                                   #
           ################################################
         if ( "${{parameters.AppType}}" -eq "SAML" ){
-          $templateFileAppObj = Get-content -Path "$(templateFolderPath)/$(SAMLappTemplateName)" -RAW | ConvertFrom-Json
-                  
+                      
           ###########################
           ### Begin: App Template ###
           
+          $templateFileAppObj = Get-content -Path "$(templateFolderPath)/$(SAMLappTemplateName)" -RAW | ConvertFrom-Json
+
           #AppName
           $templateFileAppObj.displayName = "${{parameters.AppName}}"
  
@@ -249,6 +252,7 @@ jobs:
             #Add Obj to Claims object
             $templateFileClaimObj.claims += $claim1
           }
+          ##########################################################
 
           # Group Claim
           if ( "${{parameters.groupclaimName}}" -eq "null"){  # no group claims
@@ -304,6 +308,8 @@ jobs:
           #Removing Reference Claims block
           $templateFileClaimObj.claims = $templateFileClaimObj.claims | Select-Object * | Where { $_.name -ne "referenceClaim" } 
 
+          ### End: Claims Template ###
+          ############################
 
           ################################################
           # OIDC Apps.                                   #
@@ -312,7 +318,8 @@ jobs:
 
           ###########################
           ### Begin: App Template ###
-          
+
+          $templateFileAppObj = Get-content -Path "$(templateFolderPath)/$(OIDCappTemplateName)" -RAW | ConvertFrom-Json  
           #AppName
           $templateFileAppObj.displayName = "${{parameters.AppName}}"
  
@@ -337,7 +344,115 @@ jobs:
           }
 
           ### End: App Template ###
-          #########################         
+          #########################
+
+          #######################
+          ### Claims Template ###
+
+          $templateFileClaimObj = Get-content -Path "$(templateFolderPath)/$(OIDCClaimsTemplateName)" -RAW | ConvertFrom-Json
+
+          # Get REF claims object
+          $ReferenceClaim = $templateFileClaimObj.claims | Where-Object { $_.name -eq "referenceClaim" }
+
+          # Scotia ID
+          if ( "${{parameters.SSOID}}" -ne "Default"){
+            $scotiaIDClaim = $ReferenceClaim | ConvertTo-Json -Depth 10 | ConvertFrom-Json
+            $scotiaIDClaim.name = "${{parameters.SSOID}}"
+            $scotiaIDClaim.configurations.attribute.id = "${{parameters.SSOIDAttribute}}"
+            if ( "${{parameters.SSOIDAttribute}}" -like "extension_*"){
+              $scotiaIDClaim.configurations.attribute.isExtensionAttribute = "true"
+            }
+            #Add Obj to Claims object
+            $templateFileClaimObj.claims += $scotiaIDClaim
+          }
+
+          # Transit ID
+          if ( "${{parameters.TransitId}}" -ne "default"){
+            $TransitIDClaim = $ReferenceClaim | ConvertTo-Json -Depth 10 | ConvertFrom-Json
+            $TransitIDClaim.name = "${{parameters.TransitId}}"
+            $TransitIDClaim.configurations.attribute.id = "${{parameters.TransitIdAttribute}}"
+            if ( "${{parameters.TransitIdAttribute}}" -like "extension_*"){
+              $TransitIDClaim.configurations.attribute.isExtensionAttribute = "true"
+            }
+            #Add Obj to Claims object
+            $templateFileClaimObj.claims += $TransitIDClaim
+          }
+
+          ##### Duplicate this block for more optional claims #####
+          # Claim 1
+          if ( "${{parameters.claim1}}" -ne "default"){
+            $claim1 = $ReferenceClaim | ConvertTo-Json -Depth 10 | ConvertFrom-Json
+            $claim1.name = "${{parameters.claim1}}"
+            $claim1.configurations.attribute.id = "${{parameters.claim1Attribute}}"
+            if ( "${{parameters.claim1Attribute}}" -like "extension_*"){
+              $claim1.configurations.attribute.isExtensionAttribute = "true"
+            }
+            #Add Obj to Claims object
+            $templateFileClaimObj.claims += $claim1
+          }
+          ##########################################################
+
+          # Group Claim
+          if ( "${{parameters.groupclaimName}}" -eq "null"){  # no group claims
+            #Removing Group Claim block (only if group claim isn't need)
+            $templateFileClaimObj.claims = $templateFileClaimObj.claims | Select-Object * | Where { $_.name -ne "defaultGroupClaimName" }
+
+            # App manifest template modify
+            $templateFileAppObj.groupMembershipClaims = $null
+            $emptyObjArray = New-Object -TypeName System.Collections.ArrayList
+            #Removing the accessToken block
+            $templateFileAppObj.optionalClaims.accessToken =  $emptyObjArray
+            #Removing the idToken block
+            $templateFileAppObj.optionalClaims.idToken =  $emptyObjArray
+
+          }else{   #With Group claims
+
+            # Option 1 - default group claim name + no RegEx
+            if ( "${{parameters.groupclaimName}}" -eq "default" -and "${{parameters.groupClaimRegex}}" -eq "default"){
+              #Removing Group Claim block 
+              $templateFileClaimObj.claims = $templateFileClaimObj.claims | Select-Object * | Where { $_.name -ne "defaultGroupClaimName" }
+
+             # Option 2 - default group claim name + With Regex match and replace
+            }elseif( "${{parameters.groupclaimName}}" -eq "default" -and "${{parameters.groupClaimRegex}}" -ne "default") {
+              $groupClaim = $templateFileClaimObj.claims | Where-Object { $_.'name' -eq "defaultGroupClaimName" }
+              $groupClaim.name = "group"
+              $groupClaim.configurations.transformations.regex = "${{parameters.groupClaimRegex}}"
+              $groupClaim.configurations.transformations.replacement = "${{parameters.groupclaimRegexReplace}}"
+              
+              # Option 3 - custom Group claim Name + no Regex
+            }elseif( "${{parameters.groupclaimName}}" -ne "default" -and "${{parameters.groupClaimRegex}}" -eq "default") {
+              $groupClaim = $templateFileClaimObj.claims | Where-Object { $_.'name' -eq "defaultGroupClaimName" }
+              $groupClaim.name = "${{parameters.groupclaimName}}"
+              $emptyObjArray = New-Object -TypeName System.Collections.ArrayList
+              # Removing the Transformations block
+              $groupClaim.configurations | % { $_.transformations = $emptyObjArray } 
+              # Creating the attribute block
+              $attributeObj = New-Object PSObject
+              $attributeObj  | Add-Member -MemberType NoteProperty -Name "@odata.type"  -Value "#microsoft.graph.sourcedAttribute"
+              $attributeObj  | Add-Member -MemberType NoteProperty -Name "id"  -Value "groups"
+              $attributeObj  | Add-Member -MemberType NoteProperty -Name "source"  -Value "user"   
+              $attributeObj  | Add-Member -MemberType NoteProperty -Name "isExtensionAttribute"  -Value "false"   
+              $groupClaim.configurations | % { $_.attribute = $attributeObj } 
+
+              # Option 4 - custom Group claim Name + With Regex match and replace
+            }else{
+              $groupClaim = $templateFileClaimObj.claims | Where-Object { $_.'name' -eq "defaultGroupClaimName" }
+              $groupClaim.name = "${{parameters.groupclaimName}}"
+              $groupClaim.configurations.transformations.regex = "${{parameters.groupClaimRegex}}"
+              $groupClaim.configurations.transformations.replacement = "${{parameters.groupclaimRegexReplace}}"
+
+            }
+            # App manifest template  modify ** nothing to change **
+          }
+
+          #Removing Reference Claims block
+          $templateFileClaimObj.claims = $templateFileClaimObj.claims | Select-Object * | Where { $_.name -ne "referenceClaim" } 
+
+          ### End: Claims Template ###
+          ############################
+
+
+
         }
  
         ################################################
