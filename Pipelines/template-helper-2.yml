@@ -309,7 +309,35 @@ jobs:
           # OIDC Apps.                                   #
           ################################################
         }else{ #OIDC
+
+          ###########################
+          ### Begin: App Template ###
           
+          #AppName
+          $templateFileAppObj.displayName = "${{parameters.AppName}}"
+ 
+          #EntityID
+          $arrayEntity = @('${{parameters.EntityID}}')
+          $templateFileAppObj.identifierUris = $arrayEntity
+ 
+          #ACSredirectUris
+          $arrayACSredirecturi = @()
+          $acsUris = '${{parameters.ACSredirecturi}}'.Split(',')
+          foreach ($uri in $acsUris) {
+              $trimmedUri = $uri.Trim()
+              if ($trimmedUri -ne '') {
+                  $arrayACSredirecturi += $trimmedUri
+              }
+          }
+          $templateFileAppObj.web.redirectUris = $arrayACSredirecturi
+ 
+          #Description
+          if ("${{parameters.Description}}" -ne "Default"){
+            $templateFileAppObj.Description = "${{parameters.Description}}"
+          }
+
+          ### End: App Template ###
+          #########################         
         }
  
         ################################################
