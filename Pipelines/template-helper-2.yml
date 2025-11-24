@@ -141,6 +141,8 @@ variables:
   - group: ${{parameters.Environment}}-Variables
   - name: tenantIDvar
     value: $[variables.tenantID]
+  - name: customAuthenticationExtensionName
+    value: GroupNames
  
 pool:
   vmImage: 'windows-latest'
@@ -392,8 +394,10 @@ jobs:
           }
           ##########################################################
 
-          # Group Claim
-          if ( "${{parameters.groupclaimName}}" -eq "null"){  # no group claims
+          #### Group Claim ####
+
+          # Without Group Claims
+          if ( "${{parameters.groupclaimName}}" -eq "null"){  
             #Removing Group Claim block (only if group claim isn't need)
             $templateFileClaimObj.claims = $templateFileClaimObj.claims | Select-Object * | Where { $_.name -ne "defaultGroupClaimName" }
 
@@ -404,45 +408,38 @@ jobs:
             $templateFileAppObj.optionalClaims.accessToken =  $emptyObjArray
             #Removing the idToken block
             $templateFileAppObj.optionalClaims.idToken =  $emptyObjArray
+          
+          # With Group claims
+          }else{  
 
-          }else{   #With Group claims
-
-            # Option 1 - default group claim name + no RegEx
+            # Option 1 - default Group claim Name (aka Groups) providing **group ID**
             if ( "${{parameters.groupclaimName}}" -eq "default" -and "${{parameters.groupClaimRegex}}" -eq "default"){
               #Removing Group Claim block 
               $templateFileClaimObj.claims = $templateFileClaimObj.claims | Select-Object * | Where { $_.name -ne "defaultGroupClaimName" }
-
-             # Option 2 - default group claim name + With Regex match and replace
-            }elseif( "${{parameters.groupclaimName}}" -eq "default" -and "${{parameters.groupClaimRegex}}" -ne "default") {
-              $groupClaim = $templateFileClaimObj.claims | Where-Object { $_.'name' -eq "defaultGroupClaimName" }
-              $groupClaim.name = "group"
-              $groupClaim.configurations.transformations.regex = "${{parameters.groupClaimRegex}}"
-              $groupClaim.configurations.transformations.replacement = "${{parameters.groupclaimRegexReplace}}"
               
-              # Option 3 - custom Group claim Name + no Regex
+              # Option 2 - custom Group claim Name ( Custom Claim provider/logic app providing **Cloud groups displayname**)
             }elseif( "${{parameters.groupclaimName}}" -ne "default" -and "${{parameters.groupClaimRegex}}" -eq "default") {
-              $groupClaim = $templateFileClaimObj.claims | Where-Object { $_.'name' -eq "defaultGroupClaimName" }
-              $groupClaim.name = "${{parameters.groupclaimName}}"
+              #Removing Group Claim block (only if group claim isn't need)
+              $templateFileClaimObj.claims = $templateFileClaimObj.claims | Select-Object * | Where { $_.name -ne "defaultGroupClaimName" }
+
+              # Custom authentication extensions aka Custom Claim provider
+              if ( "${{parameters.groupclaimName}}" -ne "default"){
+                $customGroupclaim = $ReferenceClaim | ConvertTo-Json -Depth 10 | ConvertFrom-Json
+                $customGroupclaim.name = "${{parameters.groupclaimName}}"
+                $customGroupclaim.configurations.attribute.id = "$(customAuthenticationExtensionName)"
+                $customGroupclaim.source = "customclaimsprovider"
+                #Add Obj to Claims object
+                $templateFileClaimObj.claims += $customGroupclaim
+              }
+
+              # App manifest template modify
+              $templateFileAppObj.groupMembershipClaims = $null
               $emptyObjArray = New-Object -TypeName System.Collections.ArrayList
-              # Removing the Transformations block
-              $groupClaim.configurations | % { $_.transformations = $emptyObjArray } 
-              # Creating the attribute block
-              $attributeObj = New-Object PSObject
-              $attributeObj  | Add-Member -MemberType NoteProperty -Name "@odata.type"  -Value "#microsoft.graph.sourcedAttribute"
-              $attributeObj  | Add-Member -MemberType NoteProperty -Name "id"  -Value "groups"
-              $attributeObj  | Add-Member -MemberType NoteProperty -Name "source"  -Value "user"   
-              $attributeObj  | Add-Member -MemberType NoteProperty -Name "isExtensionAttribute"  -Value "false"   
-              $groupClaim.configurations | % { $_.attribute = $attributeObj } 
-
-              # Option 4 - custom Group claim Name + With Regex match and replace
-            }else{
-              $groupClaim = $templateFileClaimObj.claims | Where-Object { $_.'name' -eq "defaultGroupClaimName" }
-              $groupClaim.name = "${{parameters.groupclaimName}}"
-              $groupClaim.configurations.transformations.regex = "${{parameters.groupClaimRegex}}"
-              $groupClaim.configurations.transformations.replacement = "${{parameters.groupclaimRegexReplace}}"
-
+              #Removing the accessToken block
+              $templateFileAppObj.optionalClaims.accessToken =  $emptyObjArray
+              #Removing the idToken block
+              $templateFileAppObj.optionalClaims.idToken =  $emptyObjArray
             }
-            # App manifest template  modify ** nothing to change **
           }
 
           #Removing Reference Claims block
@@ -450,9 +447,6 @@ jobs:
 
           ### End: Claims Template ###
           ############################
-
-
-
         }
  
         ################################################
