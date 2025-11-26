@@ -127,17 +127,17 @@ variables:
   - name: stepSucceed
     value: false
   - name: AppStagingFolderPath
-    value: "./${{parameters.Environment}}/Staging"
+    value: "EntraID/Applications-ADO/${{parameters.Environment}}/Staging"
   - name: templateFolderPath
-    value: "EntraID/Applications-ADO/IST/Staging/Templates"
+    value: "EntraID/Applications-ADO/${{parameters.Environment}}/Staging/Templates"
   - name: SAMLappTemplateName
-    value: "SAML_App_Template.json"
+    value: "SAML/SAML_App_Template.json"
   - name: OIDCappTemplateName
     value: "OIDC/OIDC_App_Template.json"
   - name: SAMLClaimsTemplateName
-    value: "SAML_Claims_Template.json"
+    value: "SAML/SAML_Claims_Template.json"
   - name: OIDCClaimsTemplateName
-    value: "OIDC_Claims_Template.json"
+    value: "OIDC/OIDC_Claims_Template.json"
   - group: ${{parameters.Environment}}-Variables
   - name: tenantIDvar
     value: $[variables.tenantID]
