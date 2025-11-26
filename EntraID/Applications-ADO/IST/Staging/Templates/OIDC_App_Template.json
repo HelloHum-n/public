@@ -35,7 +35,9 @@
     "optionalClaims": {
 		"accessToken": [
 			{
-				"additionalProperties": [],
+				"additionalProperties": [
+                    "sam_account_name"
+                ],
 				"essential": false,
 				"name": "groups",
 				"source": null
@@ -43,7 +45,9 @@
 		],
 		"idToken": [
 			{
-				"additionalProperties": [],
+				"additionalProperties": [
+                    "sam_account_name"
+                ],
 				"essential": false,
 				"name": "groups",
 				"source": null
