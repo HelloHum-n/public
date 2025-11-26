@@ -412,14 +412,15 @@ jobs:
           # With Group claims
           }else{  
 
-            # Option 1 - default Group claim Name (aka Groups) providing **group ID**
+            # Option 1 - default Group claim Name (aka Groups) providing ** Hybrid groups' SamAccountName ** WITHOUT Regex
             if ( "${{parameters.groupclaimName}}" -eq "default" -and "${{parameters.groupClaimRegex}}" -eq "default"){
               #Removing Group Claim block 
               $templateFileClaimObj.claims = $templateFileClaimObj.claims | Select-Object * | Where { $_.name -ne "defaultGroupClaimName" }
               
               # Option 2 - custom Group claim Name ( Custom Claim provider/logic app providing **Cloud groups displayname**)
             }elseif( "${{parameters.groupclaimName}}" -ne "default" -and "${{parameters.groupClaimRegex}}" -eq "default") {
-              #Removing Group Claim block (only if group claim isn't need)
+              
+              #Removing Group Claim block (out of the box group claim)
               $templateFileClaimObj.claims = $templateFileClaimObj.claims | Select-Object * | Where { $_.name -ne "defaultGroupClaimName" }
 
               # Custom authentication extensions aka Custom Claim provider
@@ -439,6 +440,15 @@ jobs:
               $templateFileAppObj.optionalClaims.accessToken =  $emptyObjArray
               #Removing the idToken block
               $templateFileAppObj.optionalClaims.idToken =  $emptyObjArray
+            
+              # Option 3 - custom Group claim Name providing ** Hybrid groups' SamAccountName WITH Regex Match & Replace **
+            }elseif( "${{parameters.groupclaimName}}" -ne "default" -and "${{parameters.groupClaimRegex}}" -ne "default") {
+
+              $groupClaim = $templateFileClaimObj.claims | Where-Object { $_.'name' -eq "defaultGroupClaimName" }
+              $groupClaim.name = "${{parameters.groupclaimName}}"
+              $groupClaim.configurations.transformations.regex = "${{parameters.groupClaimRegex}}"
+              $groupClaim.configurations.transformations.replacement = "${{parameters.groupclaimRegexReplace}}"
+
             }
           }
 
